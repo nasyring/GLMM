@@ -1,2 +1,7 @@
 introduction
 intro
+poisson-regression
+children-ever-born-data
+defining-glms
+fitting-glms
+irls-for-the-ceb-data

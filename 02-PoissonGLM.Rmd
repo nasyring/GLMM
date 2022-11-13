@@ -1,0 +1,126 @@
+# Poisson Regression
+
+## Children Ever Born Data
+
+The "Children Ever Born" (CEB) dataset consists of grouped data on the number of births of Fijian women.  The women are described according to their marriage duration in ordinal levels: (1=0-4, 2=5-9, 3=10-14, 4=15-19, 5=20-24, 6=25-29); their place of residence (Suva, the capital city; Urban; Rural); and, their level of education (none, lower primary, upper primary, secondary or greater).  The count, mean, and variance of the number of children ever born, and the group size, is given for each group of women by cross-classified factorial level.  These summaries are sufficient to model counts of children ever born by a Poisson distribution (each individual woman's count in not needed).<br><br>
+
+The CEB data is an example of an observational dataset --- the characteristics of the individuals are inherent rather than set by experimenters as in an experimental/controlled trial, that should be clear from the context.  Several interesting questions may be answered using this data, such as: are more or fewer born children associated with higher or lower education among Fijian women; does an urban versus rural living location influence the number of children ever born; and, do the number of children ever born steadily increase with marrige duration, or tend to plateau?
+
+```{r echo=FALSE}
+xfun::embed_file('ceb.dat')
+```
+
+```{r}
+ceb <- read.table('ceb.dat')
+head(ceb)
+```
+
+A statistician (or student statistician) familiar with multiple linear regression and/or ANOVA for factorial experiments may instinctively choose to fit a Gauss-Markov linear model to the CEB data, treating the responses as independent normal random variables.  However, since the responses are counts, a Poisson model is more reasonable.  But, just how does one perform *Poisson regression*? --- as opposed to the familiar multiple linear regression described by the Gauss-Markov model:
+\[Y = X\beta+ \epsilon, \quad \epsilon \sim N_{n}(0_{n\times 1}, \sigma^2 I_n).\]
+
+That is the motivation for this chapter, in which we will explore the family of *Generalized Linear Models* from defining and fitting the model, to performing inference and model diagnostics, all within the context of the CEB example.
+
+## Defining GLMs
+
+For the CEB data we naturally want to model the CEB grouped counts as realizations of Poisson r.v.'s with means $n_{j}x^\top_j\beta$ where $n_j$ is the number of women in the $j^{\text{th}}$ factorial group, $x_j$ is the vector of their common covariates, and $\beta$ is the common regression coefficient vector.  Then, the likelihood of the model is
+\[L(\beta;\text{data}) = \prod_{j=1}^{70}\frac{(n_{j}x^\top_j\beta)^{y_j}e^{-n_{j}x^\top_j\beta}}{y_j!}\]
+and the loglikelihood is given by
+\[\ell(\beta;\text{data}) = \text{constant} + \sum_{j=1}^{70}y_j\log(n_{j}x^\top_j\beta) - n_{j}x^\top_j\beta.\]
+The Poisson likelihood is a member of the Exponential Family, which contains all distributions with PDFs that may be expressed as 
+\[f(y;\theta,\phi) = \exp\{[y\theta - b(\theta)]/a(\phi) + c(y,\phi)\}.\]
+Looking ahead, we will apply the exponential family model above to independent but not identically distributed responses, similar to the data we encounter in multiple linear regression and the Gauss-Markov model, so we will allow $\theta$ as well as the forms of the $a$, $b$, and $c$ functions to vary over observations, but we will fix $\phi$, so that the loglikelihood for a sample of size $n$ may be written as follows:
+\[\ell(\beta;\text{data}) = \sum_{i=1}^n \{[y_i\theta_i - b_i(\theta_i)]/a_i(\phi) + c_i(\phi, y_i)\}.\]
+The Poisson regression model is a fairly simple member of this family, having $\theta = \log (n_{j}x^\top_j\beta)$, $\phi = a(\phi) = 1$, and $b(\theta) = \exp(\theta) =n_{j}x^\top_j\beta$.  In fact, it is very often the case that GLMs satisfy $a(\phi)\propto \phi$ up to a known constant. <br><br>
+In general, GLMs satisfy
+\[E(Y) = b'(\theta) \quad \text{and}\quad V(Y) = b''(\theta)a(\phi).\]
+For the Poisson regression model, in particular, we have 
+\[E(Y) = b'(\theta) = \frac{\partial}{\partial \theta}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta; \text{ and,}\]
+\[V(Y) = b''(\theta)a(\phi) = \frac{\partial^2}{\partial \theta^2}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta.\]
+
+## Fitting GLMs
+
+Like any other model defined by a likelihood, GLMs may be fit by maximizing the (log)likelihood.  But, it is generally not the case that the maximizers (MLEs) are available in closed form.  Instead, they are computed iteratively using Newton's method or a similar iterative procedure.  Refer again to the exponential family loglikelihood using the usual representation $a_i(\phi) = \phi/w_i$ where $w_i$ are known constants:
+\[\ell(\beta;\text{data}) = \sum_{i=1}^n \{w_i[y_i\theta_i - b_i(\theta_i)]/\phi + c_i(\phi, y_i)\}.\]
+Write $g(\mu_i) = x_i^\top\beta$ where $\mu_i$ is the mean of response $Y_i$ and $g$ is the "link function" which determines a transformation of the mean that is linear in the covariates; for example, for the Poisson regression model, we have $\log \mu_j = n_jx_j^\top \beta$ so the link function is the logarithm. Since $b_i'(\theta_i)$ is also equal to $\mu_i$ in the exponential family, we may differentiate the loglikelihood with respect to the regression parameter $\beta$ using the chain rule:
+\[\frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left\{\frac{w_i}{\phi}\left[y_i\frac{\partial \theta_i}{\partial\beta_j} - \frac{\partial b_i(\theta_i)}{\partial \beta_j}\right] + c_i(\phi, y_i)\right\}\]
+using
+\[\frac{\partial \theta_i}{\partial \beta_j} = \frac{\partial \theta_i}{\partial \mu_i}\frac{\partial \mu_i}{\partial \beta_j}.\]
+Since $\mu_i = b_i'(\theta_i)$ we have $\partial \theta_i/\partial \mu_i = 1/b_i''(\theta_i)$.  And, since $\mu_i = g^{-1}(x_i^\top \beta)$ we have $\partial\mu_i/\partial \beta_j = x_{ij}/g'[g^{-1}(x_i^\top \beta)]$.  Substituting, we can wire the score function using only $\mu_i$ as follows:
+\[\frac{\partial \ell}{\partial \beta_j} = \frac{1}{\phi}\sum_{i=1}^n \frac{y_i - \mu_i}{g'(\mu_i)V(\mu_i)}x_{ij}.\]
+The second (mixed partial) derivative may be written
+\[\frac{\partial^2 \ell}{\partial \beta_j\partial\beta_k} = -\frac{1}{\phi}\sum_{i=1}^n \frac{x_{ij}x_{ik}h(\mu_i)}{g'(\mu_i)^2V(\mu_i)}\]
+where $h(\mu_i) = 1+(y_i-\mu_i)\{V'(\mu_i)/V(\mu_i) + g''(\mu_i)/g'(\mu_i)\}$.  The expectation of the second derivative (which when multiplied by -1 appears in the Fisher information matrix) is the same quantity with $h(\mu_i)$ replaced by $E[h(\mu_i)]$, which simply equals 1 because $E(Y_i - \mu_i) = 0$.<br>
+The Hessian of the loglikelihood is clearly a quadratic form $\phi^{-1}X^\top WX$ where $X$ is the $n\times p$ design matrix of covariates and $W = [h(\mu_i)/\{g'(\mu_i)^2V(\mu_i)\}]$ is an $n\times n$ diagonal matrix of "weights".  Less obvious, we may define $G = \text{diag}\{g'(\mu_i)/h(\mu_i)\}$ so that the gradient of the loglikelihood equals $\phi^{-1}X^\top WG(y - \mu)$.  With this clever rewriting, Newton's method updates take on the form of a weighted least squares solution:
+\begin{align*}
+\beta^{[k+1]} &= \beta^{[k]} + (X^\top WX)^{-1}X^\top WG(y-\mu)\\
+& = (X^\top WX)^{-1}X^\top W\{G(y-\mu)X+\beta^{[k]}\}\\
+& = (X^\top WX)^{-1}X^\top Wz
+\end{align*}
+where $z := G(y-\mu)X\beta^{[k]}$ is sometimes referred to as the "pseudo-data".  Repeating the weighted least squares update, iteratively, until convergence, is termed *iteratively re-weighted least squares* (IRLS) since, of course, the weights in $W$ are updating with each iteration. 
+
+<br><br>
+
+For our Poisson regression based on the grouped CEB data we have the following likelihood, gradient, and Hessian:
+\begin{align*}
+&\ell(\beta;\text{data}) = \sum_{j=1}^{70} \left[y_j x_j^\top \beta - n_j e^{x_j^\top \beta}\right]\\
+&\nabla_s \ell = \sum_{j=1}^{70} \left[y_j x_{js} - n_j x_{js}e^{x_j^\top \beta}\right]\\
+&\nabla^2_{s,t} \ell = -\sum_{j=1}^{70}  n_j x_{js}x_{jt}e^{x_j^\top \beta}.
+\end{align*}
+
+Rewriting the Hessian and gradient as above for the general exponential family GLM we have
+\[W_{k,k} = n_k\mu_k\quad\text{and}\quad G_k = (n_k\mu_k)^{-1}\]
+so that the IRLS updates are given by
+\[(X^\top WX)^{-1}X^\top Wz\]
+with $z_k = (n_k\mu_k)^{-1}(y_k - n_k\mu_k) + x_k^\top \beta$.
+
+
+### IRLS for the CEB data
+
+```{r}
+n <- nrow(ceb)
+group.sizes <- ceb$n
+Y <- ceb$y
+# IRLS - factor coding
+# initialize with mu = Y/group.sizes
+options(contrasts = c('contr.treatment', 'contr.treatment'))
+X <- model.matrix(y~dur+res+educ, data = ceb)
+mu <- Y/group.sizes
+XB <- log(mu)
+W <- diag(as.numeric(mu))
+z <- -(1/mu)*(Y/group.sizes-mu) + XB
+beta <- solve(t(X)%*%W%*%X)%*%t(X)%*%W%*%z
+tol <- 0.0001
+difference <- 1
+maxiter <- 100
+iter <- 1
+while((difference > tol) & (iter < maxiter)){
+  XB <- X%*%beta
+  mu <- exp(XB)
+  W <- diag(as.numeric(group.sizes*mu))
+  z <- (Y/diag(W) - rep(1,n)) + XB
+  beta.old <- beta
+  beta <- solve(t(X)%*%W%*%X)%*%t(X)%*%W%*%z
+  difference <- max(abs(beta - beta.old))
+  iter<-iter+1
+}
+beta
+
+## the glm function can be used with offset equal to logarithm of the group sizes
+summary(glm(round(y)~dur+res+educ, family = poisson(link = 'log'), data = ceb, offset = log(n)))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

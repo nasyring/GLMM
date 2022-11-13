@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 3 Poisson Regression | GLMM</title>
+<meta name="author" content="Nick Syring">
+<meta name="description" content="3.1 Children Ever Born Data The “Children Ever Born” (CEB) dataset consists of grouped data on the number of births of Fijian women. The women are described according to their marriage duration in...">
+<meta name="generator" content="bookdown 0.29 with bs4_book()">
+<meta property="og:title" content="Chapter 3 Poisson Regression | GLMM">
+<meta property="og:type" content="book">
+<meta property="og:description" content="3.1 Children Ever Born Data The “Children Ever Born” (CEB) dataset consists of grouped data on the number of births of Fijian women. The women are described according to their marriage duration in...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 3 Poisson Regression | GLMM">
+<meta name="twitter:description" content="3.1 Children Ever Born Data The “Children Ever Born” (CEB) dataset consists of grouped data on the number of births of Fijian women. The women are described according to their marriage duration in...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.0/transition.js"></script><script src="libs/bs3compat-0.4.0/tabs.js"></script><script src="libs/bs3compat-0.4.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">GLMM</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Introduction</a></li>
+<li><a class="active" href="poisson-regression.html"><span class="header-section-number">3</span> Poisson Regression</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="poisson-regression" class="section level1" number="3">
+<h1>
+<span class="header-section-number">3</span> Poisson Regression<a class="anchor" aria-label="anchor" href="#poisson-regression"><i class="fas fa-link"></i></a>
+</h1>
+<div id="children-ever-born-data" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> Children Ever Born Data<a class="anchor" aria-label="anchor" href="#children-ever-born-data"><i class="fas fa-link"></i></a>
+</h2>
+<p>The “Children Ever Born” (CEB) dataset consists of grouped data on the number of births of Fijian women. The women are described according to their marriage duration in ordinal levels: (1=0-4, 2=5-9, 3=10-14, 4=15-19, 5=20-24, 6=25-29); their place of residence (Suva, the capital city; Urban; Rural); and, their level of education (none, lower primary, upper primary, secondary or greater). The count, mean, and variance of the number of children ever born, and the group size, is given for each group of women by cross-classified factorial level. These summaries are sufficient to model counts of children ever born by a Poisson distribution (each individual woman’s count in not needed).<br><br></p>
+<p>The CEB data is an example of an observational dataset — the characteristics of the individuals are inherent rather than set by experimenters as in an experimental/controlled trial, that should be clear from the context. Several interesting questions may be answered using this data, such as: are more or fewer born children associated with higher or lower education among Fijian women; does an urban versus rural living location influence the number of children ever born; and, do the number of children ever born steadily increase with marrige duration, or tend to plateau?</p>
+<a href="data:application/octet-stream;base64,ICAgICBkdXIgICByZXMgIGVkdWMgbWVhbiAgIHZhciAgIG4gICAgICAgeSAKIDEgICAwLTQgIFN1dmEgIG5vbmUgMC41MCAgMS4xNCAgIDggICAgNC4wMAogMiAgIDAtNCAgU3V2YSBsb3dlciAxLjE0ICAwLjczICAyMSAgIDIzLjk0CiAzICAgMC00ICBTdXZhIHVwcGVyIDAuOTAgIDAuNjcgIDQyICAgMzcuODAKIDQgICAwLTQgIFN1dmEgIHNlYysgMC43MyAgMC40OCAgNTEgICAzNy4yMwogNSAgIDAtNCB1cmJhbiAgbm9uZSAxLjE3ICAxLjA2ICAxMiAgIDE0LjA0CiA2ICAgMC00IHVyYmFuIGxvd2VyIDAuODUgIDEuNTkgIDI3ICAgMjIuOTUKIDcgICAwLTQgdXJiYW4gdXBwZXIgMS4wNSAgMC43MyAgMzkgICA0MC45NQogOCAgIDAtNCB1cmJhbiAgc2VjKyAwLjY5ICAwLjU0ICA1MSAgIDM1LjE5CiA5ICAgMC00IHJ1cmFsICBub25lIDAuOTcgIDAuODggIDYyICAgNjAuMTQKMTAgICAwLTQgcnVyYWwgbG93ZXIgMC45NiAgMC44MSAxMDIgICA5Ny45MgoxMSAgIDAtNCBydXJhbCB1cHBlciAwLjk3ICAwLjgwIDEwNyAgMTAzLjc5CjEyICAgMC00IHJ1cmFsICBzZWMrIDAuNzQgIDAuNTkgIDQ3ICAgMzQuNzgKMTMgICA1LTkgIFN1dmEgIG5vbmUgMy4xMCAgMS42NiAgMTAgICAzMS4wMAoxNCAgIDUtOSAgU3V2YSBsb3dlciAyLjY3ICAwLjk5ICAzMCAgIDgwLjEwCjE1ICAgNS05ICBTdXZhIHVwcGVyIDIuMDQgIDEuODcgIDI0ICAgNDguOTYKMTYgICA1LTkgIFN1dmEgIHNlYysgMS43MyAgMC42OCAgMjIgICAzOC4wNgoxNyAgIDUtOSB1cmJhbiAgbm9uZSA0LjU0ICAzLjQ0ICAxMyAgIDU5LjAyCjE4ICAgNS05IHVyYmFuIGxvd2VyIDIuNjUgIDEuNTEgIDM3ICAgOTguMDUKMTkgICA1LTkgdXJiYW4gdXBwZXIgMi42OCAgMC45NyAgNDQgIDExNy45MgoyMCAgIDUtOSB1cmJhbiAgc2VjKyAyLjI5ICAwLjgxICAyMSAgIDQ4LjA5CjIxICAgNS05IHJ1cmFsICBub25lIDIuNDQgIDEuOTMgIDcwICAxNzAuODAKMjIgICA1LTkgcnVyYWwgbG93ZXIgMi43MSAgMS4zNiAxMTcgIDMxNy4wNwoyMyAgIDUtOSBydXJhbCB1cHBlciAyLjQ3ICAxLjMwICA4MSAgMjAwLjA3CjI0ICAgNS05IHJ1cmFsICBzZWMrIDIuMjQgIDEuMTkgIDIxICAgNDcuMDQKMjUgMTAtMTQgIFN1dmEgIG5vbmUgNC4wOCAgMS43MiAgMTIgICA0OC45NgoyNiAxMC0xNCAgU3V2YSBsb3dlciAzLjY3ICAyLjMxICAyNyAgIDk5LjA5CjI3IDEwLTE0ICBTdXZhIHVwcGVyIDIuOTAgIDEuNTcgIDIwICAgNTguMDAKMjggMTAtMTQgIFN1dmEgIHNlYysgMi4wMCAgMS44MiAgMTIgICAyNC4wMAoyOSAxMC0xNCB1cmJhbiAgbm9uZSA0LjE3ICAyLjk3ICAxOCAgIDc1LjA2CjMwIDEwLTE0IHVyYmFuIGxvd2VyIDMuMzMgIDIuOTkgIDQzICAxNDMuMTkKMzEgMTAtMTQgdXJiYW4gdXBwZXIgMy42MiAgMS45NiAgMjkgIDEwNC45OAozMiAxMC0xNCB1cmJhbiAgc2VjKyAzLjMzICAxLjUyICAxNSAgIDQ5Ljk1CjMzIDEwLTE0IHJ1cmFsICBub25lIDQuMTQgIDMuNTIgIDg4ICAzNjQuMzIKMzQgMTAtMTQgcnVyYWwgbG93ZXIgNC4xNCAgMy4zMSAxMzIgIDU0Ni40OAozNSAxMC0xNCBydXJhbCB1cHBlciAzLjk0ICAzLjI4ICA1MCAgMTk3LjAwCjM2IDEwLTE0IHJ1cmFsICBzZWMrIDMuMzMgIDIuNTAgICA5ICAgMjkuOTcKMzcgMTUtMTkgIFN1dmEgIG5vbmUgNC4yMSAgMi4wMyAgMTQgICA1OC45NAozOCAxNS0xOSAgU3V2YSBsb3dlciA0Ljk0ICAxLjQ2ICAzMSAgMTUzLjE0CjM5IDE1LTE5ICBTdXZhIHVwcGVyIDMuMTUgIDAuODEgIDEzICAgNDAuOTUKNDAgMTUtMTkgIFN1dmEgIHNlYysgMi43NSAgMC45MiAgIDQgICAxMS4wMAo0MSAxNS0xOSB1cmJhbiAgbm9uZSA0LjcwICA3LjQwICAyMyAgMTA4LjEwCjQyIDE1LTE5IHVyYmFuIGxvd2VyIDUuMzYgIDIuOTcgIDQyICAyMjUuMTIKNDMgMTUtMTkgdXJiYW4gdXBwZXIgNC42MCAgMy44MyAgMjAgICA5Mi4wMAo0NCAxNS0xOSB1cmJhbiAgc2VjKyAzLjgwICAwLjcwICAgNSAgIDE5LjAwCjQ1IDE1LTE5IHJ1cmFsICBub25lIDUuMDYgIDQuOTEgMTE0ICA1NzYuODQKNDYgMTUtMTkgcnVyYWwgbG93ZXIgNS41OSAgMy4yMyAgODYgIDQ4MC43NAo0NyAxNS0xOSBydXJhbCB1cHBlciA0LjUwICAzLjI5ICAzMCAgMTM1LjAwCjQ4IDE1LTE5IHJ1cmFsICBzZWMrIDIuMDAgIDAuMDAgICAxICAgIDIuMDAKNDkgMjAtMjQgIFN1dmEgIG5vbmUgNS42MiAgNC4xNSAgMjEgIDExOC4wMgo1MCAyMC0yNCAgU3V2YSBsb3dlciA1LjA2ICA0LjY0ICAxOCAgIDkxLjA4CjUxIDIwLTI0ICBTdXZhIHVwcGVyIDMuOTIgIDQuMDggIDEyICAgNDcuMDQKNTIgMjAtMjQgIFN1dmEgIHNlYysgMi42MCAgNC4zMCAgIDUgICAxMy4wMAo1MyAyMC0yNCB1cmJhbiAgbm9uZSA1LjM2ICA3LjE5ICAyMiAgMTE3LjkyCjU0IDIwLTI0IHVyYmFuIGxvd2VyIDUuODggIDQuNDQgIDI1ICAxNDcuMDAKNTUgMjAtMjQgdXJiYW4gdXBwZXIgNS4wMCAgNC4zMyAgMTMgICA2NS4wMAo1NiAyMC0yNCB1cmJhbiAgc2VjKyA1LjMzICAwLjMzICAgMyAgIDE1Ljk5CjU3IDIwLTI0IHJ1cmFsICBub25lIDYuNDYgIDguMjAgMTE3ICA3NTUuODIKNTggMjAtMjQgcnVyYWwgbG93ZXIgNi4zNCAgNS43MiAgNjggIDQzMS4xMgo1OSAyMC0yNCBydXJhbCB1cHBlciA1Ljc0ICA1LjIwICAyMyAgMTMyLjAyCjYwIDIwLTI0IHJ1cmFsICBzZWMrIDIuNTAgIDAuNTAgICAyICAgIDUuMDAKNjEgMjUtMjkgIFN1dmEgIG5vbmUgNi42MCAxMi40MCAgNDcgIDMxMC4yMAo2MiAyNS0yOSAgU3V2YSBsb3dlciA2Ljc0IDExLjY2ICAyNyAgMTgxLjk4CjYzIDI1LTI5ICBTdXZhIHVwcGVyIDUuMzggIDQuMjcgICA4ICAgNDMuMDQKNjQgMjUtMjkgIFN1dmEgIHNlYysgMi4wMCAgMC4wMCAgIDEgICAgMi4wMAo2NSAyNS0yOSB1cmJhbiAgbm9uZSA2LjUyIDExLjQ1ICA0NiAgMjk5LjkyCjY2IDI1LTI5IHVyYmFuIGxvd2VyIDcuNTEgMTAuNTMgIDQ1ICAzMzcuOTUKNjcgMjUtMjkgdXJiYW4gdXBwZXIgNy41NCAxMi42MCAgMTMgICA5OC4wMgo2OSAyNS0yOSBydXJhbCAgbm9uZSA3LjQ4IDExLjM0IDE5NSAxNDU4LjYwCjcwIDI1LTI5IHJ1cmFsIGxvd2VyIDcuODEgIDcuNTcgIDU5ICA0NjAuNzkKNzEgMjUtMjkgcnVyYWwgdXBwZXIgNS44MCAgNy4wNyAgMTAgICA1OC4wMAo=" download="ceb.dat">Download ceb.dat</a>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ceb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/utils/read.table.html">read.table</a></span><span class="op">(</span><span class="st">'ceb.dat'</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">ceb</span><span class="op">)</span></span></code></pre></div>
+<pre><code>##   dur   res  educ mean  var  n     y
+## 1 0-4  Suva  none 0.50 1.14  8  4.00
+## 2 0-4  Suva lower 1.14 0.73 21 23.94
+## 3 0-4  Suva upper 0.90 0.67 42 37.80
+## 4 0-4  Suva  sec+ 0.73 0.48 51 37.23
+## 5 0-4 urban  none 1.17 1.06 12 14.04
+## 6 0-4 urban lower 0.85 1.59 27 22.95</code></pre>
+<p>A statistician (or student statistician) familiar with multiple linear regression and/or ANOVA for factorial experiments may instinctively choose to fit a Gauss-Markov linear model to the CEB data, treating the responses as independent normal random variables. However, since the responses are counts, a Poisson model is more reasonable. But, just how does one perform <em>Poisson regression</em>? — as opposed to the familiar multiple linear regression described by the Gauss-Markov model:
+<span class="math display">\[Y = X\beta+ \epsilon, \quad \epsilon \sim N_{n}(0_{n\times 1}, \sigma^2 I_n).\]</span></p>
+<p>That is the motivation for this chapter, in which we will explore the family of <em>Generalized Linear Models</em> from defining and fitting the model, to performing inference and model diagnostics, all within the context of the CEB example.</p>
+</div>
+<div id="defining-glms" class="section level2" number="3.2">
+<h2>
+<span class="header-section-number">3.2</span> Defining GLMs<a class="anchor" aria-label="anchor" href="#defining-glms"><i class="fas fa-link"></i></a>
+</h2>
+<p>For the CEB data we naturally want to model the CEB grouped counts as realizations of Poisson r.v.’s with means <span class="math inline">\(n_{j}x^\top_j\beta\)</span> where <span class="math inline">\(n_j\)</span> is the number of women in the <span class="math inline">\(j^{\text{th}}\)</span> factorial group, <span class="math inline">\(x_j\)</span> is the vector of their common covariates, and <span class="math inline">\(\beta\)</span> is the common regression coefficient vector. Then, the likelihood of the model is
+<span class="math display">\[L(\beta;\text{data}) = \prod_{j=1}^{70}\frac{(n_{j}x^\top_j\beta)^{y_j}e^{-n_{j}x^\top_j\beta}}{y_j!}\]</span>
+and the loglikelihood is given by
+<span class="math display">\[\ell(\beta;\text{data}) = \text{constant} + \sum_{j=1}^{70}y_j\log(n_{j}x^\top_j\beta) - n_{j}x^\top_j\beta.\]</span>
+The Poisson likelihood is a member of the Exponential Family, which contains all distributions with PDFs that may be expressed as
+<span class="math display">\[f(y;\theta,\phi) = \exp\{[y\theta - b(\theta)]/a(\phi) + c(y,\phi)\}.\]</span>
+Looking ahead, we will apply the exponential family model above to independent but not identically distributed responses, similar to the data we encounter in multiple linear regression and the Gauss-Markov model, so we will allow <span class="math inline">\(\theta\)</span> as well as the forms of the <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, and <span class="math inline">\(c\)</span> functions to vary over observations, but we will fix <span class="math inline">\(\phi\)</span>, so that the loglikelihood for a sample of size <span class="math inline">\(n\)</span> may be written as follows:
+<span class="math display">\[\ell(\beta;\text{data}) = \sum_{i=1}^n \{[y_i\theta_i - b_i(\theta_i)]/a_i(\phi) + c_i(\phi, y_i)\}.\]</span>
+The Poisson regression model is a fairly simple member of this family, having <span class="math inline">\(\theta = \log (n_{j}x^\top_j\beta)\)</span>, <span class="math inline">\(\phi = a(\phi) = 1\)</span>, and <span class="math inline">\(b(\theta) = \exp(\theta) =n_{j}x^\top_j\beta\)</span>. In fact, it is very often the case that GLMs satisfy <span class="math inline">\(a(\phi)\propto \phi\)</span> up to a known constant. <br><br>
+In general, GLMs satisfy
+<span class="math display">\[E(Y) = b'(\theta) \quad \text{and}\quad V(Y) = b''(\theta)a(\phi).\]</span>
+For the Poisson regression model, in particular, we have
+<span class="math display">\[E(Y) = b'(\theta) = \frac{\partial}{\partial \theta}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta; \text{ and,}\]</span>
+<span class="math display">\[V(Y) = b''(\theta)a(\phi) = \frac{\partial^2}{\partial \theta^2}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta.\]</span></p>
+</div>
+<div id="fitting-glms" class="section level2" number="3.3">
+<h2>
+<span class="header-section-number">3.3</span> Fitting GLMs<a class="anchor" aria-label="anchor" href="#fitting-glms"><i class="fas fa-link"></i></a>
+</h2>
+<p>Like any other model defined by a likelihood, GLMs may be fit by maximizing the (log)likelihood. But, it is generally not the case that the maximizers (MLEs) are available in closed form. Instead, they are computed iteratively using Newton’s method or a similar iterative procedure. Refer again to the exponential family loglikelihood using the usual representation <span class="math inline">\(a_i(\phi) = \phi/w_i\)</span> where <span class="math inline">\(w_i\)</span> are known constants:
+<span class="math display">\[\ell(\beta;\text{data}) = \sum_{i=1}^n \{w_i[y_i\theta_i - b_i(\theta_i)]/\phi + c_i(\phi, y_i)\}.\]</span>
+Write <span class="math inline">\(g(\mu_i) = x_i^\top\beta\)</span> where <span class="math inline">\(\mu_i\)</span> is the mean of response <span class="math inline">\(Y_i\)</span> and <span class="math inline">\(g\)</span> is the “link function” which determines a transformation of the mean that is linear in the covariates; for example, for the Poisson regression model, we have <span class="math inline">\(\log \mu_j = n_jx_j^\top \beta\)</span> so the link function is the logarithm. Since <span class="math inline">\(b_i'(\theta_i)\)</span> is also equal to <span class="math inline">\(\mu_i\)</span> in the exponential family, we may differentiate the loglikelihood with respect to the regression parameter <span class="math inline">\(\beta\)</span> using the chain rule:
+<span class="math display">\[\frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left\{\frac{w_i}{\phi}\left[y_i\frac{\partial \theta_i}{\partial\beta_j} - \frac{\partial b_i(\theta_i)}{\partial \beta_j}\right] + c_i(\phi, y_i)\right\}\]</span>
+using
+<span class="math display">\[\frac{\partial \theta_i}{\partial \beta_j} = \frac{\partial \theta_i}{\partial \mu_i}\frac{\partial \mu_i}{\partial \beta_j}.\]</span>
+Since <span class="math inline">\(\mu_i = b_i'(\theta_i)\)</span> we have <span class="math inline">\(\partial \theta_i/\partial \mu_i = 1/b_i''(\theta_i)\)</span>. And, since <span class="math inline">\(\mu_i = g^{-1}(x_i^\top \beta)\)</span> we have <span class="math inline">\(\partial\mu_i/\partial \beta_j = x_{ij}/g'[g^{-1}(x_i^\top \beta)]\)</span>. Substituting, we can wire the score function using only <span class="math inline">\(\mu_i\)</span> as follows:
+<span class="math display">\[\frac{\partial \ell}{\partial \beta_j} = \frac{1}{\phi}\sum_{i=1}^n \frac{y_i - \mu_i}{g'(\mu_i)V(\mu_i)}x_{ij}.\]</span>
+The second (mixed partial) derivative may be written
+<span class="math display">\[\frac{\partial^2 \ell}{\partial \beta_j\partial\beta_k} = -\frac{1}{\phi}\sum_{i=1}^n \frac{x_{ij}x_{ik}h(\mu_i)}{g'(\mu_i)^2V(\mu_i)}\]</span>
+where <span class="math inline">\(h(\mu_i) = 1+(y_i-\mu_i)\{V'(\mu_i)/V(\mu_i) + g''(\mu_i)/g'(\mu_i)\}\)</span>. The expectation of the second derivative (which when multiplied by -1 appears in the Fisher information matrix) is the same quantity with <span class="math inline">\(h(\mu_i)\)</span> replaced by <span class="math inline">\(E[h(\mu_i)]\)</span>, which simply equals 1 because <span class="math inline">\(E(Y_i - \mu_i) = 0\)</span>.<br>
+The Hessian of the loglikelihood is clearly a quadratic form <span class="math inline">\(\phi^{-1}X^\top WX\)</span> where <span class="math inline">\(X\)</span> is the <span class="math inline">\(n\times p\)</span> design matrix of covariates and <span class="math inline">\(W = [h(\mu_i)/\{g'(\mu_i)^2V(\mu_i)\}]\)</span> is an <span class="math inline">\(n\times n\)</span> diagonal matrix of “weights”. Less obvious, we may define <span class="math inline">\(G = \text{diag}\{g'(\mu_i)/h(\mu_i)\}\)</span> so that the gradient of the loglikelihood equals <span class="math inline">\(\phi^{-1}X^\top WG(y - \mu)\)</span>. With this clever rewriting, Newton’s method updates take on the form of a weighted least squares solution:
+<span class="math display">\[\begin{align*}
+\beta^{[k+1]} &amp;= \beta^{[k]} + (X^\top WX)^{-1}X^\top WG(y-\mu)\\
+&amp; = (X^\top WX)^{-1}X^\top W\{G(y-\mu)X+\beta^{[k]}\}\\
+&amp; = (X^\top WX)^{-1}X^\top Wz
+\end{align*}\]</span>
+where <span class="math inline">\(z := G(y-\mu)X\beta^{[k]}\)</span> is sometimes referred to as the “pseudo-data”. Repeating the weighted least squares update, iteratively, until convergence, is termed <em>iteratively re-weighted least squares</em> (IRLS) since, of course, the weights in <span class="math inline">\(W\)</span> are updating with each iteration.</p>
+<p><br><br></p>
+<p>For our Poisson regression based on the grouped CEB data we have the following likelihood, gradient, and Hessian:
+<span class="math display">\[\begin{align*}
+&amp;\ell(\beta;\text{data}) = \sum_{j=1}^{70} \left[y_j x_j^\top \beta - n_j e^{x_j^\top \beta}\right]\\
+&amp;\nabla_s \ell = \sum_{j=1}^{70} \left[y_j x_{js} - n_j x_{js}e^{x_j^\top \beta}\right]\\
+&amp;\nabla^2_{s,t} \ell = -\sum_{j=1}^{70}  n_j x_{js}x_{jt}e^{x_j^\top \beta}.
+\end{align*}\]</span></p>
+<p>Rewriting the Hessian and gradient as above for the general exponential family GLM we have
+<span class="math display">\[W_{k,k} = n_k\mu_k\quad\text{and}\quad G_k = (n_k\mu_k)^{-1}\]</span>
+so that the IRLS updates are given by
+<span class="math display">\[(X^\top WX)^{-1}X^\top Wz\]</span>
+with <span class="math inline">\(z_k = (n_k\mu_k)^{-1}(y_k - n_k\mu_k) + x_k^\top \beta\)</span>.</p>
+<div id="irls-for-the-ceb-data" class="section level3" number="3.3.1">
+<h3>
+<span class="header-section-number">3.3.1</span> IRLS for the CEB data<a class="anchor" aria-label="anchor" href="#irls-for-the-ceb-data"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">ceb</span><span class="op">)</span></span>
+<span><span class="va">group.sizes</span> <span class="op">&lt;-</span> <span class="va">ceb</span><span class="op">$</span><span class="va">n</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="va">ceb</span><span class="op">$</span><span class="va">y</span></span>
+<span><span class="co"># IRLS - factor coding</span></span>
+<span><span class="co"># initialize with mu = Y/group.sizes</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>contrasts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'contr.treatment'</span>, <span class="st">'contr.treatment'</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">y</span><span class="op">~</span><span class="va">dur</span><span class="op">+</span><span class="va">res</span><span class="op">+</span><span class="va">educ</span>, data <span class="op">=</span> <span class="va">ceb</span><span class="op">)</span></span>
+<span><span class="va">mu</span> <span class="op">&lt;-</span> <span class="va">Y</span><span class="op">/</span><span class="va">group.sizes</span></span>
+<span><span class="va">XB</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span></span>
+<span><span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="op">-</span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="va">mu</span><span class="op">)</span><span class="op">*</span><span class="op">(</span><span class="va">Y</span><span class="op">/</span><span class="va">group.sizes</span><span class="op">-</span><span class="va">mu</span><span class="op">)</span> <span class="op">+</span> <span class="va">XB</span></span>
+<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">W</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">W</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">z</span></span>
+<span><span class="va">tol</span> <span class="op">&lt;-</span> <span class="fl">0.0001</span></span>
+<span><span class="va">difference</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="va">maxiter</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
+<span><span class="va">iter</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span><span class="kw">while</span><span class="op">(</span><span class="op">(</span><span class="va">difference</span> <span class="op">&gt;</span> <span class="va">tol</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">(</span><span class="va">iter</span> <span class="op">&lt;</span> <span class="va">maxiter</span><span class="op">)</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">XB</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">beta</span></span>
+<span>  <span class="va">mu</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">exp</a></span><span class="op">(</span><span class="va">XB</span><span class="op">)</span></span>
+<span>  <span class="va">W</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">group.sizes</span><span class="op">*</span><span class="va">mu</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">z</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">Y</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">W</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="va">n</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="va">XB</span></span>
+<span>  <span class="va">beta.old</span> <span class="op">&lt;-</span> <span class="va">beta</span></span>
+<span>  <span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/solve.html">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">W</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">W</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">z</span></span>
+<span>  <span class="va">difference</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="va">beta</span> <span class="op">-</span> <span class="va">beta.old</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">iter</span><span class="op">&lt;-</span><span class="va">iter</span><span class="op">+</span><span class="fl">1</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">beta</span></span></code></pre></div>
+<pre><code>##                    [,1]
+## (Intercept)  0.05695417
+## dur10-14     1.37053208
+## dur15-19     1.61423104
+## dur20-24     1.78548879
+## dur25-29     1.97679469
+## dur5-9       0.99765038
+## resSuva     -0.15121728
+## resurban    -0.03895822
+## educnone    -0.02308034
+## educsec+    -0.33266474
+## educupper   -0.12474575</code></pre>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">## the glm function can be used with offset equal to logarithm of the group sizes</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html">glm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html">round</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">~</span><span class="va">dur</span><span class="op">+</span><span class="va">res</span><span class="op">+</span><span class="va">educ</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/family.html">poisson</a></span><span class="op">(</span>link <span class="op">=</span> <span class="st">'log'</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">ceb</span>, offset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## 
+## Call:
+## glm(formula = round(y) ~ dur + res + educ, family = poisson(link = "log"), 
+##     data = ceb, offset = log(n))
+## 
+## Deviance Residuals: 
+##     Min       1Q   Median       3Q      Max  
+## -2.2960  -0.6641   0.0725   0.6336   3.6782  
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  0.05754    0.04803   1.198    0.231    
+## dur10-14     1.36940    0.05107  26.815  &lt; 2e-16 ***
+## dur15-19     1.61376    0.05119  31.522  &lt; 2e-16 ***
+## dur20-24     1.78491    0.05121  34.852  &lt; 2e-16 ***
+## dur25-29     1.97641    0.05003  39.501  &lt; 2e-16 ***
+## dur5-9       0.99693    0.05274  18.902  &lt; 2e-16 ***
+## resSuva     -0.15166    0.02833  -5.353 8.63e-08 ***
+## resurban    -0.03924    0.02463  -1.594    0.111    
+## educnone    -0.02297    0.02266  -1.014    0.311    
+## educsec+    -0.33312    0.05390  -6.180 6.41e-10 ***
+## educupper   -0.12425    0.03000  -4.142 3.44e-05 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## (Dispersion parameter for poisson family taken to be 1)
+## 
+##     Null deviance: 3731.852  on 69  degrees of freedom
+## Residual deviance:   70.665  on 59  degrees of freedom
+## AIC: 522.14
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+
+</div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="intro.html"><span class="header-section-number">2</span> Introduction</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#poisson-regression"><span class="header-section-number">3</span> Poisson Regression</a></li>
+<li><a class="nav-link" href="#children-ever-born-data"><span class="header-section-number">3.1</span> Children Ever Born Data</a></li>
+<li><a class="nav-link" href="#defining-glms"><span class="header-section-number">3.2</span> Defining GLMs</a></li>
+<li>
+<a class="nav-link" href="#fitting-glms"><span class="header-section-number">3.3</span> Fitting GLMs</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#irls-for-the-ceb-data"><span class="header-section-number">3.3.1</span> IRLS for the CEB data</a></li></ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2022-11-12.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>
