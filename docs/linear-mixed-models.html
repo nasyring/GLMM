@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 4 Linear Mixed Models | GLMM</title>
+<meta name="author" content="Nick Syring">
+<meta name="description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
+<meta name="generator" content="bookdown 0.24 with bs4_book()">
+<meta property="og:title" content="Chapter 4 Linear Mixed Models | GLMM">
+<meta property="og:type" content="book">
+<meta property="og:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 4 Linear Mixed Models | GLMM">
+<meta name="twitter:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.11/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS -->
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">GLMM</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
+<li><a class="" href="intro.html"><span class="header-section-number">2</span> Introduction</a></li>
+<li><a class="" href="poisson-regression.html"><span class="header-section-number">3</span> Poisson Regression</a></li>
+<li><a class="active" href="linear-mixed-models.html"><span class="header-section-number">4</span> Linear Mixed Models</a></li>
+</ul>
+
+        <div class="book-extra">
+          
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="linear-mixed-models" class="section level1" number="4">
+<h1>
+<span class="header-section-number">4</span> Linear Mixed Models<a class="anchor" aria-label="anchor" href="#linear-mixed-models"><i class="fas fa-link"></i></a>
+</h1>
+<div id="anova-with-random-factors" class="section level2" number="4.1">
+<h2>
+<span class="header-section-number">4.1</span> ANOVA with random factors<a class="anchor" aria-label="anchor" href="#anova-with-random-factors"><i class="fas fa-link"></i></a>
+</h2>
+<p>The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. <em>Mixed</em> models as opposed to <em>fixed</em> models (the linear models you have heretofore studied) are needed when factors have levels that are <strong>random</strong>. Random levels occur whenever the units making up those levels behave like random samples from a population. Two examples are given below. And, we discuss how to perform ANOVA-like tests for factors that are random rather than fixed. The upshot is that (at least for balanced experiments/datasets) the tests for fixed effects are identical to those for random effects, only the interpretation is different (and importantly so!).</p>
+<div id="strength-of-metallic-bonds" class="section level3" number="4.1.1">
+<h3>
+<span class="header-section-number">4.1.1</span> Strength of metallic bonds<a class="anchor" aria-label="anchor" href="#strength-of-metallic-bonds"><i class="fas fa-link"></i></a>
+</h3>
+<p>The dataset below, called “Bonds”, contains responses for 21 samples of metals, 7 each for iron, nickel, and copper, that quantify the strength of metallic bonds. One sample from each metal was extracted from each of 7 ingots. We expect ingots to act like blocks—differences in ingots account for a substantial amount of variability in the responses, but the precise block effects are of no inferential/scientific interest. We only include the blocks in order to reduce the residual variance after accounting for block variance. A randomized controlled block design describes how this data was collected, but, if we repeated the experiment, the blocks (ingots) would be completely different. That is, the blocks are not <em>fixed</em> but <em>random</em>. Rather than estimating block effects that would surely change experiment to experiment, we should focus on estimating the amount of variability explained by the blocks, which should remain about the same experiment to experiment. This suggests a different model than used to analyze RCBD experiments with fixed blocks.<br><br></p>
+<p>The usual linear model for fixed blocks is
+<span class="math display">\[y_{ijk} = \mu + \alpha_i + \beta_j + \epsilon_{ij},\]</span>
+where <span class="math inline">\(y_{ij}\)</span> is the response for treatment (metal) <span class="math inline">\(i\)</span> in block (ingot) <span class="math inline">\(j\)</span>; the <span class="math inline">\(\alpha_i\)</span>’s are the metal (treatment) effects; the <span class="math inline">\(\beta_j\)</span>’s are the ingot (block) effects; and, <span class="math inline">\(\epsilon_{ij}\stackrel{iid}{\sim}N(0,\sigma^2)\)</span> are the random residuals.<br><br></p>
+<p>The above linear model is the wrong model for this data because the block effects (and, hence, also the interaction effects) are meaningless outside of the given data set; these are not population-level parameters because the blocks are random rather than fixed. The appropriate model (given normality and independence of random residuals is reasonable) is the following <em>mixed effects model</em>:</p>
+<p><span class="math display" id="eq:fullmodel">\[\begin{equation}
+y_{ij} = \mu + \alpha_i + \beta_j + \epsilon_{ij},
+\tag{4.1}
+\end{equation}\]</span>
+where <span class="math inline">\(\beta_j\stackrel{iid}{\sim}N(0, \sigma_b^2)\)</span> and, independently, <span class="math inline">\(\epsilon_{ij}\stackrel{iid}{\sim}N(0,\sigma^2)\)</span>. <br><br></p>
+<p>For <em>balanced</em> experiments (the number of replicates is equal across each combination of factor levels) we can test for block and treatment effects by comparing nested/aggregated models. Let <span class="math inline">\(\overline Y_{i\cdot}\)</span> denote the mean response for metal <span class="math inline">\(i\)</span> averaged over ingots. We can write down the following aggregated model from <a href="linear-mixed-models.html#eq:fullmodel">(4.1)</a> as
+<span class="math display" id="eq:aggmodel1">\[\begin{equation}
+\overline y_{i\cdot} = \mu + \alpha_i + \epsilon_{i},
+\tag{4.2}
+\end{equation}\]</span>
+where <span class="math inline">\(\epsilon_i = \frac{1}{J}\sum_{j=1}^j \epsilon_{ij}\)</span>. Then, <span class="math inline">\(\epsilon_j\)</span> has variance <span class="math inline">\(\sigma_b^2 + \sigma^2/J\)</span>. The F statistic
+<span class="math display">\[F = \frac{J\cdot MSE_{agg}}{MSE_{full}}\]</span>
+where <span class="math inline">\(MSE_{agg}\)</span> and <span class="math inline">\(MSE_{full}\)</span> are the mean squared errors from the models in <a href="linear-mixed-models.html#eq:aggmodel1">(4.2)</a> and <a href="linear-mixed-models.html#eq:fullmodel">(4.1)</a> can be used to test the hypothesis <span class="math inline">\(H_0:\sigma_b^2 = 0\)</span>.</p>
+</div>
+<div id="machine-productivity" class="section level3" number="4.1.2">
+<h3>
+<span class="header-section-number">4.1.2</span> Machine Productivity<a class="anchor" aria-label="anchor" href="#machine-productivity"><i class="fas fa-link"></i></a>
+</h3>
+<p>The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines. The goal is to determine which machine is most productive while controlling for natural variation in worker productivity. The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example. The difference between the two examples (besides the context) is that the machine treatments are replicated within workers, so that there are three observations of a productivity score fore each worker for each type of machine. This means that we can fit a model with <em>interaction terms</em> capable of capturing changes in machine effects on productivity between different workers (if those changes are present):
+<span class="math display" id="eq:fullmodel2">\[\begin{equation}
+y_{ijk} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \epsilon_{ijk},
+\tag{4.3}
+\end{equation}\]</span>
+where <span class="math inline">\(k\)</span> denotes the <span class="math inline">\(k^{\text{th}}\)</span> replicate within machine <span class="math inline">\(i\)</span> and worker <span class="math inline">\(j\)</span>; and where <span class="math inline">\((\alpha\beta)_{ij}\)</span> denote the machine-worker interaction effects. <br><br></p>
+<p>Let <span class="math inline">\(\overline Y_{ij\cdot}\)</span> be the mean response averaging over replicates for the treatment <span class="math inline">\(i\)</span> and block <span class="math inline">\(j\)</span> combination. Then,
+<span class="math display">\[\begin{align*}
+V(\overline Y_{ij\cdot}) &amp;= V\left(K^{-1}\sum_{k=1}^K Y_{ijk}\right) \\
+&amp;= \frac{1}{K^2}V\left(\sum_{k=1}^K \{\mu+\alpha_i+\beta_j + (\alpha\beta)_{ij} + \epsilon_{ijk}\}\right)\\
+&amp; = \frac{1}{K^2}V\left(K\mu + K\alpha_i + K\beta_j + K(\alpha\beta)_{ij} + \sum_{k=1}^K \epsilon_{ijk}\right)\\
+&amp; = \sigma_b^2 + \sigma_{ab}^2 + K^{-1}\sigma^2.
+\end{align*}\]</span>
+If we rewrite the model for the cell mean responses as
+<span class="math display" id="eq:aggmodel">\[\begin{equation}
+\overline y_{ij\cdot} = \mu + \alpha_i + \beta_j + \epsilon_{ij},
+\tag{4.4}
+\end{equation}\]</span>
+then the aggregated error term follows <span class="math inline">\(\epsilon_{ij}\stackrel{iid}{\sim}N(0, \sigma_{ab}^2 + \sigma^2/K)\)</span>. The residual mean square (or called the mean squared error) of model <a href="linear-mixed-models.html#eq:fullmodel2">(4.3)</a> (let’s call it <span class="math inline">\(MSE_{\text{full}}\)</span>) has mean <span class="math inline">\(\sigma^2\)</span> with <span class="math inline">\(n-p_1\)</span> degrees of freedom where <span class="math inline">\(n\)</span> is the sample size and <span class="math inline">\(p\)</span> is the number of coefficients in the fitted model (<span class="math inline">\(p_1\)</span> equals the number of crossed factor levels, the number of blocks times the number of treatments). The residual mean square for the aggregated model in <a href="linear-mixed-models.html#eq:aggmodel">(4.4)</a> (let’s call it <span class="math inline">\(MSE_{\text{agg}}\)</span>) has mean <span class="math inline">\(\sigma_{ab}^2 + \sigma^2/K\)</span> with <span class="math inline">\(n/K-p_2\)</span> degrees of freedom where <span class="math inline">\(p_2\)</span> is the number of treatments plus the number of blocks minus 1. An unbiased estimate of <span class="math inline">\(\sigma_{ab}^2\)</span> is given by <span class="math inline">\(MSE_{\text{agg}} - \frac{1}{K}MSE_{\text{full}}\)</span>. Consider testing the null hypothesis <span class="math inline">\(H_0:\sigma_{ab}^2 = 0\)</span>. The statistic
+<span class="math display">\[F := \frac{K\cdot MSE_{agg}}{MSE_{full}}\stackrel{H_0}{\sim}F_{n/K-p_2, n-p_1},\]</span>
+that is, under the null hypothesis. The test that rejects <span class="math inline">\(H_0\)</span> for <span class="math inline">\(F &gt; F_{1-\alpha,n/K-p_2, n-p_1}\)</span> is exactly equivalent to the partial F test between the full model and the full model without the interaction terms (the additive model). <br><br></p>
+<p>Below we use R to compute ANOVA tables for the full model, full model without interaction, and the aggregated model. The F test statistic for the aggregated model is about 46.13 on 10 and 36 degrees of freedom, which exactly matches the partial F test between the full and additive models.</p>
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://svn.r-project.org/R-packages/trunk/nlme/">nlme</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># aggregated model</span></span>
+<span><span class="va">Mach.agg</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html">aggregate</a></span><span class="op">(</span><span class="va">score</span><span class="op">~</span><span class="va">Machine</span><span class="op">*</span><span class="va">Worker</span>, data <span class="op">=</span> <span class="va">Machines</span>, FUN<span class="op">=</span><span class="va">mean</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">m2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">score</span><span class="op">~</span><span class="va">Machine</span><span class="op">+</span><span class="va">Worker</span>, data <span class="op">=</span> <span class="va">Mach.agg</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m2</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: score
+##           Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Machine    2 585.09 292.544 20.5761 0.0002855 ***
+## Worker     5 413.97  82.793  5.8232 0.0089495 ** 
+## Residuals 10 142.18  14.218                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># full model with interaction</span></span>
+<span><span class="va">m0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">score</span><span class="op">~</span><span class="va">Machine</span><span class="op">*</span><span class="va">Worker</span>, data <span class="op">=</span> <span class="va">Machines</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m0</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: score
+##                Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Machine         2 1755.26  877.63  949.17 &lt; 2.2e-16 ***
+## Worker          5 1241.89  248.38  268.63 &lt; 2.2e-16 ***
+## Machine:Worker 10  426.53   42.65   46.13 &lt; 2.2e-16 ***
+## Residuals      36   33.29    0.92                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="op">(</span><span class="fl">142.18</span><span class="op">*</span><span class="fl">3</span><span class="op">/</span><span class="fl">10</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">33.29</span><span class="op">/</span><span class="fl">36</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## [1] 46.12628</code></pre>
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fl">1</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/stats/Fdist.html">pf</a></span><span class="op">(</span><span class="op">(</span><span class="fl">142.18</span><span class="op">*</span><span class="fl">3</span><span class="op">/</span><span class="fl">10</span><span class="op">)</span><span class="op">/</span><span class="op">(</span><span class="fl">33.29</span><span class="op">/</span><span class="fl">36</span><span class="op">)</span>, <span class="fl">10</span>, <span class="fl">36</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## [1] 0</code></pre>
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># additive model (no interaction)</span></span>
+<span><span class="va">m1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/lm.html">lm</a></span><span class="op">(</span><span class="va">score</span><span class="op">~</span><span class="va">Machine</span><span class="op">+</span><span class="va">Worker</span>, data <span class="op">=</span> <span class="va">Machines</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m1</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Response: score
+##           Df  Sum Sq Mean Sq F value    Pr(&gt;F)    
+## Machine    2 1755.26  877.63  87.798 &lt; 2.2e-16 ***
+## Worker     5 1241.89  248.38  24.848 4.867e-12 ***
+## Residuals 46  459.82   10.00                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">m1</span>,<span class="va">m0</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: score ~ Machine + Worker
+## Model 2: score ~ Machine * Worker
+##   Res.Df    RSS Df Sum of Sq     F    Pr(&gt;F)    
+## 1     46 459.82                                 
+## 2     36  33.29 10    426.53 46.13 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<div id="general-mixed-model-parameter-estimation" class="section level2" number="4.2">
+<h2>
+<span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation<a class="anchor" aria-label="anchor" href="#general-mixed-model-parameter-estimation"><i class="fas fa-link"></i></a>
+</h2>
+<p>For experiments comparing responses between factors the ANOVA-type analyses above are sufficient. But, for more general models with random effects, e.g., those including continuous covariates, general-purpose methods are needed. The general mixed effects model may be written
+<span class="math display">\[Y = X\beta+ Z\alpha + \epsilon\]</span>
+where Y is an <span class="math inline">\(n\times 1\)</span> response, <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times p\)</span> design matrix for fixed (non-random) effects; <span class="math inline">\(Z\)</span> is and <span class="math inline">\(n\times a\)</span> matrix for random effects; <span class="math inline">\(\beta\)</span> is a <span class="math inline">\(p\times 1\)</span> non-random coefficient vector; <span class="math inline">\(\alpha\sim N_a(0, \psi_\theta)\)</span> is an <span class="math inline">\(a\times 1\)</span> multivariate normal random coefficient vector with mean 0 and covariance matrix <span class="math inline">\(\psi_\theta\)</span> indexed by a parameter <span class="math inline">\(\theta\)</span>; and <span class="math inline">\(\epsilon\sim N_n(0, \Lambda_\theta)\)</span> is a multivariate normal random residual vector with covariance matrix <span class="math inline">\(\Lambda_\theta\)</span>. An alternative way of writing the model (quite succintly) is
+<span class="math display">\[Y\sim N_n(X\beta, Z \psi_\theta Z^\top + \Lambda_\theta).\]</span></p>
+<div id="maximum-likelihood" class="section level3" number="4.2.1">
+<h3>
+<span class="header-section-number">4.2.1</span> Maximum Likelihood<a class="anchor" aria-label="anchor" href="#maximum-likelihood"><i class="fas fa-link"></i></a>
+</h3>
+<p>If you are familiar with least squares (and weighted least squares) you may recognize the MLE of <span class="math inline">\(\beta\)</span> is given by the weighted least squares solution
+<span class="math display" id="eq:WLS1">\[\begin{equation}
+\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y
+\tag{4.5}
+\end{equation}\]</span>
+where <span class="math inline">\(W^{-1} = (Z \psi_\theta Z^\top + \Lambda_\theta)^{-1}\)</span>. The WLS estimator is fine in theory, but hard to compute in practice because it requires inverting an <span class="math inline">\(n\times n\)</span> matrix. For large <span class="math inline">\(n\)</span> this is computationally challenging—<span class="math inline">\(O(n^3)\)</span> computations—unless the matrix has some special “sparse” structure. It’s not just the number of computations (and time) needed to compute an <span class="math inline">\(n\times n\)</span> matrix inverse that is problematic. For large matrices, algorithms for computing the inverse may not maintain adequate numerical precision, and, therefore, the resulting matrix may not truly equal the inverse desired. These errors in floating-point arithmetic will compound for large matrix inversion problems and lead to an estimate <span class="math inline">\(\hat\beta_{WLS}\)</span> that is not actually equal to the true weighted least squares estimate, due to computational errors.<br><br></p>
+<p>Typically, the direct WLS approach to maximum likelihood estimation is replaced by an iterative procedure in order to avoid the computation of an inverse of a large matrix. The WLS solution above is based on the joint density (likelihood) of the observations <span class="math inline">\(Y\)</span>. Instead, consider the joint density of <span class="math inline">\((Y,\alpha)\)</span> parameterized by <span class="math inline">\((\beta, \theta)\)</span>. This joint density is conveniently expressed by the product of conditional and marginal densities <span class="math inline">\(f(y|\alpha;\beta,\theta)\cdot f(\alpha;\beta,\theta)\)</span> given by
+<span class="math display">\[f(y|\alpha;\beta,\theta) = (2\pi)^{-2/n}|\Lambda_\theta|^{-1/2}\exp\{-\tfrac12\|y - X\beta - Z\alpha\|^2_{\lambda_\theta^{-1}}\},\]</span>
+where <span class="math inline">\(\|a\|_B^2 := a^\top Ba\)</span>, and
+<span class="math display">\[f(\alpha;\beta,\theta) = (2\pi)^{-p/2}|\psi_\theta|^{-1/2}\exp\{-\tfrac12\alpha^\top \psi_\theta^{-1}\alpha\}.\]</span></p>
+<p>Now, the joint density <span class="math inline">\(f(y,\alpha;\beta,\theta)\)</span> cannot be used directly as a likelihood, i.e., <span class="math inline">\(L(\beta, \theta| Y,\alpha)\)</span> because <span class="math inline">\(\alpha\)</span> is an unobserved random variable. Instead, we could average over <span class="math inline">\(\alpha\)</span> values (integrate out <span class="math inline">\(\alpha\)</span>) to obtain the marginal density <span class="math inline">\(f(y;\beta,\theta)\)</span> and use this density with <span class="math inline">\(Y=y\)</span> fixed at the observed values as a likelihood for <span class="math inline">\((\beta, \theta)\)</span>. To compute the this marginal density we begin with a tranformation and a Taylor expansion:
+<span class="math display">\[\begin{align*}
+f(y;\beta, \theta) &amp;= \int f(y,\alpha;\beta, \theta)d\alpha = \int \exp\{\log f(y\alpha;\beta,\theta)\}d\alpha \\
+&amp; = \int \exp\left\{\log f(y,\hat\alpha;\beta,\theta) + \tfrac12 (\alpha -\hat\alpha)^\top \frac{\partial^2 \log f(y,\alpha;\beta,\theta)}{\partial \alpha \partial\alpha^\top}(\alpha - \hat\alpha)\right\}d\alpha,
+\end{align*}\]</span>
+where <span class="math inline">\(\hat\alpha\)</span> is the optimal <em>prediction</em> of <span class="math inline">\(\alpha\)</span> maximizing <span class="math inline">\(f(y,\alpha;\beta,\theta)\)</span> for a fixed <span class="math inline">\((\beta,\theta)\)</span>. This maximizer has an explicit form: <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. The second line above contains a Taylor expansion of <span class="math inline">\(\log f(y,\alpha;\beta,\theta)\)</span> around <span class="math inline">\(\hat\alpha\)</span> which is exact, i.e., the higher-order terms are zero due to the Gaussian form of the densities. Pulling out constant terms from the integration we have
+<span class="math display">\[f(y;\beta, \theta) = f(y, \hat\alpha;\beta, \theta)\int \exp\left\{-\tfrac12 (\alpha -\hat\alpha)^\top (Z^\top \lambda_\theta^{-1}Z + \psi_\theta^{-1})(\alpha - \hat\alpha)\right\}d\alpha.\]</span>
+Using the fact the integrand is the kernel of a multivariate Gaussian density, we see the integral evaluates to <span class="math inline">\((2\pi)^{p/2}|Z^\top \Lambda_\theta^{-1}Z+\psi_\theta^{-1}|^{-1/2}\)</span>, and, hence
+<span class="math display">\[f(y;\beta, \theta) = f(y, \hat\alpha;\beta, \theta)(2\pi)^{p/2}|Z^\top \Lambda_\theta^{-1}Z+\psi_\theta^{-1}|^{-1/2}.\]</span>
+Now, using the marginal density of <span class="math inline">\(Y\)</span> to define the loglikelihood we have
+<span class="math display">\[2\ell(\beta,\theta;y) = -\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha - \log|\Lambda_\theta|-\log|\psi_\theta|-\log|Z^\top\Lambda_\theta^{-1}Z+\psi_\theta^{-1}|-n\log 2\pi.\]</span>
+Given a fixed value of <span class="math inline">\(\theta\)</span>, the MLE <span class="math inline">\(\hat\beta\)</span> may be found by maximizing
+<span class="math display">\[-\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha\]</span>
+where, recall, <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. If we substitute this expression for <span class="math inline">\(\hat\alpha\)</span> into the criterion function above and simplify, we see that for a fixed <span class="math inline">\(\theta\)</span> the estimator of <span class="math inline">\(\beta\)</span> takes on the form of a WLS estimator, given by
+<span class="math display" id="eq:WLS2">\[\begin{equation}
+\hat\beta_{WLS}(\theta) = \left\{X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right) X\right\}^{-1}X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right)Y
+\tag{4.6}
+\end{equation}\]</span>
+where <span class="math inline">\(G^{-1} := (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}\)</span>.
+<br><br>
+In fact, this alternative WLS estimator in <a href="linear-mixed-models.html#eq:WLS1">(4.5)</a> is equivalent to the estimator in <a href="linear-mixed-models.html#eq:WLS2">(4.6)</a>, which can be shown by a straightforward (but tedious) calculation confirming<br><span class="math display">\[\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1} = \left(Z\psi Z^\top + \Lambda\right)^{-1}.\]</span></p>
+</div>
+<div id="bayesian-estimation" class="section level3" number="4.2.2">
+<h3>
+<span class="header-section-number">4.2.2</span> Bayesian Estimation<a class="anchor" aria-label="anchor" href="#bayesian-estimation"><i class="fas fa-link"></i></a>
+</h3>
+<p>Suppose we take a Bayesian approach to modeling, and set the posterior distribution for <span class="math inline">\((\beta, \alpha)\)</span> proportional to the likelihood
+<span class="math display">\[\log \Pi_n(\beta, \alpha) = \text{const.} - \tfrac12(y - X\beta - Z\alpha)^\top \Lambda^{-1}(y - X\beta - Z\alpha) - \tfrac12 \alpha^\top\phi^{-1}\alpha, \]</span>
+again dropping the dependence on <span class="math inline">\(\theta\)</span>. In this case we have chosen a flat (improper) prior for <span class="math inline">\(\beta\)</span>; nevertheless, the posterior is proper, and, in fact, is multivariate normal. To show this use the usual trick to ``complete-the-square” in the exponent as follows. Expanding the quadratic forms, we have
+<span class="math display">\[\text{const.} + \beta^\top X^\top \Lambda^{-1}X \beta + 2\beta^\top X^\top \Lambda^{-1}Z\alpha + \alpha^\top(Z^\top \Lambda^{-1}Z + \phi^{-1})\alpha - 2Y^\top \Lambda^{-1}X\beta - 2Y^\top \Lambda^{-1}Z\alpha.\]</span></p>
+<p>We want to rewrite the term <span class="math inline">\(\beta^\top X^\top \Lambda^{-1}X \beta - 2Y^\top \Lambda^{-1}X\beta\)</span> as <span class="math inline">\((\beta - \hat\beta+\hat\beta - CY)^\top X^\top \Lambda^{-1}X(\beta - \hat\beta+\hat\beta - CY) + \text{const.}\)</span> using the “add-and-subtract trick”. Multiplying out, we see that in order for us to retain the linear term <span class="math inline">\(- 2Y^\top \Lambda^{-1}X\beta\)</span> we must have</p>
+<p>For reference, the aforementioned formula for the inverse of a block matrix is
+<span class="math display">\[\begin{bmatrix}
+A &amp; C\\
+C^\top &amp; B
+\end{bmatrix}^{-1}  = \begin{bmatrix}
+A^{-1} + A^{-1}CD^{-1}C^\top A^{-1} &amp; -A^{-1}CD^{-1}\\
+-D^{-1}C^\top A^{-1} &amp; D^{-1}
+\end{bmatrix}\]</span>
+where <span class="math inline">\(D^{-1} = B - C^\top A^{-1}C\)</span>. For this particular application, we have</p>
+</div>
+<div id="asymptotic-distribution-of-fixed-effects-mle" class="section level3" number="4.2.3">
+<h3>
+<span class="header-section-number">4.2.3</span> Asymptotic Distribution of Fixed Effects MLE<a class="anchor" aria-label="anchor" href="#asymptotic-distribution-of-fixed-effects-mle"><i class="fas fa-link"></i></a>
+</h3>
+
+</div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="poisson-regression.html"><span class="header-section-number">3</span> Poisson Regression</a></div>
+<div class="empty"></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#linear-mixed-models"><span class="header-section-number">4</span> Linear Mixed Models</a></li>
+<li>
+<a class="nav-link" href="#anova-with-random-factors"><span class="header-section-number">4.1</span> ANOVA with random factors</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#strength-of-metallic-bonds"><span class="header-section-number">4.1.1</span> Strength of metallic bonds</a></li>
+<li><a class="nav-link" href="#machine-productivity"><span class="header-section-number">4.1.2</span> Machine Productivity</a></li>
+</ul>
+</li>
+<li>
+<a class="nav-link" href="#general-mixed-model-parameter-estimation"><span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#maximum-likelihood"><span class="header-section-number">4.2.1</span> Maximum Likelihood</a></li>
+<li><a class="nav-link" href="#bayesian-estimation"><span class="header-section-number">4.2.2</span> Bayesian Estimation</a></li>
+<li><a class="nav-link" href="#asymptotic-distribution-of-fixed-effects-mle"><span class="header-section-number">4.2.3</span> Asymptotic Distribution of Fixed Effects MLE</a></li>
+</ul>
+</li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+          
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-01.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

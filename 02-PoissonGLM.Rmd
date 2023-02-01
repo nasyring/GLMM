@@ -2,9 +2,9 @@
 
 ## Children Ever Born Data
 
-The "Children Ever Born" (CEB) dataset consists of grouped data on the number of births of Fijian women.  The women are described according to their marriage duration in ordinal levels: (1=0-4, 2=5-9, 3=10-14, 4=15-19, 5=20-24, 6=25-29); their place of residence (Suva, the capital city; Urban; Rural); and, their level of education (none, lower primary, upper primary, secondary or greater).  The count, mean, and variance of the number of children ever born, and the group size, is given for each group of women by cross-classified factorial level.  These summaries are sufficient to model counts of children ever born by a Poisson distribution (each individual woman's count in not needed).<br><br>
+The "Children Ever Born" (CEB) dataset consists of grouped data on the number of births of Fijian women.  The women are described according to their marriage duration in years in ordinal levels: (0-4, 5-9, 10-14, 15-19, 20-24, 25-29); their place of residence (Suva---the capital city---Urban, or Rural); and, their level of education (none, lower primary, upper primary, secondary or greater).  The count, mean, and variance of the number of children ever born, and the group size, is given for each group of women by cross-classified factorial level.  These summaries are sufficient to model counts of children ever born by a Poisson distribution (each individual woman's count is not needed).<br><br>
 
-The CEB data is an example of an observational dataset --- the characteristics of the individuals are inherent rather than set by experimenters as in an experimental/controlled trial, that should be clear from the context.  Several interesting questions may be answered using this data, such as: are more or fewer born children associated with higher or lower education among Fijian women; does an urban versus rural living location influence the number of children ever born; and, do the number of children ever born steadily increase with marrige duration, or tend to plateau?
+The CEB data is an example of an observational dataset --- the characteristics of the individuals are inherent rather than set by experimenters as in an experimental/controlled trial---but, that should be clear from the context.  Several interesting questions may be answered using this data, such as: are more or fewer born children associated with higher or lower education among Fijian women; does an urban versus rural living location influence the number of children ever born; and, do the number of children ever born steadily increase with marrige duration, or tend to plateau?
 
 ```{r echo=FALSE}
 xfun::embed_file('ceb.dat')
@@ -30,10 +30,11 @@ The Poisson likelihood is a member of the Exponential Family, which contains all
 \[f(y;\theta,\phi) = \exp\{[y\theta - b(\theta)]/a(\phi) + c(y,\phi)\}.\]
 Looking ahead, we will apply the exponential family model above to independent but not identically distributed responses, similar to the data we encounter in multiple linear regression and the Gauss-Markov model, so we will allow $\theta$ as well as the forms of the $a$, $b$, and $c$ functions to vary over observations, but we will fix $\phi$, so that the loglikelihood for a sample of size $n$ may be written as follows:
 \[\ell(\beta;\text{data}) = \sum_{i=1}^n \{[y_i\theta_i - b_i(\theta_i)]/a_i(\phi) + c_i(\phi, y_i)\}.\]
-The Poisson regression model is a fairly simple member of this family, having $\theta = \log (n_{j}x^\top_j\beta)$, $\phi = a(\phi) = 1$, and $b(\theta) = \exp(\theta) =n_{j}x^\top_j\beta$.  In fact, it is very often the case that GLMs satisfy $a(\phi)\propto \phi$ up to a known constant. <br><br>
+The Poisson regression model for grouped data is a fairly simple member of this family, having $\theta = \log (n_{j}x^\top_j\beta)$, $\phi = a(\phi) = 1$, and $b(\theta) = \exp(\theta) =n_{j}x^\top_j\beta$.  In fact, it is very often the case that GLMs satisfy $a(\phi)\propto \phi$ up to a known constant. <br><br>
 In general, GLMs satisfy
 \[E(Y) = b'(\theta) \quad \text{and}\quad V(Y) = b''(\theta)a(\phi).\]
 For the Poisson regression model, in particular, we have 
+\[\theta = \log(n_{j}x^\top_j\beta); \quad b(\theta) = \exp(\theta); \quad \text{and}\quad a(\phi) = 1\]
 \[E(Y) = b'(\theta) = \frac{\partial}{\partial \theta}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta; \text{ and,}\]
 \[V(Y) = b''(\theta)a(\phi) = \frac{\partial^2}{\partial \theta^2}\exp(\theta) = \exp(\theta) = n_{j}x^\top_j\beta.\]
 
@@ -41,11 +42,11 @@ For the Poisson regression model, in particular, we have
 
 Like any other model defined by a likelihood, GLMs may be fit by maximizing the (log)likelihood.  But, it is generally not the case that the maximizers (MLEs) are available in closed form.  Instead, they are computed iteratively using Newton's method or a similar iterative procedure.  Refer again to the exponential family loglikelihood using the usual representation $a_i(\phi) = \phi/w_i$ where $w_i$ are known constants:
 \[\ell(\beta;\text{data}) = \sum_{i=1}^n \{w_i[y_i\theta_i - b_i(\theta_i)]/\phi + c_i(\phi, y_i)\}.\]
-Write $g(\mu_i) = x_i^\top\beta$ where $\mu_i$ is the mean of response $Y_i$ and $g$ is the "link function" which determines a transformation of the mean that is linear in the covariates; for example, for the Poisson regression model, we have $\log \mu_j = n_jx_j^\top \beta$ so the link function is the logarithm. Since $b_i'(\theta_i)$ is also equal to $\mu_i$ in the exponential family, we may differentiate the loglikelihood with respect to the regression parameter $\beta$ using the chain rule:
+Let $\mu_i = E(Y_i)$. Then, $b'(\theta_i) = \mu_i$, or, equivalently, $g_c(\mu_i) = \theta_i$ where $g_c$ is termed the *canonical link*; for example, $g_c := \log$ for the Poisson distribution.  Additionally, let $g$ link the mean to the linear function of covariates, i.e., $g(\mu_i) = \eta_i = x_i^\top\beta$; e.g., $g$ is the identity function for the Poisson model. Since $b_i'(\theta_i)$ is also equal to $\mu_i$ in the exponential family, we may differentiate the loglikelihood with respect to the regression parameter $\beta$ using the chain rule:
 \[\frac{\partial \ell}{\partial \beta_j} = \sum_{i=1}^n \left\{\frac{w_i}{\phi}\left[y_i\frac{\partial \theta_i}{\partial\beta_j} - \frac{\partial b_i(\theta_i)}{\partial \beta_j}\right] + c_i(\phi, y_i)\right\}\]
 using
 \[\frac{\partial \theta_i}{\partial \beta_j} = \frac{\partial \theta_i}{\partial \mu_i}\frac{\partial \mu_i}{\partial \beta_j}.\]
-Since $\mu_i = b_i'(\theta_i)$ we have $\partial \theta_i/\partial \mu_i = 1/b_i''(\theta_i)$.  And, since $\mu_i = g^{-1}(x_i^\top \beta)$ we have $\partial\mu_i/\partial \beta_j = x_{ij}/g'[g^{-1}(x_i^\top \beta)]$.  Substituting, we can wire the score function using only $\mu_i$ as follows:
+Since $\mu_i = b_i'(\theta_i)$ we have $\partial \theta_i/\partial \mu_i = 1/b_i''(\theta_i)$.  But, in light of $\mu_i = b'(\theta_i)$ we may always write $b_i''(\theta_i)$ as a function of $\mu_i$, i.e., $V(\mu_i) = b_i''(\theta_i)/w$ so that $V(Y_i) = V(\mu_i)\phi$.   Moreover, since $\mu_i = g^{-1}(x_i^\top \beta)$ we have $\partial\mu_i/\partial \beta_j = x_{ij}/g'[g^{-1}(x_i^\top \beta)]$.  Substituting, we can write the score function using only $\mu_i$ as follows:
 \[\frac{\partial \ell}{\partial \beta_j} = \frac{1}{\phi}\sum_{i=1}^n \frac{y_i - \mu_i}{g'(\mu_i)V(\mu_i)}x_{ij}.\]
 The second (mixed partial) derivative may be written
 \[\frac{\partial^2 \ell}{\partial \beta_j\partial\beta_k} = -\frac{1}{\phi}\sum_{i=1}^n \frac{x_{ij}x_{ik}h(\mu_i)}{g'(\mu_i)^2V(\mu_i)}\]
@@ -56,7 +57,7 @@ The Hessian of the loglikelihood is clearly a quadratic form $\phi^{-1}X^\top WX
 & = (X^\top WX)^{-1}X^\top W\{G(y-\mu)X+\beta^{[k]}\}\\
 & = (X^\top WX)^{-1}X^\top Wz
 \end{align*}
-where $z := G(y-\mu)X\beta^{[k]}$ is sometimes referred to as the "pseudo-data".  Repeating the weighted least squares update, iteratively, until convergence, is termed *iteratively re-weighted least squares* (IRLS) since, of course, the weights in $W$ are updating with each iteration. 
+where $z := G(y-\mu)+X\beta^{[k]}$ is sometimes referred to as the "pseudo-data".  Repeating the weighted least squares update, iteratively, until convergence, is termed *iteratively re-weighted least squares* (IRLS) since, of course, the weights in $W$ are updating with each iteration. 
 
 <br><br>
 
@@ -75,6 +76,10 @@ with $z_k = (n_k\mu_k)^{-1}(y_k - n_k\mu_k) + x_k^\top \beta$.
 
 
 ### IRLS for the CEB data
+
+Below we compute the MLEs for the Poisson regression of the grouped CEB data "by hand" using IRLS---and, also compare to the glm function in R.  For our calculation we initialize the elements of the parameter vector $\mu$ by the sample means $\mu_j = y_j/n_j$.  We set the pseudo data equal to $z_j = -(1/\mu_j)(y_j / n_j - \mu_j) + log(\mu_j)$ and iterate the computation of least squares estimates $\hat\beta$.  <br><br>
+
+Note that the CEB data contains grouped "counts" computed as $y_j = \mu_jn_j$ where the $\mu_j$ values are rounded.  And, as a result, the $y_j$ counts are not integers.  This does not affect our "by hand" calculation of $\hat\beta$ whatsoever because we never use the full Poisson PMF in our computations; the glm function in R, on the other hand, will throw many warnings if the $y_j$ values are not rounded, apparently because it uses the PMF via dpois "under the hood". The only differences between our fitted $\hat\beta$ and glm's are due to rounding $y_j$'s. 
 
 ```{r}
 n <- nrow(ceb)
@@ -106,14 +111,193 @@ while((difference > tol) & (iter < maxiter)){
 beta
 
 ## the glm function can be used with offset equal to logarithm of the group sizes
-summary(glm(round(y)~dur+res+educ, family = poisson(link = 'log'), data = ceb, offset = log(n)))
+my.glm <- glm(round(y)~dur+res+educ, family = poisson(link = 'log'), data = ceb, offset = log(n))
+summary(my.glm)
+
+```
+
+
+## Inference on GLMs
+
+No doubt you noticed the glm function output produces standard errors, "z" values, and p-values for each fitted coefficient, just as you would find accompanying summarized lm output.  But, what is the justification for these p-values?<br><br>
+
+Since $\hat\beta$ is an MLE, standard likelihood theory holds that $\hat\beta \stackrel{\cdot}{\sim}N_p(\beta, I^{-1}(\beta))$ for "large" $n$ where $I^{-1}(\beta)$ is the Fisher information.  As discussed above, the "observed information" (which is the Hessian) is equal to $-\phi^{-1}(X^\top WX)^{-1}$ where $W$ is the weight matrix in the final iteration of IRLS, and $-\phi^{-1}(X^\top WX)^{-1}$ coincides with the Fisher Information when we replace $h(\mu_i)$ by $E(h(\mu_i))=1$ in the IRLS (then called Fisher scoring) updates.  Therefore, $\hat\beta \stackrel{\cdot}{\sim}N_p(\beta, \phi^{-1}(X^\top W X)^{-1})$ for "large" $n$, but this is only useable if $\phi$ is known (which it is, and equals 1, for the Poisson and Binomial models).  Otherwise, we replace $\phi$ by its MLE and use the corresponding Student's $t$ distribution with $n - p$ degrees of freedom rather than the standard normal for inference on $\beta_j$.  <br><br>
+
+The upshot is that we may base tests for, e.g., $H_0:\beta_j = 0$, on Student's $t$ with $n-p$ df; i.e.,
+\[\text{Reject }H_0:\beta_j = 0 \text{ if }\left|\frac{\hat\beta_j}{\sqrt{\hat\phi^{-1}(X^\top W X)^{-1}_{j,j}}}\right| > t_{1-\alpha/2,n-p}.\]
+Multivariate Wald simultaneous $100(1-\alpha)\%$ confidence regions are given by the eliiptical contours:
+\[\phi\text{ known: }\quad \{\beta: (\hat\beta - \beta)^\top\phi^{-1}(X^\top W X)^{-1}(\hat\beta - \beta)< \chi^2_{1-\alpha,p} \}\]
+\[\phi\text{ unknown: }\quad \{\beta: (\hat\beta - \beta)^\top\hat\phi^{-1}(X^\top W X)^{-1}(\hat\beta - \beta)< F_{1-\alpha,p, n-p} \}\]
+
+Moreover, an approximate $95\%$ CI for the mean response $\mu = g^{-1}(x^\top \beta)$ for covariate vector $x$ is given by the Delta method interval:
+
+\[g^{-1}(x^\top \hat\beta)\pm t_{1-\alpha/2,n-p}\sqrt{\hat\phi^{-1} \left[\nabla_{\beta} g^{-1}(x^\top \beta)\right]^\top(X^\top W X)^{-1}\left[\nabla_{\beta} g^{-1}(x^\top \beta)\right]}.\]
+
+<br>
+In multiple linear regression (Gauss-Markov) models we use partial F tests (which are likelihood ratio tests) to test for significance of sets of covariates, i.e., $H_0: \beta_j = \beta_{j+1} = \cdots = \beta_{j+\ell} = 0$.  For GLMs, similar tests are available.  For models where $\phi$ is known, we have 
+\[-2\{\ell(\hat\beta_{h_0}) - \ell(\hat\beta)\}\stackrel{H_0}{\sim} F_{\ell,n-p}\]
+where $\hat\beta_{h_0}$ is the MLE under the null hypothesis where $\ell$ coefficients are set equal to 0.  
+<br><br>
+
+
+There are several methods to estimate $\phi$ when unknown.  Pearson's method observes that
+\[\phi^{-1}X^2 \stackrel{\cdot}{\sim}\chi^2_{n-p}\quad \text{where}\quad X^2 :=\sum_{i=1}^n \frac{(Y_i - \hat\mu_i)^2}{\phi V(\hat\mu_i)}\]
+if the model fits the data adequately.  Hence, $\hat\phi_P = X^2/(n-p)$ ought to be a good estimate of $\phi$.  For certain data sets, such as Poisson data with low counts, the Pearson estimate may behave badly, and a modified version (Fletcher's estimator) is preferred:
+\[\hat\phi_F = \frac{\hat\phi_P}{1-\overline s}, \quad\text{where}\]
+\[\overline s:=n^{-1}\sum_{i=1}^n V'(\hat\mu_i)\frac{(y_i - \hat\mu_i)}{V(\hat\mu_i)}.\]
+
+The *Deviance difference* for models A and B where $A\subset B$ is given by $D_A - D_B = -2\{\ell(\hat\beta_A) - \ell(\hat\beta_B)\}\phi$. The scaled deviance difference is 
+\[D_A^* - D_B^* = -2\{\ell(\hat\beta_A) - \ell(\hat\beta_B)\}\stackrel{\cdot}{\sim}\chi^2_{\ell}\]
+where the difference in number of fitted parameters is $\ell$.  Despite the notation, the scaled deviance difference does depend on $\phi$, whereas the deviance difference does not.  Two alternative tests make use of the scaled deviance to compare nested GLMs.  The first is analogous to the partial F test:
+\[F = \frac{(D_A^* - D_B^*)/\ell}{D_B^* / (n-p)}\stackrel{\cdot}{\sim} F_{\ell, n-p}\]
+but the approximation to the F distribution is very rough.  Alternatively, we can replace the scale parameter in the scaled deviance by its Pearson (or Fletcher) estimator and obtain
+\[\hat D_A^* - \hat D_B^*\stackrel{\cdot}{\sim}\chi^2_{\ell},\]
+where the "hat" on the scaled deviances indicates their dependence on $\hat\phi$.
+
+### Inference and prediction for the CEB data using Poisson regression
+
+Next, we'll demonstrate computations of confidence intervals and tests for significance of sets of covariates within the Poisson regression model for the CEB data.  We can either do these computations "by hand" using the results of our IRLS or we can use built-in R functions like glm and confint.  <br><br>
+
+For Wald-type confidence intervals for regression coefficients we require the inverse Hessian (the estimate of the inverse Fisher information, equal when Fisher scoring is used).  We compute this from the final iteration of IRLS (assuming the algorithm converged).  For most GLMs we will need to estimate the scale parameter $\phi$ and we include the Pearson and Fletcher estimates below---but in the Poisson model $\phi=1$.  Note both estimates are close to 1.  The p-values included in the summarized glm output imply the intercept is not significantly different from zero, but that several other coefficients are different from zero, including, e.g., $\beta_1$, $\beta_2$, and $\beta_3$. Our Wald-type CIs and p-values agree with the glm p-values; for example, our 95% CI for $\beta_0$ computed "by hand" is (-0.0372  0.1511), suggesting the intercept is not significantly different from zero, and our 95% CI for $\beta_1$ is (1.2704, 1.4706) with a p-value for the test of $\beta_1 = 0$ that is indistinguishable from 0.  <br><br>
+
+We computed the deviance difference (which is minus twice the difference in loglikelihood) between the intercept-only model and the full model.  The deviance difference is about 3661 on ten degrees of freedom (the difference in number of fitted coefficients between the models).  If the intercept only model fits, then this deviance difference should be comparable to a Chi-squared r.v. with 10 degrees of freedom, but the corresponding p-value is basically zero, supporting the claim that the full model fits much better than the intercept-only model.  Compare our deviance difference calculation to the output of glm: glm includes the null deviance and residual deviance, the difference of these two gives the deviance difference statistic used to compare the intercept-only and full models.  It is about 3661, agreeing almost exactly with our "by hand" calculation.
+
+```{r}
+Hessian <- t(X)%*%W%*%X
+inv.Hessian <- solve(Hessian)
+p <- length(beta)
+
+# Just for illustration, phi = 1 for Poisson model
+Pearson.X2 <- sum(((Y - group.sizes * mu)^2) / (group.sizes * mu))
+Pearson.phi <- Pearson.X2 / (n-p)
+s.bar <- mean((Y - group.sizes * mu) / (group.sizes * mu))
+Fletcher.phi <- Pearson.phi/(1-s.bar)
+Pearson.phi 
+Fletcher.phi 
+
+# CIs for the first 4 regression coefficients
+#   If phi were unknown, it's estimate would appear in the estimated standard error of the 
+#   estimated coefficient
+# beta[1] + qt(c(0.025,0.975),n-p)*sqrt((1/Pearson.phi)*inv.Hessian[1,1])
+beta[1] + qnorm(c(0.025,0.975))*sqrt(inv.Hessian[1,1])
+beta[2] + qnorm(c(0.025,0.975))*sqrt(inv.Hessian[2,2])
+2*(1-pnorm(abs(beta[2]/sqrt(inv.Hessian[2,2]))))
+beta[3] + qnorm(c(0.025,0.975))*sqrt(inv.Hessian[3,3])
+beta[4] + qnorm(c(0.025,0.975))*sqrt(inv.Hessian[4,4])
+
+# The R function confint can also be used with GLMs to provide confidence intervals for coefficients
+
+confint(my.glm, 'dur10-14')
+
+# "Model F Test" - testing that all (non-intercept) coefficients equal zero
+# for Poisson model, since phi is known, we have a LRT equivalent to a partial F test
+# based on deviance difference
+Ybar <- sum(Y)/sum(group.sizes)
+D <- -2*(sum(Y*log(group.sizes*Ybar))-sum(group.sizes*Ybar) - sum(Y*log(group.sizes*mu))+sum(group.sizes*mu))
+Ybar
+D
+1-pchisq(D,p-1)
+
+# with rounded Ys and using glm output
+Yr <- round(Y)
+mu.glm <- exp(X%*%matrix(my.glm$coefficients,p,1))
+Ybar <- sum(Yr)/sum(group.sizes)
+D <- -2*(sum(Yr*log(group.sizes*Ybar))-sum(group.sizes*Ybar) - sum(Yr*log(group.sizes*mu.glm))+sum(group.sizes*mu.glm))
+Ybar
+D
+1-pchisq(D,p-1)
+
+
 
 ```
 
 
 
+## Model Checking/Diagnostics
+
+It is essential statistical practice to check whether the model adequately fits the data.  If the model fits poorly, then inferences/predictions garnered from the model are suspect.  In multiple linear regression we assess model fit by analyzing residuals.  When the multiple linear regression model fits, the residuals should be approximately standard normal.  Lack of fit manifests in residuals that are skewed or heavy-tailed, contain outliers, or tend to increase in variability with one or more covariates and/or the predicted responses.  <br><br>
+
+Model-checking for GLMs can be done in essentially the same manner---the key is to find a quantity that reasonably fills the role of residuals in multiple linear regression. For GLMs, there are two choices, the Pearson residuals and the deviance residuals.  <br><br>
+
+Pearson residuals are defined $e^P_i = \frac{Y_i - \hat\mu_i}{\sqrt{V(\mu_i)}}$, or, sometimes, $e^P_i = \frac{Y_i - \hat\mu_i}{\sqrt{\hat\phi V(\mu_i)}}$.  The first definition results in quantities that should be approximately zero-mean normal random variates with variance $\phi$ whereas the second definition provides standard normal quantities.  Some practitioners prefer the deviance residuals to the Pearson residuals as the latter are often observed to be asymmetric and, hence, not as "normal" as expected. The deviance is equal to
+\[\text{Deviance} = -2\phi\{\ell(\hat\beta) - \sup \ell\}\]
+where $\ell(\hat\beta)$ is the loglikelihood evaluated at the MLEs and $\sup \ell$ is the loglikelihood with $\mu_i = y_i$, i.e., a totally saturated model.  Multiplying by $\phi$ removes the dependence of the loglikelihood on the scale parameter. The deviance can be written as a sum of terms, say, $\text{Deviance} = \sum_{i=1}^n d_i$, and each observation's contribution $d_i$ to the deviance is used to define the deviance residuals as follows:
+\[e^D_i = \text{sign}(y_i - \mu_i)\sqrt{d_i}.\]
+
+### Residual analysis for CEB data
+
+Using either the deviance residuals or the Pearson residuals shows a few important things.  First, the residuals are approximately standard normal, with the exception of one "outlier", observation 17.  Second, if we sort the observations by fitted mean response $\hat\mu_i$ from least to greatest, we see absolutely no trend up or down, or any pattern at all, in the residuals.  This implies we have correctly modeled the mean-variance relationship, and that we have also correctly modeled the mean as a linear function of the covariates.  <br><br>
+
+We obtain similar plots by simply running "plot(glm object)", but there are some default differences.  Plotting a glm object will provide plots of "residuals" versus "fitted values", but in fact, the labels on these plots are slightly misleading.  The residuals vs. fitted values plots uses either Pearson or deviance residuals (cannot tell for sure from the plot or the documentation) versus the logarithm of the fitted responses $\log(\hat y_j) =\log(n_j\hat\mu_j)$. <br><br>
 
 
+
+```{r}
+dev <- -2*((Y*log(group.sizes*mu))-(group.sizes*mu) - ((Y*log(Y))-(Y)))
+deviance.resids <- ifelse((Y-group.sizes*mu) < 0,-1,1)*sqrt(dev)
+pearson.resids <- (Y - group.sizes*mu)/sqrt(group.sizes*mu)
+
+# residual plots using deviance residuals
+qqnorm(deviance.resids)
+qqline(deviance.resids)
+shapiro.test(deviance.resids)
+hist(deviance.resids, freq = FALSE)
+dev.norm <- function(x) dnorm(x,mean(deviance.resids), sd(deviance.resids))
+curve(dev.norm, -5,5, add = TRUE)
+plot(mu, deviance.resids)
+
+# residual plots using pearson residuals
+qqnorm(pearson.resids)
+qqline(pearson.resids)
+shapiro.test(pearson.resids)
+hist(pearson.resids, freq = FALSE)
+pearson.norm <- function(x) dnorm(x,mean(pearson.resids), sd(pearson.resids))
+curve(pearson.norm, -5,5, add = TRUE)
+plot(mu, pearson.resids)
+
+# plots are using what look like Pearson (or maybe deviance) residuals versus predicted values under canonical link, i.e. log(Y hat)
+plot(log(group.sizes*mu), pearson.resids)
+plot(my.glm)
+```
+
+
+## Outlier analysis using Cook's distance
+
+Outliers are observations corresponding to large residuals.  They may occur due to chance, or, more likely, indicate a lack of model fit for a specific observation.  The lack of fit may be due to something innocuous like a mistake made in recording data; or, it may be that the observation in question is very different from the others in the sample, and does not follow the same response-covariate relationship.<br><br> 
+
+Outliers are not a problem, however, unless their inclusion causes the fitted model to be substantially different than had they been excluded.  Therefore, we do not necessarily care that a particular residual is large, but that it is influential on the model fit. <br><br>
+
+In multiple linear regression we may measure this influence by Cook's distance of the data point, which is related to both the magnitude of its residual and its leverage, as measured by the hat (or influence) matrix.  For GLMs we can define the Cook's distance in the same manner: the Cook's distance of data point $k$ is given by
+\[C_k = \frac{1}{(p+1)}\sum_{i=1}^n \frac{(\hat\mu_i^{[k]} - \hat\mu_i)^2}{\hat\phi V(\hat\mu_i)}; \text{ or}\]
+\[C_k = \frac{(e^P_k)^2}{\hat\phi (p+1)}\frac{h_k}{(1-h_k)^2}\]
+where $H = W^{1/2}X(X^\top W X)^{-1}X^\top W^{1/2}$ is the hat matrix and $h_k$ is its $k^{th}$ diagonal entry.  Large Cook's distance implies the model predictions change substantially when the data point in question is removed.  
+
+
+### Outlier analysis for the CEB data
+
+Typically data points with Cook's distance $>1$ are considered highly influential and the case for their exclusion is considerable.  In this case, our apparent outlier is not influential, nor is it even the most influential observation sampled. <br>
+<br>
+
+Below we have computed Cook's distance "by hand" and by using the corresponding built-in R function; the only (very slight) difference between the two seems to be caused by the fact the built-in function uses the glm object, which we fitted after rounding the responses, whereas our "by hand" calculation uses Pearson residuals based on the original (unrounded) responses. 
+
+
+```{r}
+
+ceb2 <- ceb[-17,]
+my.glm2 <- glm(round(y)~dur+res+educ, family = poisson(link = 'log'), data = ceb2, offset = log(n))
+
+W2 <- sqrt(W)
+h <- W2%*%X%*%solve(t(X)%*%W%*%X)%*%t(X)%*%W2
+
+((pearson.resids[17]^2)/p)*(h[17,17]/((1-h[17,17])^2))
+
+cd <- cooks.distance(my.glm)
+
+cd[17]
+
+sort(cd)
+
+```
 
 
 

@@ -1,3 +1,9 @@
+eq:fullmodel
+eq:aggmodel1
+eq:fullmodel2
+eq:aggmodel
+eq:WLS1
+eq:WLS2
 introduction
 intro
 poisson-regression
@@ -5,3 +11,17 @@ children-ever-born-data
 defining-glms
 fitting-glms
 irls-for-the-ceb-data
+inference-on-glms
+inference-and-prediction-for-the-ceb-data-using-poisson-regression
+model-checkingdiagnostics
+residual-analysis-for-ceb-data
+outlier-analysis-using-cooks-distance
+outlier-analysis-for-the-ceb-data
+linear-mixed-models
+anova-with-random-factors
+strength-of-metallic-bonds
+machine-productivity
+general-mixed-model-parameter-estimation
+maximum-likelihood
+bayesian-estimation
+asymptotic-distribution-of-fixed-effects-mle
