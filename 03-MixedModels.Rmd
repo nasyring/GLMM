@@ -6,11 +6,7 @@ The simplest linear mixed models are used to analyze linear models for one-way A
 
 ### Strength of metallic bonds
 
-<<<<<<< HEAD
 The dataset below, called "Bonds", contains responses for 21 samples of metals, 7 each for iron, nickel, and copper, that quantify the strength of metallic bonds.  One sample from each metal was extracted from each of 7 ingots.  We expect ingots to act like blocks---differences in ingots account for a substantial amount of variability in the responses, but the precise block effects are of no inferential/scientific inference.  We only include the blocks in order to reduce the residual variance after accounting for block variance.  A randomized controlled block design describes how this data was collected, but, if we repeated the experiment, the blocks (ingots) would be completely different.  That is, the blocks are not *fixed* but *random*.  Rather than estimating block effects that would surely change experiment to experiment, we should focus on estimating the amount of variability explained by the blocks, which should remain about the same experiment to experiment.  This suggests a different model than used to analyze RCBD experiments with fixed blocks.<br><br>
-=======
-The dataset below, called "Bonds", contains responses for 21 samples of metals, 7 each for iron, nickel, and copper, that quantify the strength of metallic bonds.  One sample from each metal was extracted from each of 7 ingots.  We expect ingots to act like blocks---differences in ingots account for a substantial amount of variability in the responses, but the precise block effects are of no inferential/scientific interest.  We only include the blocks in order to reduce the residual variance after accounting for block variance.  A randomized controlled block design describes how this data was collected, but, if we repeated the experiment, the blocks (ingots) would be completely different.  That is, the blocks are not *fixed* but *random*.  Rather than estimating block effects that would surely change experiment to experiment, we should focus on estimating the amount of variability explained by the blocks, which should remain about the same experiment to experiment.  This suggests a different model than used to analyze RCBD experiments with fixed blocks.<br><br>
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 
 The usual linear model for fixed blocks is
 \[y_{ijk} = \mu + \alpha_i + \beta_j + \epsilon_{ij},\]
@@ -35,11 +31,7 @@ where $MSE_{agg}$ and $MSE_{full}$ are the mean squared errors from the models i
 
 ### Machine Productivity
 
-<<<<<<< HEAD
 The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines.  The goal is to determine which machine is most productive while controlling for natural variation in worker productivity.  The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example.  The difference between the two examples (besides the context) is that the machine treatments are replicated wihtin workers, so that there are three observations of a productivity score fore each worker for each type of machine.  This means that we can fit a model with *interaction terms* capable of capturing changes in machine effects on productivity between different workers (if those changes are present): 
-=======
-The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines.  The goal is to determine which machine is most productive while controlling for natural variation in worker productivity.  The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example.  The difference between the two examples (besides the context) is that the machine treatments are replicated within workers, so that there are three observations of a productivity score fore each worker for each type of machine.  This means that we can fit a model with *interaction terms* capable of capturing changes in machine effects on productivity between different workers (if those changes are present): 
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 \begin{equation}
 y_{ijk} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \epsilon_{ijk},
  (\#eq:fullmodel2)
@@ -105,23 +97,12 @@ where Y is an $n\times 1$ response, $X$ is an $n \times p$ design matrix for fix
 ### Maximum Likelihood
 
 If you are familiar with least squares (and weighted least squares) you may recognize the MLE of $\beta$ is given by the weighted least squares solution
-<<<<<<< HEAD
 \[\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y\]
-=======
-\begin{equation}
-\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y
-(\#eq:WLS1)
-\end{equation}
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 where $W^{-1} = (Z \psi_\theta Z^\top + \Lambda_\theta)^{-1}$.  The WLS estimator is fine in theory, but hard to compute in practice because it requires inverting an $n\times n$ matrix.  For large $n$ this is computationally challenging---$O(n^3)$ computations---unless the matrix has some special "sparse" structure.  It's not just the number of computations (and time) needed to compute an $n\times n$ matrix inverse that is problematic.  For large matrices, algorithms for computing the inverse may not maintain adequate numerical precision, and, therefore, the resulting matrix may not truly equal the inverse desired.  These errors in floating-point arithmetic will compound for large matrix inversion problems and lead to an estimate $\hat\beta_{WLS}$ that is not actually equal to the true weighted least squares estimate, due to computational errors.<br><br>
 
 Typically, the direct WLS approach to maximum likelihood estimation is replaced by an iterative procedure in order to avoid the computation of an inverse of a large matrix.  The WLS solution above is based on the joint density (likelihood) of the observations $Y$.  Instead, consider the joint density of $(Y,\alpha)$ parameterized by $(\beta, \theta)$.  This joint density is conveniently expressed by the product of conditional and marginal densities $f(y|\alpha;\beta,\theta)\cdot f(\alpha;\beta,\theta)$ given by
 \[f(y|\alpha;\beta,\theta) = (2\pi)^{-2/n}|\Lambda_\theta|^{-1/2}\exp\{-\tfrac12\|y - X\beta - Z\alpha\|^2_{\lambda_\theta^{-1}}\},\]
-<<<<<<< HEAD
 where $\|a\|_B := a^\top Ba$, and
-=======
-where $\|a\|_B^2 := a^\top Ba$, and
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 \[f(\alpha;\beta,\theta) = (2\pi)^{-p/2}|\psi_\theta|^{-1/2}\exp\{-\tfrac12\alpha^\top \psi_\theta^{-1}\alpha\}.\]
 
 Now, the joint density $f(y,\alpha;\beta,\theta)$ cannot be used directly as a likelihood, i.e., $L(\beta, \theta| Y,\alpha)$ because $\alpha$ is an unobserved random variable.  Instead, we could average over $\alpha$ values (integrate out $\alpha$) to obtain the marginal density $f(y;\beta,\theta)$ and use this density with $Y=y$ fixed at the observed values as a likelihood for $(\beta, \theta)$.  To compute the this marginal density we begin with a tranformation and a Taylor expansion:
@@ -137,7 +118,6 @@ Now, using the marginal density of $Y$ to define the loglikelihood we have
 \[2\ell(\beta,\theta;y) = -\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha - \log|\Lambda_\theta|-\log|\psi_\theta|-\log|Z^\top\Lambda_\theta^{-1}Z+\psi_\theta^{-1}|-n\log 2\pi.\]
 Given a fixed value of $\theta$, the MLE $\hat\beta$ may be found by maximizing
 \[-\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha\]
-<<<<<<< HEAD
 where, recall, $\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z)^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)$.  Plug in $\hat\alpha$ to see this becomes a WLS problem; hence, $\hat\beta$ is a WLS solution, and the weight matrix is given by $V = V_1 + V_2$, where (suppressing $\theta$ subscripts)
 \begin{align*}
 V_1 &= (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})^\top \Lambda^{-1} (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})\\
@@ -189,26 +169,6 @@ Let $V := (Z\psi Z^\top +\Lambda)$.  In the exponent, add and subtract $X\hat\be
 \end{align*}
 It is straightforward to show the middle term is zero.  If we integrate out $\beta$ (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
 \[\Pi_n(\theta, \Lambda) = \frac{(2\pi)^{-n/2}}{(2\pi)^{-p/2}}\frac{|V|^{-1/2}}{|X^\top V^{-1}X|^{-1/2}}\exp\left(-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta)\right).\]
-=======
-where, recall, $\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)$.  If we substitute this expression for $\hat\alpha$ into the criterion function above and simplify, we see that for a fixed $\theta$ the estimator of $\beta$ takes on the form of a WLS estimator, given by
-\begin{equation}
-\hat\beta_{WLS}(\theta) = \left\{X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right) X\right\}^{-1}X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right)Y
-(\#eq:WLS2)
-\end{equation}
-where $G^{-1} := (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}$.
-<br><br>
-In fact, this alternative WLS estimator in \@ref(eq:WLS1) is equivalent to the estimator in \@ref(eq:WLS2), which can be shown by a straightforward (but tedious) calculation confirming   
-\[\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1} = \left(Z\psi Z^\top + \Lambda\right)^{-1}.\]
-
-### Bayesian Estimation
-
-Suppose we take a Bayesian approach to modeling, and set the posterior distribution for $(\beta, \alpha)$ proportional to the likelihood
-\[\log \Pi_n(\beta, \alpha) = \text{const.} - \tfrac12(y - X\beta - Z\alpha)^\top \Lambda^{-1}(y - X\beta - Z\alpha) - \tfrac12 \alpha^\top\phi^{-1}\alpha, \]
-again dropping the dependence on $\theta$.  In this case we have chosen a flat (improper) prior for $\beta$; nevertheless, the posterior is proper, and, in fact, is multivariate normal.  To show this use the usual trick to ``complete-the-square" in the exponent as follows.  Expanding the quadratic forms, we have
-\[\text{const.} + \beta^\top X^\top \Lambda^{-1}X \beta + 2\beta^\top X^\top \Lambda^{-1}Z\alpha + \alpha^\top(Z^\top \Lambda^{-1}Z + \phi^{-1})\alpha - 2Y^\top \Lambda^{-1}X\beta - 2Y^\top \Lambda^{-1}Z\alpha.\]
-
-We want to rewrite the term $\beta^\top X^\top \Lambda^{-1}X \beta - 2Y^\top \Lambda^{-1}X\beta$ as $(\beta - \hat\beta+\hat\beta - CY)^\top X^\top \Lambda^{-1}X(\beta - \hat\beta+\hat\beta - CY) + \text{const.}$ using the "add-and-subtract trick".  Multiplying out, we see that in order for us to retain the linear term $- 2Y^\top \Lambda^{-1}X\beta$ we must have
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 
 
 
@@ -219,30 +179,3 @@ We want to rewrite the term $\beta^\top X^\top \Lambda^{-1}X \beta - 2Y^\top \La
 
 
 
-<<<<<<< HEAD
-=======
-
-
-
-
-For reference, the aforementioned formula for the inverse of a block matrix is
-\[\begin{bmatrix}
-A & C\\
-C^\top & B
-\end{bmatrix}^{-1}  = \begin{bmatrix}
-A^{-1} + A^{-1}CD^{-1}C^\top A^{-1} & -A^{-1}CD^{-1}\\
--D^{-1}C^\top A^{-1} & D^{-1}
-\end{bmatrix}\]
-where $D^{-1} = B - C^\top A^{-1}C$.  For this particular application, we have 
-
-
-### Asymptotic Distribution of Fixed Effects MLE
-
-
-
-
-
-
-
-
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576

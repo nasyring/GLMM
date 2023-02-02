@@ -7,18 +7,13 @@
 <title>Chapter 4 Linear Mixed Models | GLMM</title>
 <meta name="author" content="Nick Syring">
 <meta name="description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
-<<<<<<< HEAD
 <meta name="generator" content="bookdown 0.29 with bs4_book()">
-=======
-<meta name="generator" content="bookdown 0.24 with bs4_book()">
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 <meta property="og:title" content="Chapter 4 Linear Mixed Models | GLMM">
 <meta property="og:type" content="book">
 <meta property="og:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 4 Linear Mixed Models | GLMM">
 <meta name="twitter:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
-<<<<<<< HEAD
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.0/transition.js"></script><script src="libs/bs3compat-0.4.0/tabs.js"></script><script src="libs/bs3compat-0.4.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
@@ -26,12 +21,6 @@
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
-=======
-<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.11/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
-<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS -->
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 </head>
 <body data-spy="scroll" data-target="#toc">
 
@@ -77,11 +66,7 @@
 <h3>
 <span class="header-section-number">4.1.1</span> Strength of metallic bonds<a class="anchor" aria-label="anchor" href="#strength-of-metallic-bonds"><i class="fas fa-link"></i></a>
 </h3>
-<<<<<<< HEAD
 <p>The dataset below, called “Bonds”, contains responses for 21 samples of metals, 7 each for iron, nickel, and copper, that quantify the strength of metallic bonds. One sample from each metal was extracted from each of 7 ingots. We expect ingots to act like blocks—differences in ingots account for a substantial amount of variability in the responses, but the precise block effects are of no inferential/scientific inference. We only include the blocks in order to reduce the residual variance after accounting for block variance. A randomized controlled block design describes how this data was collected, but, if we repeated the experiment, the blocks (ingots) would be completely different. That is, the blocks are not <em>fixed</em> but <em>random</em>. Rather than estimating block effects that would surely change experiment to experiment, we should focus on estimating the amount of variability explained by the blocks, which should remain about the same experiment to experiment. This suggests a different model than used to analyze RCBD experiments with fixed blocks.<br><br></p>
-=======
-<p>The dataset below, called “Bonds”, contains responses for 21 samples of metals, 7 each for iron, nickel, and copper, that quantify the strength of metallic bonds. One sample from each metal was extracted from each of 7 ingots. We expect ingots to act like blocks—differences in ingots account for a substantial amount of variability in the responses, but the precise block effects are of no inferential/scientific interest. We only include the blocks in order to reduce the residual variance after accounting for block variance. A randomized controlled block design describes how this data was collected, but, if we repeated the experiment, the blocks (ingots) would be completely different. That is, the blocks are not <em>fixed</em> but <em>random</em>. Rather than estimating block effects that would surely change experiment to experiment, we should focus on estimating the amount of variability explained by the blocks, which should remain about the same experiment to experiment. This suggests a different model than used to analyze RCBD experiments with fixed blocks.<br><br></p>
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 <p>The usual linear model for fixed blocks is
 <span class="math display">\[y_{ijk} = \mu + \alpha_i + \beta_j + \epsilon_{ij},\]</span>
 where <span class="math inline">\(y_{ij}\)</span> is the response for treatment (metal) <span class="math inline">\(i\)</span> in block (ingot) <span class="math inline">\(j\)</span>; the <span class="math inline">\(\alpha_i\)</span>’s are the metal (treatment) effects; the <span class="math inline">\(\beta_j\)</span>’s are the ingot (block) effects; and, <span class="math inline">\(\epsilon_{ij}\stackrel{iid}{\sim}N(0,\sigma^2)\)</span> are the random residuals.<br><br></p>
@@ -104,11 +89,7 @@ where <span class="math inline">\(MSE_{agg}\)</span> and <span class="math inlin
 <h3>
 <span class="header-section-number">4.1.2</span> Machine Productivity<a class="anchor" aria-label="anchor" href="#machine-productivity"><i class="fas fa-link"></i></a>
 </h3>
-<<<<<<< HEAD
 <p>The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines. The goal is to determine which machine is most productive while controlling for natural variation in worker productivity. The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example. The difference between the two examples (besides the context) is that the machine treatments are replicated wihtin workers, so that there are three observations of a productivity score fore each worker for each type of machine. This means that we can fit a model with <em>interaction terms</em> capable of capturing changes in machine effects on productivity between different workers (if those changes are present):
-=======
-<p>The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines. The goal is to determine which machine is most productive while controlling for natural variation in worker productivity. The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example. The difference between the two examples (besides the context) is that the machine treatments are replicated within workers, so that there are three observations of a productivity score fore each worker for each type of machine. This means that we can fit a model with <em>interaction terms</em> capable of capturing changes in machine effects on productivity between different workers (if those changes are present):
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 <span class="math display" id="eq:fullmodel2">\[\begin{equation}
 y_{ijk} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \epsilon_{ijk},
 \tag{4.3}
@@ -209,22 +190,11 @@ where Y is an <span class="math inline">\(n\times 1\)</span> response, <span cla
 <span class="header-section-number">4.2.1</span> Maximum Likelihood<a class="anchor" aria-label="anchor" href="#maximum-likelihood"><i class="fas fa-link"></i></a>
 </h3>
 <p>If you are familiar with least squares (and weighted least squares) you may recognize the MLE of <span class="math inline">\(\beta\)</span> is given by the weighted least squares solution
-<<<<<<< HEAD
 <span class="math display">\[\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y\]</span>
 where <span class="math inline">\(W^{-1} = (Z \psi_\theta Z^\top + \Lambda_\theta)^{-1}\)</span>. The WLS estimator is fine in theory, but hard to compute in practice because it requires inverting an <span class="math inline">\(n\times n\)</span> matrix. For large <span class="math inline">\(n\)</span> this is computationally challenging—<span class="math inline">\(O(n^3)\)</span> computations—unless the matrix has some special “sparse” structure. It’s not just the number of computations (and time) needed to compute an <span class="math inline">\(n\times n\)</span> matrix inverse that is problematic. For large matrices, algorithms for computing the inverse may not maintain adequate numerical precision, and, therefore, the resulting matrix may not truly equal the inverse desired. These errors in floating-point arithmetic will compound for large matrix inversion problems and lead to an estimate <span class="math inline">\(\hat\beta_{WLS}\)</span> that is not actually equal to the true weighted least squares estimate, due to computational errors.<br><br></p>
 <p>Typically, the direct WLS approach to maximum likelihood estimation is replaced by an iterative procedure in order to avoid the computation of an inverse of a large matrix. The WLS solution above is based on the joint density (likelihood) of the observations <span class="math inline">\(Y\)</span>. Instead, consider the joint density of <span class="math inline">\((Y,\alpha)\)</span> parameterized by <span class="math inline">\((\beta, \theta)\)</span>. This joint density is conveniently expressed by the product of conditional and marginal densities <span class="math inline">\(f(y|\alpha;\beta,\theta)\cdot f(\alpha;\beta,\theta)\)</span> given by
 <span class="math display">\[f(y|\alpha;\beta,\theta) = (2\pi)^{-2/n}|\Lambda_\theta|^{-1/2}\exp\{-\tfrac12\|y - X\beta - Z\alpha\|^2_{\lambda_\theta^{-1}}\},\]</span>
 where <span class="math inline">\(\|a\|_B := a^\top Ba\)</span>, and
-=======
-<span class="math display" id="eq:WLS1">\[\begin{equation}
-\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y
-\tag{4.5}
-\end{equation}\]</span>
-where <span class="math inline">\(W^{-1} = (Z \psi_\theta Z^\top + \Lambda_\theta)^{-1}\)</span>. The WLS estimator is fine in theory, but hard to compute in practice because it requires inverting an <span class="math inline">\(n\times n\)</span> matrix. For large <span class="math inline">\(n\)</span> this is computationally challenging—<span class="math inline">\(O(n^3)\)</span> computations—unless the matrix has some special “sparse” structure. It’s not just the number of computations (and time) needed to compute an <span class="math inline">\(n\times n\)</span> matrix inverse that is problematic. For large matrices, algorithms for computing the inverse may not maintain adequate numerical precision, and, therefore, the resulting matrix may not truly equal the inverse desired. These errors in floating-point arithmetic will compound for large matrix inversion problems and lead to an estimate <span class="math inline">\(\hat\beta_{WLS}\)</span> that is not actually equal to the true weighted least squares estimate, due to computational errors.<br><br></p>
-<p>Typically, the direct WLS approach to maximum likelihood estimation is replaced by an iterative procedure in order to avoid the computation of an inverse of a large matrix. The WLS solution above is based on the joint density (likelihood) of the observations <span class="math inline">\(Y\)</span>. Instead, consider the joint density of <span class="math inline">\((Y,\alpha)\)</span> parameterized by <span class="math inline">\((\beta, \theta)\)</span>. This joint density is conveniently expressed by the product of conditional and marginal densities <span class="math inline">\(f(y|\alpha;\beta,\theta)\cdot f(\alpha;\beta,\theta)\)</span> given by
-<span class="math display">\[f(y|\alpha;\beta,\theta) = (2\pi)^{-2/n}|\Lambda_\theta|^{-1/2}\exp\{-\tfrac12\|y - X\beta - Z\alpha\|^2_{\lambda_\theta^{-1}}\},\]</span>
-where <span class="math inline">\(\|a\|_B^2 := a^\top Ba\)</span>, and
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 <span class="math display">\[f(\alpha;\beta,\theta) = (2\pi)^{-p/2}|\psi_\theta|^{-1/2}\exp\{-\tfrac12\alpha^\top \psi_\theta^{-1}\alpha\}.\]</span></p>
 <p>Now, the joint density <span class="math inline">\(f(y,\alpha;\beta,\theta)\)</span> cannot be used directly as a likelihood, i.e., <span class="math inline">\(L(\beta, \theta| Y,\alpha)\)</span> because <span class="math inline">\(\alpha\)</span> is an unobserved random variable. Instead, we could average over <span class="math inline">\(\alpha\)</span> values (integrate out <span class="math inline">\(\alpha\)</span>) to obtain the marginal density <span class="math inline">\(f(y;\beta,\theta)\)</span> and use this density with <span class="math inline">\(Y=y\)</span> fixed at the observed values as a likelihood for <span class="math inline">\((\beta, \theta)\)</span>. To compute the this marginal density we begin with a tranformation and a Taylor expansion:
 <span class="math display">\[\begin{align*}
@@ -239,7 +209,6 @@ Now, using the marginal density of <span class="math inline">\(Y\)</span> to def
 <span class="math display">\[2\ell(\beta,\theta;y) = -\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha - \log|\Lambda_\theta|-\log|\psi_\theta|-\log|Z^\top\Lambda_\theta^{-1}Z+\psi_\theta^{-1}|-n\log 2\pi.\]</span>
 Given a fixed value of <span class="math inline">\(\theta\)</span>, the MLE <span class="math inline">\(\hat\beta\)</span> may be found by maximizing
 <span class="math display">\[-\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha\]</span>
-<<<<<<< HEAD
 where, recall, <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z)^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. Plug in <span class="math inline">\(\hat\alpha\)</span> to see this becomes a WLS problem; hence, <span class="math inline">\(\hat\beta\)</span> is a WLS solution, and the weight matrix is given by <span class="math inline">\(V = V_1 + V_2\)</span>, where (suppressing <span class="math inline">\(\theta\)</span> subscripts)
 <span class="math display">\[\begin{align*}
 V_1 &amp;= (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})^\top \Lambda^{-1} (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})\\
@@ -287,40 +256,6 @@ where <span class="math inline">\(Z\psi Z^\top +\Lambda = D^{-1} - CA^{-1}B = (\
 \end{align*}\]</span>
 It is straightforward to show the middle term is zero. If we integrate out <span class="math inline">\(\beta\)</span> (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
 <span class="math display">\[\Pi_n(\theta, \Lambda) = \frac{(2\pi)^{-n/2}}{(2\pi)^{-p/2}}\frac{|V|^{-1/2}}{|X^\top V^{-1}X|^{-1/2}}\exp\left(-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta)\right).\]</span></p>
-=======
-where, recall, <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. If we substitute this expression for <span class="math inline">\(\hat\alpha\)</span> into the criterion function above and simplify, we see that for a fixed <span class="math inline">\(\theta\)</span> the estimator of <span class="math inline">\(\beta\)</span> takes on the form of a WLS estimator, given by
-<span class="math display" id="eq:WLS2">\[\begin{equation}
-\hat\beta_{WLS}(\theta) = \left\{X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right) X\right\}^{-1}X^\top \left(\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1}\right)Y
-\tag{4.6}
-\end{equation}\]</span>
-where <span class="math inline">\(G^{-1} := (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}\)</span>.
-<br><br>
-In fact, this alternative WLS estimator in <a href="linear-mixed-models.html#eq:WLS1">(4.5)</a> is equivalent to the estimator in <a href="linear-mixed-models.html#eq:WLS2">(4.6)</a>, which can be shown by a straightforward (but tedious) calculation confirming<br><span class="math display">\[\Lambda^{-1} - \Lambda^{-1}ZG^{-1}Z^\top \Lambda^{-1} = \left(Z\psi Z^\top + \Lambda\right)^{-1}.\]</span></p>
-</div>
-<div id="bayesian-estimation" class="section level3" number="4.2.2">
-<h3>
-<span class="header-section-number">4.2.2</span> Bayesian Estimation<a class="anchor" aria-label="anchor" href="#bayesian-estimation"><i class="fas fa-link"></i></a>
-</h3>
-<p>Suppose we take a Bayesian approach to modeling, and set the posterior distribution for <span class="math inline">\((\beta, \alpha)\)</span> proportional to the likelihood
-<span class="math display">\[\log \Pi_n(\beta, \alpha) = \text{const.} - \tfrac12(y - X\beta - Z\alpha)^\top \Lambda^{-1}(y - X\beta - Z\alpha) - \tfrac12 \alpha^\top\phi^{-1}\alpha, \]</span>
-again dropping the dependence on <span class="math inline">\(\theta\)</span>. In this case we have chosen a flat (improper) prior for <span class="math inline">\(\beta\)</span>; nevertheless, the posterior is proper, and, in fact, is multivariate normal. To show this use the usual trick to ``complete-the-square” in the exponent as follows. Expanding the quadratic forms, we have
-<span class="math display">\[\text{const.} + \beta^\top X^\top \Lambda^{-1}X \beta + 2\beta^\top X^\top \Lambda^{-1}Z\alpha + \alpha^\top(Z^\top \Lambda^{-1}Z + \phi^{-1})\alpha - 2Y^\top \Lambda^{-1}X\beta - 2Y^\top \Lambda^{-1}Z\alpha.\]</span></p>
-<p>We want to rewrite the term <span class="math inline">\(\beta^\top X^\top \Lambda^{-1}X \beta - 2Y^\top \Lambda^{-1}X\beta\)</span> as <span class="math inline">\((\beta - \hat\beta+\hat\beta - CY)^\top X^\top \Lambda^{-1}X(\beta - \hat\beta+\hat\beta - CY) + \text{const.}\)</span> using the “add-and-subtract trick”. Multiplying out, we see that in order for us to retain the linear term <span class="math inline">\(- 2Y^\top \Lambda^{-1}X\beta\)</span> we must have</p>
-<p>For reference, the aforementioned formula for the inverse of a block matrix is
-<span class="math display">\[\begin{bmatrix}
-A &amp; C\\
-C^\top &amp; B
-\end{bmatrix}^{-1}  = \begin{bmatrix}
-A^{-1} + A^{-1}CD^{-1}C^\top A^{-1} &amp; -A^{-1}CD^{-1}\\
--D^{-1}C^\top A^{-1} &amp; D^{-1}
-\end{bmatrix}\]</span>
-where <span class="math inline">\(D^{-1} = B - C^\top A^{-1}C\)</span>. For this particular application, we have</p>
-</div>
-<div id="asymptotic-distribution-of-fixed-effects-mle" class="section level3" number="4.2.3">
-<h3>
-<span class="header-section-number">4.2.3</span> Asymptotic Distribution of Fixed Effects MLE<a class="anchor" aria-label="anchor" href="#asymptotic-distribution-of-fixed-effects-mle"><i class="fas fa-link"></i></a>
-</h3>
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 
 </div>
 </div>
@@ -339,15 +274,7 @@ where <span class="math inline">\(D^{-1} = B - C^\top A^{-1}C\)</span>. For this
 </ul>
 </li>
 <li>
-<<<<<<< HEAD
 <a class="nav-link" href="#general-mixed-model-parameter-estimation"><span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#maximum-likelihood"><span class="header-section-number">4.2.1</span> Maximum Likelihood</a></li></ul>
-=======
-<a class="nav-link" href="#general-mixed-model-parameter-estimation"><span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation</a><ul class="nav navbar-nav">
-<li><a class="nav-link" href="#maximum-likelihood"><span class="header-section-number">4.2.1</span> Maximum Likelihood</a></li>
-<li><a class="nav-link" href="#bayesian-estimation"><span class="header-section-number">4.2.2</span> Bayesian Estimation</a></li>
-<li><a class="nav-link" href="#asymptotic-distribution-of-fixed-effects-mle"><span class="header-section-number">4.2.3</span> Asymptotic Distribution of Fixed Effects MLE</a></li>
-</ul>
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 </li>
 </ul>
 
@@ -365,11 +292,7 @@ where <span class="math inline">\(D^{-1} = B - C^\top A^{-1}C\)</span>. For this
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-<<<<<<< HEAD
     <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-02.</p>
-=======
-    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-01.</p>
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
   </div>
 
   <div class="col-12 col-md-6 mt-3">
@@ -382,11 +305,7 @@ where <span class="math inline">\(D^{-1} = B - C^\top A^{-1}C\)</span>. For this
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-<<<<<<< HEAD
     if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
-=======
-    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
->>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');
