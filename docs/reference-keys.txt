@@ -2,6 +2,11 @@ eq:fullmodel
 eq:aggmodel1
 eq:fullmodel2
 eq:aggmodel
+<<<<<<< HEAD
+=======
+eq:WLS1
+eq:WLS2
+>>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
 introduction
 intro
 poisson-regression
@@ -21,3 +26,8 @@ strength-of-metallic-bonds
 machine-productivity
 general-mixed-model-parameter-estimation
 maximum-likelihood
+<<<<<<< HEAD
+=======
+bayesian-estimation
+asymptotic-distribution-of-fixed-effects-mle
+>>>>>>> 3a34205a62ac8674ec1f9818b377323315c18576
