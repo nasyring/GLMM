@@ -87,7 +87,7 @@ where <span class="math inline">\(MSE_{agg}\)</span> and <span class="math inlin
 </div>
 <div id="machine-productivity" class="section level3" number="4.1.2">
 <h3>
-<span class="header-section-number">4.1.2</span> Machine Productivity<a class="anchor" aria-label="anchor" href="#machine-productivity"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.1.2</span> Machine productivity<a class="anchor" aria-label="anchor" href="#machine-productivity"><i class="fas fa-link"></i></a>
 </h3>
 <p>The dataset given below contains the results of a designed experiment to evaluate worker productivity using 3 different industrial machines. The goal is to determine which machine is most productive while controlling for natural variation in worker productivity. The observed workers represent a random sample from a population of workers (blocks), analogous to the ingots in the previous example. The difference between the two examples (besides the context) is that the machine treatments are replicated wihtin workers, so that there are three observations of a productivity score fore each worker for each type of machine. This means that we can fit a model with <em>interaction terms</em> capable of capturing changes in machine effects on productivity between different workers (if those changes are present):
 <span class="math display" id="eq:fullmodel2">\[\begin{equation}
@@ -177,50 +177,105 @@ that is, under the null hypothesis. The test that rejects <span class="math inli
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
-<div id="general-mixed-model-parameter-estimation" class="section level2" number="4.2">
+<div id="a-general-linear-mixed-model" class="section level2" number="4.2">
 <h2>
-<span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation<a class="anchor" aria-label="anchor" href="#general-mixed-model-parameter-estimation"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.2</span> A general linear mixed model<a class="anchor" aria-label="anchor" href="#a-general-linear-mixed-model"><i class="fas fa-link"></i></a>
 </h2>
 <p>For experiments comparing responses between factors the ANOVA-type analyses above are sufficient. But, for more general models with random effects, e.g., those including continuous covariates, general-purpose methods are needed. The general mixed effects model may be written
 <span class="math display">\[Y = X\beta+ Z\alpha + \epsilon\]</span>
 where Y is an <span class="math inline">\(n\times 1\)</span> response, <span class="math inline">\(X\)</span> is an <span class="math inline">\(n \times p\)</span> design matrix for fixed (non-random) effects; <span class="math inline">\(Z\)</span> is and <span class="math inline">\(n\times a\)</span> matrix for random effects; <span class="math inline">\(\beta\)</span> is a <span class="math inline">\(p\times 1\)</span> non-random coefficient vector; <span class="math inline">\(\alpha\sim N_a(0, \psi_\theta)\)</span> is an <span class="math inline">\(a\times 1\)</span> multivariate normal random coefficient vector with mean 0 and covariance matrix <span class="math inline">\(\psi_\theta\)</span> indexed by a parameter <span class="math inline">\(\theta\)</span>; and <span class="math inline">\(\epsilon\sim N_n(0, \Lambda_\theta)\)</span> is a multivariate normal random residual vector with covariance matrix <span class="math inline">\(\Lambda_\theta\)</span>. An alternative way of writing the model (quite succintly) is
-<span class="math display">\[Y\sim N_n(X\beta, Z \psi_\theta Z^\top + \Lambda_\theta).\]</span></p>
-<div id="maximum-likelihood" class="section level3" number="4.2.1">
+<span class="math display" id="eq:linmix">\[\begin{equation}
+\tag{4.5}
+Y\sim N_n(X\beta, Z \psi_\theta Z^\top + \Lambda_\theta).
+\end{equation}\]</span></p>
+<div id="parameter-estimation-using-pml" class="section level3" number="4.2.1">
 <h3>
-<span class="header-section-number">4.2.1</span> Maximum Likelihood<a class="anchor" aria-label="anchor" href="#maximum-likelihood"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.2.1</span> Parameter estimation using PML<a class="anchor" aria-label="anchor" href="#parameter-estimation-using-pml"><i class="fas fa-link"></i></a>
 </h3>
-<p>If you are familiar with least squares (and weighted least squares) you may recognize the MLE of <span class="math inline">\(\beta\)</span> is given by the weighted least squares solution
-<span class="math display">\[\hat\beta_{WLS} = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y\]</span>
-where <span class="math inline">\(W^{-1} = (Z \psi_\theta Z^\top + \Lambda_\theta)^{-1}\)</span>. The WLS estimator is fine in theory, but hard to compute in practice because it requires inverting an <span class="math inline">\(n\times n\)</span> matrix. For large <span class="math inline">\(n\)</span> this is computationally challenging—<span class="math inline">\(O(n^3)\)</span> computations—unless the matrix has some special “sparse” structure. It’s not just the number of computations (and time) needed to compute an <span class="math inline">\(n\times n\)</span> matrix inverse that is problematic. For large matrices, algorithms for computing the inverse may not maintain adequate numerical precision, and, therefore, the resulting matrix may not truly equal the inverse desired. These errors in floating-point arithmetic will compound for large matrix inversion problems and lead to an estimate <span class="math inline">\(\hat\beta_{WLS}\)</span> that is not actually equal to the true weighted least squares estimate, due to computational errors.<br><br></p>
-<p>Typically, the direct WLS approach to maximum likelihood estimation is replaced by an iterative procedure in order to avoid the computation of an inverse of a large matrix. The WLS solution above is based on the joint density (likelihood) of the observations <span class="math inline">\(Y\)</span>. Instead, consider the joint density of <span class="math inline">\((Y,\alpha)\)</span> parameterized by <span class="math inline">\((\beta, \theta)\)</span>. This joint density is conveniently expressed by the product of conditional and marginal densities <span class="math inline">\(f(y|\alpha;\beta,\theta)\cdot f(\alpha;\beta,\theta)\)</span> given by
-<span class="math display">\[f(y|\alpha;\beta,\theta) = (2\pi)^{-2/n}|\Lambda_\theta|^{-1/2}\exp\{-\tfrac12\|y - X\beta - Z\alpha\|^2_{\lambda_\theta^{-1}}\},\]</span>
-where <span class="math inline">\(\|a\|_B := a^\top Ba\)</span>, and
-<span class="math display">\[f(\alpha;\beta,\theta) = (2\pi)^{-p/2}|\psi_\theta|^{-1/2}\exp\{-\tfrac12\alpha^\top \psi_\theta^{-1}\alpha\}.\]</span></p>
-<p>Now, the joint density <span class="math inline">\(f(y,\alpha;\beta,\theta)\)</span> cannot be used directly as a likelihood, i.e., <span class="math inline">\(L(\beta, \theta| Y,\alpha)\)</span> because <span class="math inline">\(\alpha\)</span> is an unobserved random variable. Instead, we could average over <span class="math inline">\(\alpha\)</span> values (integrate out <span class="math inline">\(\alpha\)</span>) to obtain the marginal density <span class="math inline">\(f(y;\beta,\theta)\)</span> and use this density with <span class="math inline">\(Y=y\)</span> fixed at the observed values as a likelihood for <span class="math inline">\((\beta, \theta)\)</span>. To compute the this marginal density we begin with a tranformation and a Taylor expansion:
+<p>The linear mixed model in <a href="linear-mixed-models.html#eq:linmix">(4.5)</a> may be fit using maximum likelihood estimation (MLE), but the (potentially) complicated covariance structure poses challenges to numerical maximization of the likelihood function. Rather than straightforward MLE, linear mixed models are usually fit using either <em>restricted maximum likelihood estimation</em> (REML, also called residual MLE) or <em>profile maximum likelihood estimation</em> (PML). Both approaches aim to simplify the computation of the maximum while retaining the good asymptotic properties of maximum likelihood estimators. While MLE is a frequentist concept, it turns out that REML can be derived most intuitively using a Bayesian approach.</p>
+<p>If you have previously covered general linear models, i.e., <span class="math inline">\(Y = X\beta + \epsilon\)</span> where <span class="math inline">\(Cov(\epsilon) = \Sigma\)</span> for some known <span class="math inline">\(\Sigma\)</span> or some matrix <span class="math inline">\(\Sigma = \sigma^2 V\)</span> for an unknown scalar <span class="math inline">\(\sigma^2\)</span> and a known matrix <span class="math inline">\(V\)</span>, then you are familiar with weighted least squares (WLS) estimation. If the linear mixed model covariance parameter <span class="math inline">\(\theta\)</span> were known, then the model could be fit using WLS:
+<span class="math display">\[\hat\beta(\theta) = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y, \quad \text{where} \quad W = Z \psi_\theta Z^\top + \Lambda_\theta.\]</span></p>
+<p>The above WLS solution inspires the PML technique: maximize the likelihood with respect to <span class="math inline">\(\theta\)</span> after plugging in <span class="math inline">\(\beta = \hat\beta(\theta)\)</span>. PML reproduces MLEs exactly; its advantage is its simplified formulation of the likelihood maximization problem.</p>
+<p>Nevertheless there are two problems with the PML strategy suggested above: one computational and the other statistical.</p>
+<p>The first problem is that PML/WLS requires inverting the <span class="math inline">\(n\times n\)</span> matrix <span class="math inline">\(W = Z \psi_\theta Z^\top + \Lambda_\theta\)</span>. For even moderate sample sizes this matrix inversion can be both computationally demanding and computationally unstable. Fortunately, some clever linear algebra resolves this problem. Define matrix <span class="math inline">\(A:=\psi^{-1} + Z^\top \Lambda^{-1}Z\)</span>. Observe that the matrix <span class="math inline">\(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\)</span> equals the inverse of <span class="math inline">\(Z\psi Z^\top + \Lambda\)</span>:
 <span class="math display">\[\begin{align*}
-f(y;\beta, \theta) &amp;= \int f(y,\alpha;\beta, \theta)d\alpha = \int \exp\{\log f(y\alpha;\beta,\theta)\}d\alpha \\
-&amp; = \int \exp\left\{\log f(y,\hat\alpha;\beta,\theta) + \tfrac12 (\alpha -\hat\alpha)^\top \frac{\partial^2 \log f(y,\alpha;\beta,\theta)}{\partial \alpha \partial\alpha^\top}(\alpha - \hat\alpha)\right\}d\alpha,
+&amp;(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1})(Z\psi Z^\top + \Lambda) \\
+&amp; = \Lambda^{-1}Z\psi Z^\top + I - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}Z\psi Z^\top - \Lambda^{-1}ZA^{-1}Z^\top \\
+&amp; = I + \Lambda^{-1}Z(\psi - A^{-1}(Z^\top \Lambda^{-1}Z\psi + I))Z^\top \\
+&amp; = I+\Lambda^{-1}Z(\psi - \psi(Z^\top \Lambda^{-1}A\psi + I)^{-1}(Z^\top \Lambda^{-1}A\psi + I))Z^\top \\
+&amp; = I
 \end{align*}\]</span>
-where <span class="math inline">\(\hat\alpha\)</span> is the optimal <em>prediction</em> of <span class="math inline">\(\alpha\)</span> maximizing <span class="math inline">\(f(y,\alpha;\beta,\theta)\)</span> for a fixed <span class="math inline">\((\beta,\theta)\)</span>. This maximizer has an explicit form: <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z + \psi_\theta^{-1})^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. The second line above contains a Taylor expansion of <span class="math inline">\(\log f(y,\alpha;\beta,\theta)\)</span> around <span class="math inline">\(\hat\alpha\)</span> which is exact, i.e., the higher-order terms are zero due to the Gaussian form of the densities. Pulling out constant terms from the integration we have
-<span class="math display">\[f(y;\beta, \theta) = f(y, \hat\alpha;\beta, \theta)\int \exp\left\{-\tfrac12 (\alpha -\hat\alpha)^\top (Z^\top \lambda_\theta^{-1}Z + \psi_\theta^{-1})(\alpha - \hat\alpha)\right\}d\alpha.\]</span>
-Using the fact the integrand is the kernel of a multivariate Gaussian density, we see the integral evaluates to <span class="math inline">\((2\pi)^{p/2}|Z^\top \Lambda_\theta^{-1}Z+\psi_\theta^{-1}|^{-1/2}\)</span>, and, hence
-<span class="math display">\[f(y;\beta, \theta) = f(y, \hat\alpha;\beta, \theta)(2\pi)^{p/2}|Z^\top \Lambda_\theta^{-1}Z+\psi_\theta^{-1}|^{-1/2}.\]</span>
-Now, using the marginal density of <span class="math inline">\(Y\)</span> to define the loglikelihood we have
-<span class="math display">\[2\ell(\beta,\theta;y) = -\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha - \log|\Lambda_\theta|-\log|\psi_\theta|-\log|Z^\top\Lambda_\theta^{-1}Z+\psi_\theta^{-1}|-n\log 2\pi.\]</span>
-Given a fixed value of <span class="math inline">\(\theta\)</span>, the MLE <span class="math inline">\(\hat\beta\)</span> may be found by maximizing
-<span class="math display">\[-\|y - X\beta - Z\hat\alpha\|_{\Lambda_\theta^{-1}}-\hat\alpha^\top \psi_\theta^{-1}\hat\alpha\]</span>
-where, recall, <span class="math inline">\(\hat\alpha = (Z^\top \Lambda_\theta^{-1}Z)^{-1}Z^\top \Lambda_\theta^{-1}(Y - X\beta)\)</span>. Plug in <span class="math inline">\(\hat\alpha\)</span> to see this becomes a WLS problem; hence, <span class="math inline">\(\hat\beta\)</span> is a WLS solution, and the weight matrix is given by <span class="math inline">\(V = V_1 + V_2\)</span>, where (suppressing <span class="math inline">\(\theta\)</span> subscripts)
+The key property of this inverse is that it only requires computing the inverse of <span class="math inline">\(p\times p\)</span> and <span class="math inline">\(a\times a\)</span> matrices, and does not require the computation of any <span class="math inline">\(n\times n\)</span> matrix inverse. In many practical applications both <span class="math inline">\(p\)</span> and <span class="math inline">\(a\)</span> are much smaller than <span class="math inline">\(n\)</span>, and the matrices <span class="math inline">\(\Lambda\)</span> and <span class="math inline">\(\psi\)</span> often have simple structures, so that the above matrix inversions may be performed very quickly and reliably.</p>
+<p>The second issue with PML cannot as easily be overcome. Think back to the Gauss-Markov model <span class="math inline">\(Y = X\beta+\epsilon\)</span> where <span class="math inline">\(Cov(\epsilon) = \sigma^2 I_n\)</span>. Recall that the MLE <span class="math inline">\(\hat\sigma^2\)</span> is biased, i.e., <span class="math inline">\(E(\hat\sigma^2) = \frac{n-p}{n}\sigma^2\)</span>. In practice we may have a substantial number of covariates relative to sample size so that this bias can be quite significant; and, importantly, the bias results in an underestimate which causes over-optimism with respect to inferences concerning <span class="math inline">\(\beta\)</span>. The same phenomenon occurs in ML/PML estimation: the PML estimate of <span class="math inline">\(\theta\)</span> is biased. The desire for an estimation strategy that constructively produces unbiased estimates is the motivation for REML, covered next.</p>
+</div>
+<div id="reml---frequentist-approach" class="section level3" number="4.2.2">
+<h3>
+<span class="header-section-number">4.2.2</span> REML - frequentist approach<a class="anchor" aria-label="anchor" href="#reml---frequentist-approach"><i class="fas fa-link"></i></a>
+</h3>
+<p>There are two formulations both leading to the residual (also called restircted/reduced) maximum likelihood approach (REML), one frequentist (non-Bayesian) and the other Bayesian. Let’s explore both approaches.</p>
+<p>The motivation for REML is to produce unbiased (or at least less biased than MLE) estimates of the covariance parameters. The REML approach to doing this may be interpreted as a likelihood approach based on residuals, or as a marginal likelihood approach to covariance parameter estimation.</p>
+<p>Begin with the linear mixed model in <a href="linear-mixed-models.html#eq:linmix">(4.5)</a>. Assume <span class="math inline">\(X\)</span> has full rank <span class="math inline">\(p\)</span> and let <span class="math inline">\(L = [L_1 \,\,L_2]\)</span> denote a block matrix of <span class="math inline">\(n\times p\)</span> and <span class="math inline">\(n\times (n-p)\)</span> blocks with the properties
+<span class="math display">\[L_1^\top X = I_p \quad\text{and}\quad L_2^\top X = 0_{n-p},\]</span>
+such that <span class="math inline">\(L\)</span> has full rank <span class="math inline">\(n\)</span>.</p>
+<p>This setup is a bit abstract, so it helps to find at least one concrete example of such an <span class="math inline">\(L\)</span>. Start with the projection matrix <span class="math inline">\(P_X := X(X^\top X)^{-1}X^\top\)</span>. Since <span class="math inline">\(P_X\)</span> is a symmetric, idempotent matrix of rank <span class="math inline">\(p\)</span> it has exactly <span class="math inline">\(p\)</span> eigenvalues of value 1 and <span class="math inline">\(n-p\)</span> 0 eigenvalues, and its eigenvectors are orthonormal. Hence,
+<span class="math display">\[P_X = \begin{bmatrix}V_1 &amp; V_2\\
+V_3 &amp;V_4\end{bmatrix}\begin{bmatrix}1_{p\times p} &amp; 0_{p\times n-p}\\
+0_{n-p \times p} &amp; 0_{n-p \times n-p}\end{bmatrix}\begin{bmatrix}V_1 &amp; V_2\\
+V_3 &amp;V_4\end{bmatrix}^\top.\]</span>
+It follows from this representation that
+<span class="math display">\[P_X = \begin{bmatrix}V_1 \\
+V_3\end{bmatrix}\begin{bmatrix}V_1 \\
+V_3 \end{bmatrix}^\top=:L_1L_1^\top\]</span>
+Furthermore, if <span class="math inline">\(v\)</span> is an eigenvector of <span class="math inline">\(P_X\)</span> with eigenvalue 1, then <span class="math inline">\(v\)</span> is an eigenvector of <span class="math inline">\(I-P_X\)</span> with eigenvalue 0 just by the definition of an eigenvalue (<span class="math inline">\(Av=\lambda v\)</span>). It follows that
+<span class="math display">\[I-P_X = \begin{bmatrix}V_2 \\
+V_4\end{bmatrix}\begin{bmatrix}V_2 \\
+V_4 \end{bmatrix}^\top=:L_2 L_2^\top.\]</span>
+By construction, <span class="math inline">\(L_1L_2^\top = 0\)</span>, <span class="math inline">\(L_1^\top L_1 = I_p\)</span> and <span class="math inline">\(L_2^\top L_2 = I_{n-p}\)</span>. The columns of <span class="math inline">\(L\)</span> are orthogonal, and so <span class="math inline">\(L\)</span> is full rank.</p>
+<p>In what follows, note that the REML estimates are invariant to the choice of <span class="math inline">\(L\)</span>, so long as it has the above three properties.</p>
+<p>Now, consider the full rank linear transformation <span class="math inline">\(Y \mapsto LY = [Y_1 \quad Y_2]^\top\)</span>. By the properties of <span class="math inline">\(L\)</span>, we have
+<span class="math display">\[LY = \begin{bmatrix} Y_1\\Y_2 \end{bmatrix} \sim N\left(\begin{bmatrix} \beta \\ 0\end{bmatrix}, \begin{bmatrix} L_1^\top \Sigma L_1 &amp;L_1^\top \Sigma L_2\\ L_2^\top \Sigma L_1 &amp; L_2^\top \Sigma L_2 \end{bmatrix}\right)\]</span>
+where <span class="math inline">\(\Sigma = Cov(Y) = Z \psi_\theta Z^\top + \Lambda_\theta\)</span>.</p>
+<p>The next step is to consider an equivalent characterization of the distribution of <span class="math inline">\((Y_1, Y_2)\)</span> as the product of the conditional distribution of <span class="math inline">\(Y_1|Y_2 = y_2\)</span> and the marginal distribution of <span class="math inline">\(Y_2\)</span>. Using the general formulas for the conditional distribution of a multivariate normal random vector, we get
+<span class="math display">\[Y_1|y_2 \sim N(\beta - L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}y_2, \, L_1^\top \Sigma L_1-L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1} L_2^\top \Sigma L_1).\]</span>
+Some tedious linear algebra (omitted here) can be used to show that the above covariance matrix is actually equal to <span class="math inline">\((X^\top \Sigma^{-1}X)^{-1}\)</span>, regardless of the specific choice of <span class="math inline">\(L\)</span>.</p>
+<p>Therefore, the conditional likelihood is given by
+<span class="math display">\[\ell_c := \text{const.} - \tfrac12\log |(X^\top \Sigma^{-1}X)^{-1}| -\tfrac{1}{2}(y_1 - \beta - y_2^\star)X^\top \Sigma^{-1}X(y_1 - \beta - y_2^\star)^\top, \]</span>
+where <span class="math inline">\(y_2^\star = L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}y_2\)</span>.</p>
+<p>Again, some tedious linear algebra computations can be used to show that
+<span class="math display">\[L_2(L_2^\top \Sigma L_2)^{-1}L_2^\top = \Sigma^{-1} - \Sigma^{-1}X(X^\top\Sigma^{-1} X)^{-1} X^\top\Sigma^{-1},\]</span>
+which is an improvement computationally because it requires only inversion of a <span class="math inline">\(p\times p\)</span> matrix and <span class="math inline">\(\Sigma^{-1}\)</span>, which has an efficient formula; see above. Furthermore, the block matrix determinant identity given by
+<span class="math display">\[det\begin{bmatrix}A &amp; B\\
+B^\top &amp; C\end{bmatrix} = |C||A - B^\top C^{-1}B|,\]</span>
+applied to <span class="math inline">\(L^\top\Sigma L\)</span> can be used to show that
+<span class="math display">\[\log |L_2^\top \Sigma L_2| = \log|L^\top\Sigma L| + \log |X^\top \Sigma^{-1}X|.\]</span>
+Further, rules for determinants imply
+<span class="math display">\[\log|L^\top\Sigma L| = \log|L^\top L\Sigma| = \log|L^\top L|+\log|\Sigma|.\]</span>
+Using these simplified expressions, and noting that <span class="math inline">\(\log|L^\top L|\)</span> is constant in parameters, we may write tge marginal (or residual) likelihood as
+<span class="math display">\[\ell_r:= \text{const}.-\tfrac12 \log |\Sigma| +\tfrac12 \log|X^\top \Sigma^{-1} X| -\tfrac12 y^\top(\Sigma^{-1} - \Sigma^{-1}X(X^\top\Sigma^{-1} X)^{-1} X^\top\Sigma^{-1})y.\]</span></p>
+<p>What is the reason for referring to <span class="math inline">\(\ell_r\)</span> as a <em>residual loglikelihood</em>? Recall <span class="math inline">\(\ell_r\)</span> is the marginal loglikelihood of <span class="math inline">\(L_2^\top Y\)</span> where <span class="math inline">\(L_2^\top X = 0\)</span>. Therefore,
+<span class="math display">\[E(L_2^\top Y) = L_2^\top X\beta = (L_2^\top X)\beta = 0\beta = 0.\]</span>
+We say <span class="math inline">\(L_2^\top Y\)</span> behaves as a residual because <span class="math inline">\(L_2^\top X = 0\)</span>.</p>
+<p>The REML estimate of <span class="math inline">\(\theta\)</span> is given by the maximizer of <span class="math inline">\(\ell_r\)</span> with respect to <span class="math inline">\(\theta\)</span>. Note also that this is simple the MLE of <span class="math inline">\(\theta\)</span> with respect to the marginal likelihood of <span class="math inline">\(L_2^\top Y\)</span>, i.e., the likelihood of ``part of the data”.</p>
+<p>Next, consider maximizing the conditional likelihood <span class="math inline">\(\ell_c\)</span> with respect to <span class="math inline">\(\beta\)</span> and where <span class="math inline">\(\theta=\hat\theta\)</span> is fixed at its REML estimate, i.e., <span class="math inline">\(\Sigma = \hat\Sigma\)</span>. Take the first derivative with respect to <span class="math inline">\(\beta\)</span>, equate to zero, and observe
 <span class="math display">\[\begin{align*}
-V_1 &amp;= (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})^\top \Lambda^{-1} (I - Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})\\
-&amp; = \Lambda^{-1} - \Lambda^{-1}Z(Z^\top \Lambda^{-1}Z)^{-1}Z^\top\Lambda^{-1}\\
-V_2 &amp;= ((Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})^\top \psi^{-1} ((Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1})\\
-&amp; = \Lambda^{-1}Z(Z^\top \Lambda^{-1}Z)^{-1}\psi^{-1}(Z^\top \Lambda^{-1}Z)^{-1}Z^\top \Lambda^{-1}
-\end{align*}\]</span></p>
-<p>Computing the covariance of <span class="math inline">\(\hat\beta\)</span> still is computationally intensive. Computing the covariance of
-<span class="math display">\[(X^\top VX)^{-1}X^\top V Y\]</span>
-still requires inversion of the covariance of <span class="math inline">\(Y\)</span>, which is the problematic component. Curiously, a Bayesian point of view provides a shortcut to the computation of the MLE covariance. Suppose we model (in a Bayesian sense) the parameter <span class="math inline">\(\beta\)</span> with an improper constant prior, and the random component <span class="math inline">\(\alpha\)</span> with a multivariate normal prior with covariance <span class="math inline">\(\psi\)</span>. Then, combining priors and multivariate normal likelihood we have the following posterior:
+\hat\beta &amp;= y_1 - L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}y_2\\
+&amp;= L_1^\top y - L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}L_2^\top y\\
+&amp;= L_1^\top \Sigma \Sigma^{-1}y - L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}L_2^\top \Sigma\Sigma^{-1}y\\
+&amp; = (L_1^\top \Sigma - (L_1^\top \Sigma L_2)(L_2^\top \Sigma L_2)^{-1}L_2^\top \Sigma)\Sigma^{-1}y\\
+&amp; = (L_1^\top \Sigma L_1^\top X - (L_1^\top \Sigma L_2)(L_2^\top \Sigma L_2)^{-1}L_2^\top \Sigma L_1^\top X)\Sigma^{-1}y\\
+&amp; = [(L_1^\top \Sigma L_1)-(L_1^\top \Sigma L_2)(L_2^\top \Sigma L_2)^{-1}(L_2^\top \Sigma L_1)]X\Sigma^{-1}y\\
+&amp; = (X^\top \Sigma^{-1}X)^{-1}X^\top \Sigma^{-1}y,
+\end{align*}\]</span>
+using that <span class="math inline">\(L_1^\top X = I\)</span> and the equivalence between the conditional covariance of <span class="math inline">\(Y_1|y_2\)</span> and <span class="math inline">\((X^\top \Sigma^{-1}X)^{-1}\)</span> shown above.</p>
+<p>We conclude that the REML estimator of <span class="math inline">\(\beta\)</span> is a weighted least squares estimator in which the weight matrix is given by the REML-based plug-in estimator <span class="math inline">\(\hat\Sigma^{-1}\)</span>.</p>
+</div>
+<div id="reml---bayesian-approach" class="section level3" number="4.2.3">
+<h3>
+<span class="header-section-number">4.2.3</span> REML - Bayesian approach<a class="anchor" aria-label="anchor" href="#reml---bayesian-approach"><i class="fas fa-link"></i></a>
+</h3>
+<p>Suppose we model (in a Bayesian sense) the parameter <span class="math inline">\(\beta\)</span> with an improper constant prior, and the random component <span class="math inline">\(\alpha\)</span> with a multivariate normal prior with covariance <span class="math inline">\(\psi\)</span>. For whatever parameters define <span class="math inline">\(\theta\)</span>, endow those with constant/improper priors as well. Then, combining priors and multivariate normal likelihood we have the following posterior:
 <span class="math display">\[\log\Pi_n(\beta) = \text{const.} - \tfrac12 \left(y - X\beta - Z\alpha\right)^\top \Lambda^{-1}\left(y - X\beta - Z\alpha\right) - \tfrac12\alpha^\top \psi^{-1}\alpha . \]</span>
-A nice (but otherwise hard to find) factorization of the posterior is due to Searle et al. (Variance Components, Section 9.2). Expand the exponent:
+A nice (but somewhat hard to find) factorization of the posterior is due to Searle et al. (Variance Components, Section 9.2). Expand the exponent:
 <span class="math display">\[\begin{align*}
 \log\Pi_n(\beta) &amp;= \text{const.} - \tfrac12 \left(y - X\beta\right)^\top \Lambda^{-1}\left(y - X\beta\right)\\
 &amp;-\tfrac12 \alpha^\top (\psi^{-1} + Z^\top \Lambda^{-1}Z)\alpha + \alpha^\top Z^\top \Lambda^{-1}(y - X\beta)
@@ -231,15 +286,7 @@ Let <span class="math inline">\(A:=\psi^{-1} + Z^\top \Lambda^{-1}Z\)</span> and
 &amp;-\tfrac12(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta))^\top A(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta))\\
 &amp;+\tfrac12(y-X\beta)^\top\Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1} (y-X\beta).
 \end{align*}\]</span>
-Combine the terms quadratic in <span class="math inline">\(y-X\beta\)</span>. The resulting matrix <span class="math inline">\(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\)</span> is equal to <span class="math inline">\((Z\psi Z^\top + \Lambda)^{-1}\)</span>, as can be seen by the following computation:
-<span class="math display">\[\begin{align*}
-&amp;(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1})(Z\psi Z^\top + \Lambda) \\
-&amp; = \Lambda^{-1}Z\psi Z^\top + I - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}Z\psi Z^\top - \Lambda^{-1}ZA^{-1}Z^\top \\
-&amp; = I + \Lambda^{-1}Z(\psi - A^{-1}(Z^\top \Lambda^{-1}Z\psi + I))Z^\top \\
-&amp; = I+\Lambda^{-1}Z(\psi - \psi(Z^\top \Lambda^{-1}A\psi + I)^{-1}(Z^\top \Lambda^{-1}A\psi + I))Z^\top \\
-&amp; = I
-\end{align*}\]</span>
-Therefore, the posterior factorizes into
+Combine the terms quadratic in <span class="math inline">\(y-X\beta\)</span>. The resulting matrix <span class="math inline">\(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\)</span> is equal to <span class="math inline">\((Z\psi Z^\top + \Lambda)^{-1}\)</span>, which is a fact we used above in the frequentist approach to REML. Therefore, the posterior factorizes into
 <span class="math display">\[\begin{align*}
 \log\Pi_n(\beta) &amp;= \text{const.} - \tfrac12 \left(y - X\beta\right)^\top (Z\psi Z^\top +\Lambda)^{-1}(y - X\beta) \\
 &amp;- \tfrac12(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta))^\top A(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta)) \end{align*}\]</span></p>
@@ -248,16 +295,30 @@ Therefore, the posterior factorizes into
 <p>It can be verified that <span class="math inline">\(|Z\psi Z^\top +\Lambda| = |\Lambda||\psi||A|\)</span> by using the following identity
 <span class="math display">\[|D^{-1} - CA^{-1}B| = |D||A^{-1}||A - BD^{-1}C|\]</span>
 where <span class="math inline">\(Z\psi Z^\top +\Lambda = D^{-1} - CA^{-1}B = (\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1})^{-1}\)</span>; and, see, e.g., Appendix M equation 31 in Searle et al. (Variance Components). As a result, the posterior for <span class="math inline">\(\beta\)</span> is multivariate normal with covariance <span class="math inline">\(Z\psi Z^\top +\Lambda\)</span>.</p>
-<p>Let <span class="math inline">\(V := (Z\psi Z^\top +\Lambda)\)</span>. In the exponent, add and subtract <span class="math inline">\(X\hat\beta\)</span> in the quadratic to obtain
+<p>Let <span class="math inline">\(V := (Z\psi Z^\top +\Lambda)\)</span>. In the exponent, add and subtract <span class="math inline">\(X\hat\beta = X(X^\top V^{-1} X)^{-1}X^\top V^{-1}y\)</span> (which depends on <span class="math inline">\(\theta\)</span>) in the quadratic to obtain
 <span class="math display">\[\begin{align*}
 \left(y - X\beta\right)^\top V^{-1}(y - X\beta) &amp; = \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta)\\
 &amp; -2 \left(y - X\hat\beta\right)^\top V^{-1}(X\hat\beta - X\beta)\\
 &amp; + \left(X\hat\beta - X\beta\right)^\top V^{-1}(X\hat\beta - X\beta).
 \end{align*}\]</span>
-It is straightforward to show the middle term is zero. If we integrate out <span class="math inline">\(\beta\)</span> (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
-<span class="math display">\[\Pi_n(\theta, \Lambda) = \frac{(2\pi)^{-n/2}}{(2\pi)^{-p/2}}\frac{|V|^{-1/2}}{|X^\top V^{-1}X|^{-1/2}}\exp\left(-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta)\right).\]</span></p>
-
+It is straightforward to show the middle term is zero. Thereforen, the joint posterior for <span class="math inline">\((\beta, \theta)\)</span> may be written
+<span class="math display">\[\log \Pi_n(\beta, \theta) = \text{const}. -\tfrac12\log|V|-\tfrac12(y-X\hat\beta)^\top V^{-1}(y-X\hat\beta) -\tfrac12(X\hat\beta - X\beta)V^{-1}(X\hat\beta - X\beta)\]</span></p>
+<p>If we integrate out <span class="math inline">\(\beta\)</span> (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
+<span class="math display">\[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|V| + \tfrac{1}{2}\log|X^\top V^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta).\]</span></p>
 </div>
+</div>
+<div id="inference-for-fixed-effects" class="section level2" number="4.3">
+<h2>
+<span class="header-section-number">4.3</span> Inference for fixed effects<a class="anchor" aria-label="anchor" href="#inference-for-fixed-effects"><i class="fas fa-link"></i></a>
+</h2>
+<p>The most common inferential questions concern the regression coefficient vector <span class="math inline">\(\beta\)</span>. Wald confidence regions for <span class="math inline">\(\beta\)</span> are defined by the sets
+<span class="math display">\[C_\alpha := \{b: (b - \hat\beta)(X^\top V^{-1}X)^{-1}(b - \hat\beta)&lt;\chi^2_{1-\alpha, p}\}\]</span>
+where <span class="math inline">\(\chi^2_{1-\alpha, p}\)</span> is the upper <span class="math inline">\(\alpha\)</span> quantile of the Chi-squared distribution with <span class="math inline">\(p\)</span> degrees of freedom. Unfortunately, these regions are only exact when <span class="math inline">\(\theta\)</span> is known and can severely undercover for small sample sizes. Software packages typically perform an adjustment, such as the Kenward-Rogers scaling, which is a generalization of Satterthwaite’s approximation.</p>
+<p>For a point null hypothesis <span class="math inline">\(H_0: \beta = \beta_{0}\)</span> the Wald test statistic is
+<span class="math display">\[W = (\beta_0 - \hat\beta)(X^\top V^{-1}X)^{-1}(\beta_0 - \hat\beta)\]</span>
+and <span class="math inline">\(H_0\)</span> is rejected if <span class="math inline">\(W &gt; \chi^2_{1-\alpha, p}\)</span>. More generally, let <span class="math inline">\(D\)</span> denote an <span class="math inline">\(r\times p\)</span> matrix <span class="math inline">\(r&lt;p\)</span> of full rank. Reject the null hypothesis <span class="math inline">\(H_0:D\beta = b_0\)</span> if <span class="math inline">\(W &gt; \chi^2_{1-\alpha, r}\)</span> where
+<span class="math display">\[W = (b_0 - D\hat\beta)(D X^\top V^{-1}X D^\top)^{-1}(b_0 - D\hat\beta)\]</span></p>
+
 </div>
 </div>
   <div class="chapter-nav">
@@ -270,12 +331,17 @@ It is straightforward to show the middle term is zero. If we integrate out <span
 <li>
 <a class="nav-link" href="#anova-with-random-factors"><span class="header-section-number">4.1</span> ANOVA with random factors</a><ul class="nav navbar-nav">
 <li><a class="nav-link" href="#strength-of-metallic-bonds"><span class="header-section-number">4.1.1</span> Strength of metallic bonds</a></li>
-<li><a class="nav-link" href="#machine-productivity"><span class="header-section-number">4.1.2</span> Machine Productivity</a></li>
+<li><a class="nav-link" href="#machine-productivity"><span class="header-section-number">4.1.2</span> Machine productivity</a></li>
 </ul>
 </li>
 <li>
-<a class="nav-link" href="#general-mixed-model-parameter-estimation"><span class="header-section-number">4.2</span> General Mixed Model Parameter Estimation</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#maximum-likelihood"><span class="header-section-number">4.2.1</span> Maximum Likelihood</a></li></ul>
+<a class="nav-link" href="#a-general-linear-mixed-model"><span class="header-section-number">4.2</span> A general linear mixed model</a><ul class="nav navbar-nav">
+<li><a class="nav-link" href="#parameter-estimation-using-pml"><span class="header-section-number">4.2.1</span> Parameter estimation using PML</a></li>
+<li><a class="nav-link" href="#reml---frequentist-approach"><span class="header-section-number">4.2.2</span> REML - frequentist approach</a></li>
+<li><a class="nav-link" href="#reml---bayesian-approach"><span class="header-section-number">4.2.3</span> REML - Bayesian approach</a></li>
+</ul>
 </li>
+<li><a class="nav-link" href="#inference-for-fixed-effects"><span class="header-section-number">4.3</span> Inference for fixed effects</a></li>
 </ul>
 
       <div class="book-extra">
@@ -292,7 +358,7 @@ It is straightforward to show the middle term is zero. If we integrate out <span
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-02.</p>
+    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-05.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

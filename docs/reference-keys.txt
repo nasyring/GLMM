@@ -2,6 +2,7 @@ eq:fullmodel
 eq:aggmodel1
 eq:fullmodel2
 eq:aggmodel
+eq:linmix
 introduction
 intro
 poisson-regression
@@ -19,5 +20,8 @@ linear-mixed-models
 anova-with-random-factors
 strength-of-metallic-bonds
 machine-productivity
-general-mixed-model-parameter-estimation
-maximum-likelihood
+a-general-linear-mixed-model
+parameter-estimation-using-pml
+reml---frequentist-approach
+reml---bayesian-approach
+inference-for-fixed-effects
