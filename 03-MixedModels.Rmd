@@ -231,6 +231,28 @@ It is straightforward to show the middle term is zero.  Thereforen, the joint po
 If we integrate out $\beta$ (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
 \[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|V| + \tfrac{1}{2}\log|X^\top V^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta).\]
 
+## Modeling and estimation for Loblolly pines data
+
+The data set "Loblolly" included in the nlme package contains longitudinal measurements of tree height for 14 Loblolly pine trees at 6 age points.  
+
+A plot of age by height for all trees suggests a common concave polynomial behavior---not quite linear.  
+
+```{r}
+library(nlme)
+library(ggplot2)
+head(Loblolly)
+ggplot(data = Loblolly) + 
+  geom_line(mapping = aes(x = age, y = height)) + 
+  geom_point(mapping = aes(x = age, y = height)) + 
+  facet_wrap(~ Seed, nrow = 2)
+
+```
+
+To model the mean height behavior we might choose a, say, third degree polynomial function of age.  There are a few ways of doing this: specify a polynomial in age, a polynomial in {age  - mean(age)}, or a basis of orthogonal polynomials.  Both the second and third strategies are 
+
+
+
+
 ## Inference for fixed effects
 
 The most common inferential questions concern the regression coefficient vector $\beta$.  Wald confidence regions for $\beta$ are defined by the sets

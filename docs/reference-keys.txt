@@ -24,4 +24,5 @@ a-general-linear-mixed-model
 parameter-estimation-using-pml
 reml---frequentist-approach
 reml---bayesian-approach
+modeling-and-estimation-for-loblolly-pines-data
 inference-for-fixed-effects

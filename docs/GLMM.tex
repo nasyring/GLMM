@@ -124,7 +124,7 @@
 
 \title{GLMM}
 \author{Nick Syring}
-\date{2023-02-05}
+\date{2023-02-07}
 
 \begin{document}
 \maketitle
@@ -1055,6 +1055,54 @@ It is straightforward to show the middle term is zero. Thereforen, the joint pos
 
 If we integrate out \(\beta\) (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
 \[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|V| + \tfrac{1}{2}\log|X^\top V^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta).\]
+
+\hypertarget{modeling-and-estimation-for-loblolly-pines-data}{%
+\section{Modeling and estimation for Loblolly pines data}\label{modeling-and-estimation-for-loblolly-pines-data}}
+
+The data set ``Loblolly'' included in the nlme package contains longitudinal measurements of tree height for 14 Loblolly pine trees at 6 age points.
+
+A plot of age by height for all trees suggests a common concave polynomial behavior---not quite linear.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(nlme)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(Loblolly)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Grouped Data: height ~ age | Seed
+##    height age Seed
+## 1    4.51   3  301
+## 15  10.89   5  301
+## 29  28.72  10  301
+## 43  41.74  15  301
+## 57  52.70  20  301
+## 71  60.92  25  301
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Seed, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+To model the mean height behavior we might choose a, say, third degree polynomial function of age. There are a few ways of doing this: specify a polynomial in age, a polynomial in \{age - mean(age)\}, or a basis of orthogonal polynomials. Both the second and third strategies are
 
 \hypertarget{inference-for-fixed-effects}{%
 \section{Inference for fixed effects}\label{inference-for-fixed-effects}}
