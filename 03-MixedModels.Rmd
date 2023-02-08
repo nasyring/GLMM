@@ -231,7 +231,7 @@ It is straightforward to show the middle term is zero.  Thereforen, the joint po
 If we integrate out $\beta$ (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
 \[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|V| + \tfrac{1}{2}\log|X^\top V^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta).\]
 
-## Modeling and estimation for Loblolly pines data
+## Example: Loblolly pines data
 
 The data set "Loblolly" included in the nlme package contains longitudinal measurements of tree height for 14 Loblolly pine trees at 6 age points.  
 
@@ -248,12 +248,110 @@ ggplot(data = Loblolly) +
 
 ```
 
-To model the mean height behavior we might choose a, say, third degree polynomial function of age.  There are a few ways of doing this: specify a polynomial in age, a polynomial in {age  - mean(age)}, or a basis of orthogonal polynomials.  Both the second and third strategies are 
+To model the mean height behavior we might choose a, say, third degree polynomial function of age.  There are a few ways of doing this: specify a polynomial in age, a polynomial in {age  - mean(age)}, or a basis of orthogonal polynomials.  Both the second and third strategies are better than the first as coefficients of polynomial elements will be correlated unless those polynomial elements are orthogonal or the variable is centered.   
 
+It would not be appropriate to model the heights as a polynomial function of age with only those fixed effects.  Since heights are recorded at the same ages for several trees, those height measurements are correlated within trees.  We can capture such correlation within trees by including random, tree-specific polynomial coefficients. This polynomial mixed effects model looks like the following
+\begin{align*}
+Y_{ij} &= \beta_0 + \beta_1 X_{ij1}+ \beta_2 X_{ij2}+ \beta_3 X_{ij3}\\
+       &+ \beta_{i1} X_{ij1}+ \beta_{i2} X_{ij2}+ \beta_{i3} X_{ij3}\\
+       & + \epsilon_{ij}
+\end{align*}
+where $i=1, \ldots, 14$ indexes trees, $j = 1, \ldots, 6$ indexes ages, $\beta_1$ through $\beta_3$ are common coefficients for fixed polynomial age effects, and $\beta_{i1}$ through $\beta_{i3}$ are varying coefficients for age effects for each tree.  The covariates $X_{ij1}$ through $X_{ij3}$ represent third degree orthogonal polynomials; i.e., they are not simply age, age$^2$ and age$^3$, more on those shortly.  The random effects are normal with covariance $\psi$, i.e., $(\beta_{i1},\beta_{i2},\beta_{i3})^\top \stackrel{iid}{\sim}N(0,\psi)$.  The random-sampling errors are modeled as zero-mean, time-dependent normal random variables for a lag of 1, so that $(\epsilon_{i1},\ldots, \epsilon_{i6})\stackrel{iid}{\sim} N(0,\Lambda)$ where $\Lambda$ is positive definite and tri-diagonal.  
 
+### Model-fitting for Loblolly pines data
 
+Below we specify this model using the lme function from the nlme package.  With default optimization specifications lme fails to fit this model, but lme converges if we simply increase the maximum number of iterations and function evaluations via the lmeControl function.  
 
-## Inference for fixed effects
+```{r}
+lmc <- lmeControl(niterEM=1000,msMaxIter=1000,msMaxEval=1000)
+
+model1 <- lme(height ~ poly(age,3), data = Loblolly,
+random = list(Seed = ~ poly(age,3)),
+correlation = corAR1(form = ~ age|Seed), control = lmc)
+
+summary(model1)
+```
+
+While the summary function contains everything needed to determine if fixed effects are significant, it does not provide a straightforward explanation of all parameter estimates.  With a little work, we can reproduce the estimated covariance parameters, and the estimated covariance of fixed effects.  The getVarCov function provides the estimated covariance of the random effects nested within Seed; we could call these $\hat\psi_i$ for seeds $i=1, \ldots, 14$.  The matrix $\psi$ is block-diagonal, with identical blocks $\psi_i$.  The estimated residual variance is tri-diagonal with constant main diagonal elements $\hat\sigma^2$ given by ```summary(model1)$sigma^2``` and constant off-diagonal elements given by ```coef(model1$modelStruct$corStruct, unconstrained = FALSE)```.
+
+The following helper function from the Matrix package can help in constructing the $\Psi$ matrix:
+
+```{r}
+bdiag_m <- function(lmat) {
+    ## Copyright (C) 2016 Martin Maechler, ETH Zurich
+    if(!length(lmat)) return(new("dgCMatrix"))
+    stopifnot(is.list(lmat), is.matrix(lmat[[1]]),
+              (k <- (d <- dim(lmat[[1]]))[1]) == d[2], # k x k
+              all(vapply(lmat, dim, integer(2)) == k)) # all of them
+    N <- length(lmat)
+    if(N * k > .Machine$integer.max)
+        stop("resulting matrix too large; would be  M x M, with M=", N*k)
+    M <- as.integer(N * k)
+    ## result: an   M x M  matrix
+    new("dgCMatrix", Dim = c(M,M),
+        ## 'i :' maybe there's a faster way (w/o matrix indexing), but elegant?
+        i = as.vector(matrix(0L:(M-1L), nrow=k)[, rep(seq_len(N), each=k)]),
+        p = k * 0L:M,
+        x = as.double(unlist(lmat, recursive=FALSE, use.names=FALSE)))
+}
+```
+
+We can match the standard errors and approximate p-values of the fixed effects using the following calculations (more on p-values later).  One thing to mention: the $Z$ design matrix of random effects seems not present in the lme object, and so we fit the same type of model using lmer from the lme4 package that more easily allows us to obtain this model matrix.   
+
+```{r}
+library(lme4)
+model2lmer <- lmer(height ~ poly(age,3) + (poly(age,3) | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+Z <- model.matrix(model2lmer, type = 'random')
+psi_i <- getVarCov(model1)
+psi <- bdiag_m(list(psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i))
+inv_psi <- solve(psi)
+phi <- coef(model1$modelStruct$corStruct, unconstrained = FALSE)
+L <- (summary(model1)$sigma^2)*diag(nrow(Loblolly))
+for(i in 1:nrow(L)){
+  for(j in nrow(L)){
+    if(j==(i+1)||j==(i-1)){
+      L[i,j] <- phi
+    }
+  }
+}
+invL <- solve(L)
+A <- inv_psi+t(Z)%*%invL%*%Z
+invA <- solve(A)
+P<-invL-invL%*%Z%*%invA%*%t(Z)%*%invL
+X <- model.matrix(model2lmer, type = 'fixed')
+cov.beta.hat <- solve(t(X)%*%P%*%X)
+Y <- Loblolly$height
+beta.hat <- cov.beta.hat%*%t(X)%*%P%*%Y
+beta.hat
+cov.beta.hat
+beta.hat / sqrt(diag(cov.beta.hat)) # t-values
+1-pchisq(as.numeric((beta.hat / sqrt(diag(cov.beta.hat)))^2), 1) # rough p-values
+1-pf(as.numeric((beta.hat / sqrt(diag(cov.beta.hat)))^2), 1, nrow(Loblolly)-4)
+```
+
+You may have noticed the estimated auto-regressive covariance term is essentially zero.  This motivates us to fit a nested model in which this covariance term is zero, i.e., the residual covariance structure of $\epsilon_i$, $i=1, \ldots, n$ is simply iid with variance $\sigma^2$.  
+
+```{r}
+model2 <- lme(height ~ poly(age,3), data = Loblolly,
+random = list(Seed = ~ poly(age,3)),
+correlation = NULL, control = lmc)
+
+summary(model2)
+```
+
+NLME is not the only package for fitting linear mixed models.  LME4 is a newer package compared to NLME, and generally fits models much faster thanks to its better use of efficient linear algebra routines.  However, LME4 is not as flexible as NLME when it comes to the available residual covariance structures one is able to fit.  For example, LME4 does not have the flexibility to fit the AR(1) structure we fit for model1 above using the NLME package.  
+
+Below we fit model2 using lme4.  The lmer model fitting function fails to fit the model with the default settings, much like the lme function from the nlme package.  The main issue causing lack of convergence is a check function that evaluates the gradient of the likelihood at the final parameter estimates and requires it to be near zero.  We have to violate this criteria in order to get the model to fit, which we can do by using the ```check.conv.grad``` argument of the control argument.  Once we coerce lmer to converge using these options we see that it produces essentially the same estimates as lme with respect to model2.  
+
+```{r}
+library(lme4)
+model2lmer <- lmer(height ~ poly(age,3) + (poly(age,3) | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+summary(model2lmer)
+```
+
+Next, we will discuss inference for fixed effects and model comparisons.
+
+## Inference for fixed effects, random effects, and model comparisons
 
 The most common inferential questions concern the regression coefficient vector $\beta$.  Wald confidence regions for $\beta$ are defined by the sets
 \[C_\alpha := \{b: (b - \hat\beta)(X^\top V^{-1}X)^{-1}(b - \hat\beta)<\chi^2_{1-\alpha, p}\}\]
@@ -264,10 +362,69 @@ For a point null hypothesis $H_0: \beta = \beta_{0}$ the Wald test statistic is
 and $H_0$ is rejected if $W > \chi^2_{1-\alpha, p}$.  More generally, let $D$ denote an $r\times p$ matrix $r<p$ of full rank.  Reject the null hypothesis $H_0:D\beta = b_0$ if $W > \chi^2_{1-\alpha, r}$ where
 \[W = (b_0 - D\hat\beta)(D X^\top V^{-1}X D^\top)^{-1}(b_0 - D\hat\beta)\]
 
+(Generalized) Likelihood ratio tests may be used to compare *nested* models.  Model A is nested in B if A may be written as B with some of B's parameters equal to zero, provided zero is not a boundary value for the parameter being omitted in model A.  For example, A is nested in B if A contains only a subset of B's fixed effects, a subset of B's random effects, a nested residual covariance structure like iid versus AR(1) as in the above example, or a combination of these three.  When likelihood ratio tests are performed to compare nested models with different fixed effects both models should be fit using maximum likelihood rather than REML because residual likelihoods for two different sets of fixed effects are not comparable.
+
+An example of models that are not nested is the cubic model above called model1 versus a model with linear, quadratic and fourth order fixed effects but no third order fixed effect.  AIC and/or BIC comparisons (based on the full likelihoods) are useful for comparing non-nested models (remember: lower AIC/BIC is better).  
+
+As mentioned previously, in the context of linear mixed models, test statistics rarely have exact Chi-squared or F null distributions---the exceptions pertain to balanced experiments.  In fact, these approximations may be very rough, depending on the model and sample sizes.  For this reason, the LMER package does not even report p-values at this time.  But, there are a few options for producing fairly reliable p-values.  One option is to utilize the lmerTest package which provides functions for testing fixed effects using Satterthwaite or Kenward-Rogers corrected null distributions.  Another option is to use the parametric bootstrap (based on sampling a multivariate normal distribution) to provide bootstrap-based tests and confidence intervals.  The bootstrap method is endorsed by the creators of LME4, and they have included the bootMer function in that package to facilitate bootstrap-based inference in linear mixed models.   
 
 
+### Inference on fixed effects for Loblolly pines data
 
+The first question of interest, which we hinted at before, is whether or not we need to model the residual error as having a time-dependent, e.g., AR(1), structure.  Recall our point estimate for the auto-regressive correlation was essentially zero, suggesting it played no role in the model fit.  The NLME package contains an anova method for comparing models.  While we should get into the habit of comparing models fit by maximum likelihood, it makes little difference if we use REML for this comparison because the models only differ in covariance structure, not fixed-effects structure.  Whether we compare models fit by REML or ML, we see overwhelming evidence that the simpler model, the one without an auto-regressive error structure, is just as good as the more complicated model.  
 
+```{r}
+anova(model1, model2)
 
+model2ml <- lme(height ~ poly(age,3), data = Loblolly,
+random = list(Seed = ~ poly(age,3)),
+correlation = NULL, control = lmc, method = 'ML')
+summary(model2ml)
 
+model1ml <- lme(height ~ poly(age,3), data = Loblolly,
+random = list(Seed = ~ poly(age,3)),
+correlation = corAR1(form = ~ age|Seed), control = lmc, method = 'ML')
 
+summary(model1ml)
+anova(model1ml, model2ml)
+```
+
+Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship.  Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure.  It's clear that the cubic term provides no benefit, so we omit it and fit model3.  An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML---how delightful.  Again, the simpler, quadratic model is clearly preferred. 
+
+```{r}
+summary(model2lmer)
+
+library(lmerTest)
+X <- poly(Loblolly$age,3)
+Loblolly$linear <- X[,1]
+Loblolly$quadratic <- X[,2]
+Loblolly$cubic <- X[,3]
+model2lmer <- lmer(height ~ linear+quadratic+cubic + (linear+quadratic+cubic | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+summary(model2lmer)
+
+anova(model2lmer, type = 'III', ddf = 'lme4')
+anova(model2lmer, type = 'III', ddf = 'Satt')
+anova(model2lmer, type = 'III', ddf = 'Ken')
+
+model3lmer <- lmer(height ~ linear+quadratic + (linear+quadratic | Seed), data = Loblolly)
+summary(model3lmer)
+
+anova(model3lmer, type = 'III', ddf = 'lme4')
+anova(model3lmer, type = 'III', ddf = 'Satt')
+anova(model3lmer, type = 'III', ddf = 'Ken')
+
+anova(model3lmer, model2lmer)
+```
+
+As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest, we provide a bootstrap-based analysis using bootMer.  The downside of bootMer is that it is slow due to the need to refit the linear mixed model for each bootstrap simulation.  Below we perform 100 such bootstrap simulations of model2---which is not enough for precise answers---but it is enough to get a good idea that the cubic term is ignorable and that the other fixed effects are significant.
+
+```{r}
+fun <- function(model) summary(model)$coefficients[,1]
+booted <- bootMer(model2lmer, fun, 100, type = 'parametric')
+
+library(boot)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 1)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 2)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 3)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 4)
+```
