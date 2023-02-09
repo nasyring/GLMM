@@ -349,6 +349,73 @@ model2lmer <- lmer(height ~ poly(age,3) + (poly(age,3) | Seed), data = Loblolly,
 summary(model2lmer)
 ```
 
+Next, we will investigate various residual quantities to determine if our model assumptions are plausible.  
+
+## Model diagnostics
+
+As in pure fixed effects linear models, residuals are helpful for checking assumptions like linearity and normality.  For mixed effects models, there are more ways to define residuals:
+ - Marginal residuals are the residuals formed by subtracting the fitted fixed effect from the response, that is, $\hat e_{ij} := Y_{ij} - x_{ij}^\top \hat\beta$
+  - Standardized marginal residuals remove the effect of correlation within groups.  Let $\hat\Sigma_i$ denote the fitted covariance within group $i$, and let $\hat\Sigma_i^{-1/2}$ denote the lower Cholesky factor of $\hat\Sigma_i^{-1}$.  Then, $\hat \epsilon_{i} = \hat\Sigma_i^{-1/2}\hat e_i$ denotes the vector of standardized marginal residuals for group $i$.
+ - Conditional residuals also subtract the predicted random effect, $\hat \xi_{ij} = Y_{ij} - x_{ij}^\top \hat\beta - z_{ij}^\top \hat \alpha$
+ - Standardized conditional residuals $\hat\phi_{ij}$ are formed by standardizing the conditional residuals by $\hat\sigma\sqrt{v_{kk}}$ where $\hat\sigma$ is the fitted residual standard error and $v_{kk}$ is the $k^{th}$ diagonal entry of the matrix $I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top$.  
+
+A scatterplot of marginal residuals versus fixed covariates are useful for checking the assumption of linearity.  Trends in this plot indicate an important omitted variable and/or nonlinearity.  
+
+Quantile-quantile plots of standardized marginal residuals should match a standard normal distribution.  If not, then the chosen covariance structure is not good model for the given data.  comparing quantile-quantile plots for each group can be useful for assessing heteroskedasticity, although these comparisons become rough when groups have few individuals.
+
+Large absolute standardized conditional residuals are indicate outliers.  Plots of standardized conditional residuals versus the fitted values $X\hat\beta + Z\hat\alpha$ may also reveal heteroskedasticity at the individual level---which would suggest modifying the structure of $\Lambda$ if it is assumed to be $\sigma^2 I_n$ as is common.  
+
+Both conditional and standardized conditional residuals are confounded with the best linear unbiased predictors $Z\hat\alpha$ in the sense they depend on each other.  The degree of this confounding interferes with the standardized conditional residuals ability to indicate normality (or lack of normality) of the conditional errors.  A correction, termed the least confounded residuals, aims to construct a residual better able to detect departures from normality.  The correction is performed by way of solving a generalized eigenvalue problem.  Let matrices $A$ and $B$ denote $A = (I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top)\hat\Sigma^{-1}I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top$ and $B = I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top$.  The least confounded residuals are $t^\top \hat\phi_{ij}$ where $t$ maximizes $(t^\top A t) / (t^\top B t)$.  The maximum value occurs at the largest eigenvalue of $B^{-1}A$ and $t$ is the corresponding eigenvector.  
+
+### Model diagnostics for Loblolly pines data
+
+```{r}
+Loblolly$fitted3 <- fitted(model2lmer)
+
+ggplot(data = Loblolly) + 
+  geom_line(mapping = aes(x = age, y = height)) + 
+  geom_point(mapping = aes(x = age, y = height)) + 
+  geom_point(mapping = aes(x = age, y = fitted3, color = 'red')) +
+  facet_wrap(~ Seed, nrow = 2)
+
+
+```
+
+
+
+
+```{r}
+
+
+marginal.resids <- Loblolly$height - model.matrix(model2lmer, type = 'fixed')%*%fixef(model2lmer)
+
+plot(Loblolly$age, marginal.resids, xlab = 'age', ylab = 'marginal residual')
+
+plot(Loblolly$Seed, marginal.resids, xlab = 'Seed', ylab = 'marginal residual')
+
+Pi <- as.matrix(P)[1:6,1:6]
+cholPi <- chol(Pi)
+standardized_resids <- rep(NA,84)
+seed=1
+for(i in 1:14){
+  standardized_resids[(seed-1)*6+(1:6)] <- t(cholPi)%*%marginal.resids[(seed-1)*6+(1:6)]
+  seed <- seed + 1
+}
+qqnorm(standardized_resids)
+qqline(standardized_resids)
+sum((diag(6) - standardized_resids[1:6]%*%t(standardized_resids[1:6]))^2)
+
+
+
+
+```
+
+
+
+
+
+
+
 Next, we will discuss inference for fixed effects and model comparisons.
 
 ## Inference for fixed effects, random effects, and model comparisons
@@ -428,3 +495,11 @@ boot.ci(booted, conf = 0.95, type = 'basic', index = 2)
 boot.ci(booted, conf = 0.95, type = 'basic', index = 3)
 boot.ci(booted, conf = 0.95, type = 'basic', index = 4)
 ```
+
+
+
+
+
+
+
+

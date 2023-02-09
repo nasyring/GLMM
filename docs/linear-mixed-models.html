@@ -551,12 +551,64 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## poly(ag,3)1  0.846              
 ## poly(ag,3)2 -0.621 -0.367       
 ## poly(ag,3)3 -0.011 -0.119 -0.117</code></pre>
+<p>Next, we will investigate various residual quantities to determine if our model assumptions are plausible.</p>
+</div>
+</div>
+<div id="model-diagnostics" class="section level2" number="4.4">
+<h2>
+<span class="header-section-number">4.4</span> Model diagnostics<a class="anchor" aria-label="anchor" href="#model-diagnostics"><i class="fas fa-link"></i></a>
+</h2>
+<p>As in pure fixed effects linear models, residuals are helpful for checking assumptions like linearity and normality. For mixed effects models, there are more ways to define residuals:
+- Marginal residuals are the residuals formed by subtracting the fitted fixed effect from the response, that is, <span class="math inline">\(\hat e_{ij} := Y_{ij} - x_{ij}^\top \hat\beta\)</span>
+- Standardized marginal residuals remove the effect of correlation within groups. Let <span class="math inline">\(\hat\Sigma_i\)</span> denote the fitted covariance within group <span class="math inline">\(i\)</span>, and let <span class="math inline">\(\hat\Sigma_i^{-1/2}\)</span> denote the lower Cholesky factor of <span class="math inline">\(\hat\Sigma_i^{-1}\)</span>. Then, <span class="math inline">\(\hat \epsilon_{i} = \hat\Sigma_i^{-1/2}\hat e_i\)</span> denotes the vector of standardized marginal residuals for group <span class="math inline">\(i\)</span>.
+- Conditional residuals also subtract the predicted random effect, <span class="math inline">\(\hat \xi_{ij} = Y_{ij} - x_{ij}^\top \hat\beta - z_{ij}^\top \hat \alpha\)</span>
+- Standardized conditional residuals <span class="math inline">\(\hat\phi_{ij}\)</span> are formed by standardizing the conditional residuals by <span class="math inline">\(\hat\sigma\sqrt{v_{kk}}\)</span> where <span class="math inline">\(\hat\sigma\)</span> is the fitted residual standard error and <span class="math inline">\(v_{kk}\)</span> is the <span class="math inline">\(k^{th}\)</span> diagonal entry of the matrix <span class="math inline">\(I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\)</span>.</p>
+<p>A scatterplot of marginal residuals versus fixed covariates are useful for checking the assumption of linearity. Trends in this plot indicate an important omitted variable and/or nonlinearity.</p>
+<p>Quantile-quantile plots of standardized marginal residuals should match a standard normal distribution. If not, then the chosen covariance structure is not good model for the given data. comparing quantile-quantile plots for each group can be useful for assessing heteroskedasticity, although these comparisons become rough when groups have few individuals.</p>
+<p>Large absolute standardized conditional residuals are indicate outliers. Plots of standardized conditional residuals versus the fitted values <span class="math inline">\(X\hat\beta + Z\hat\alpha\)</span> may also reveal heteroskedasticity at the individual level—which would suggest modifying the structure of <span class="math inline">\(\Lambda\)</span> if it is assumed to be <span class="math inline">\(\sigma^2 I_n\)</span> as is common.</p>
+<p>Both conditional and standardized conditional residuals are confounded with the best linear unbiased predictors <span class="math inline">\(Z\hat\alpha\)</span> in the sense they depend on each other. The degree of this confounding interferes with the standardized conditional residuals ability to indicate normality (or lack of normality) of the conditional errors. A correction, termed the least confounded residuals, aims to construct a residual better able to detect departures from normality. The correction is performed by way of solving a generalized eigenvalue problem. Let matrices <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> denote <span class="math inline">\(A = (I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top)\hat\Sigma^{-1}I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\)</span> and <span class="math inline">\(B = I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\)</span>. The least confounded residuals are <span class="math inline">\(t^\top \hat\phi_{ij}\)</span> where <span class="math inline">\(t\)</span> maximizes <span class="math inline">\((t^\top A t) / (t^\top B t)\)</span>. The maximum value occurs at the largest eigenvalue of <span class="math inline">\(B^{-1}A\)</span> and <span class="math inline">\(t\)</span> is the corresponding eigenvector.</p>
+<div id="model-diagnostics-for-loblolly-pines-data" class="section level3" number="4.4.1">
+<h3>
+<span class="header-section-number">4.4.1</span> Model diagnostics for Loblolly pines data<a class="anchor" aria-label="anchor" href="#model-diagnostics-for-loblolly-pines-data"><i class="fas fa-link"></i></a>
+</h3>
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Loblolly</span><span class="op">$</span><span class="va">fitted3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">height</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">height</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">fitted3</span>, color <span class="op">=</span> <span class="st">'red'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Seed</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-14-1.png" width="672"></div>
+<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">marginal.resids</span> <span class="op">&lt;-</span> <span class="va">Loblolly</span><span class="op">$</span><span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'fixed'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">age</span>, <span class="va">marginal.resids</span>, xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'marginal residual'</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-15-1.png" width="672"></div>
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span>, <span class="va">marginal.resids</span>, xlab <span class="op">=</span> <span class="st">'Seed'</span>, ylab <span class="op">=</span> <span class="st">'marginal residual'</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-15-2.png" width="672"></div>
+<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Pi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
+<span><span class="va">cholPi</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/chol.html">chol</a></span><span class="op">(</span><span class="va">Pi</span><span class="op">)</span></span>
+<span><span class="va">standardized_resids</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="cn">NA</span>,<span class="fl">84</span><span class="op">)</span></span>
+<span><span class="va">seed</span><span class="op">=</span><span class="fl">1</span></span>
+<span><span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">14</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">standardized_resids</span><span class="op">[</span><span class="op">(</span><span class="va">seed</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">6</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">cholPi</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">marginal.resids</span><span class="op">[</span><span class="op">(</span><span class="va">seed</span><span class="op">-</span><span class="fl">1</span><span class="op">)</span><span class="op">*</span><span class="fl">6</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">seed</span> <span class="op">&lt;-</span> <span class="va">seed</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html">qqnorm</a></span><span class="op">(</span><span class="va">standardized_resids</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html">qqline</a></span><span class="op">(</span><span class="va">standardized_resids</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-15-3.png" width="672"></div>
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/sum.html">sum</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span> <span class="op">-</span> <span class="va">standardized_resids</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">standardized_resids</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span></code></pre></div>
+<pre><code>## [1] 39.83443</code></pre>
 <p>Next, we will discuss inference for fixed effects and model comparisons.</p>
 </div>
 </div>
-<div id="inference-for-fixed-effects-random-effects-and-model-comparisons" class="section level2" number="4.4">
+<div id="inference-for-fixed-effects-random-effects-and-model-comparisons" class="section level2" number="4.5">
 <h2>
-<span class="header-section-number">4.4</span> Inference for fixed effects, random effects, and model comparisons<a class="anchor" aria-label="anchor" href="#inference-for-fixed-effects-random-effects-and-model-comparisons"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.5</span> Inference for fixed effects, random effects, and model comparisons<a class="anchor" aria-label="anchor" href="#inference-for-fixed-effects-random-effects-and-model-comparisons"><i class="fas fa-link"></i></a>
 </h2>
 <p>The most common inferential questions concern the regression coefficient vector <span class="math inline">\(\beta\)</span>. Wald confidence regions for <span class="math inline">\(\beta\)</span> are defined by the sets
 <span class="math display">\[C_\alpha := \{b: (b - \hat\beta)(X^\top V^{-1}X)^{-1}(b - \hat\beta)&lt;\chi^2_{1-\alpha, p}\}\]</span>
@@ -568,17 +620,17 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <p>(Generalized) Likelihood ratio tests may be used to compare <em>nested</em> models. Model A is nested in B if A may be written as B with some of B’s parameters equal to zero, provided zero is not a boundary value for the parameter being omitted in model A. For example, A is nested in B if A contains only a subset of B’s fixed effects, a subset of B’s random effects, a nested residual covariance structure like iid versus AR(1) as in the above example, or a combination of these three. When likelihood ratio tests are performed to compare nested models with different fixed effects both models should be fit using maximum likelihood rather than REML because residual likelihoods for two different sets of fixed effects are not comparable.</p>
 <p>An example of models that are not nested is the cubic model above called model1 versus a model with linear, quadratic and fourth order fixed effects but no third order fixed effect. AIC and/or BIC comparisons (based on the full likelihoods) are useful for comparing non-nested models (remember: lower AIC/BIC is better).</p>
 <p>As mentioned previously, in the context of linear mixed models, test statistics rarely have exact Chi-squared or F null distributions—the exceptions pertain to balanced experiments. In fact, these approximations may be very rough, depending on the model and sample sizes. For this reason, the LMER package does not even report p-values at this time. But, there are a few options for producing fairly reliable p-values. One option is to utilize the lmerTest package which provides functions for testing fixed effects using Satterthwaite or Kenward-Rogers corrected null distributions. Another option is to use the parametric bootstrap (based on sampling a multivariate normal distribution) to provide bootstrap-based tests and confidence intervals. The bootstrap method is endorsed by the creators of LME4, and they have included the bootMer function in that package to facilitate bootstrap-based inference in linear mixed models.</p>
-<div id="inference-on-fixed-effects-for-loblolly-pines-data" class="section level3" number="4.4.1">
+<div id="inference-on-fixed-effects-for-loblolly-pines-data" class="section level3" number="4.5.1">
 <h3>
-<span class="header-section-number">4.4.1</span> Inference on fixed effects for Loblolly pines data<a class="anchor" aria-label="anchor" href="#inference-on-fixed-effects-for-loblolly-pines-data"><i class="fas fa-link"></i></a>
+<span class="header-section-number">4.5.1</span> Inference on fixed effects for Loblolly pines data<a class="anchor" aria-label="anchor" href="#inference-on-fixed-effects-for-loblolly-pines-data"><i class="fas fa-link"></i></a>
 </h3>
 <p>The first question of interest, which we hinted at before, is whether or not we need to model the residual error as having a time-dependent, e.g., AR(1), structure. Recall our point estimate for the auto-regressive correlation was essentially zero, suggesting it played no role in the model fit. The NLME package contains an anova method for comparing models. While we should get into the habit of comparing models fit by maximum likelihood, it makes little difference if we use REML for this comparison because the models only differ in covariance structure, not fixed-effects structure. Whether we compare models fit by REML or ML, we see overwhelming evidence that the simpler model, the one without an auto-regressive error structure, is just as good as the more complicated model.</p>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model1</span>, <span class="va">model2</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##        Model df      AIC      BIC    logLik   Test      L.Ratio p-value
 ## model1     1 16 242.2632 280.3756 -105.1316                            
 ## model2     2 15 240.2632 275.9936 -105.1316 1 vs 2 7.727313e-06  0.9978</code></pre>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model2ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
 <span>random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Seed <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>correlation <span class="op">=</span> <span class="cn">NULL</span>, control <span class="op">=</span> <span class="va">lmc</span>, method <span class="op">=</span> <span class="st">'ML'</span><span class="op">)</span></span>
@@ -616,7 +668,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14</code></pre>
-<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model1ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
 <span>random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Seed <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>correlation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/corAR1.html">corAR1</a></span><span class="op">(</span>form <span class="op">=</span> <span class="op">~</span> <span class="va">age</span><span class="op">|</span><span class="va">Seed</span><span class="op">)</span>, control <span class="op">=</span> <span class="va">lmc</span>, method <span class="op">=</span> <span class="st">'ML'</span><span class="op">)</span></span>
@@ -660,13 +712,13 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14</code></pre>
-<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model1ml</span>, <span class="va">model2ml</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##          Model df    AIC      BIC   logLik   Test      L.Ratio p-value
 ## model1ml     1 16 245.71 284.6031 -106.855                            
 ## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 2.924349e-07  0.9996</code></pre>
 <p>Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship. Using lmerTest we can produce corrected p-values for each fixed effect within model2—the model with an iid residual error structure. It’s clear that the cubic term provides no benefit, so we omit it and fit model3. An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML—how delightful. Again, the simpler, quadratic model is clearly preferred.</p>
-<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML ['lmerMod']
 ## Formula: height ~ poly(age, 3) + (poly(age, 3) | Seed)
@@ -702,7 +754,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## poly(ag,3)1  0.846              
 ## poly(ag,3)2 -0.621 -0.367       
 ## poly(ag,3)3 -0.011 -0.119 -0.117</code></pre>
-<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/runehaubo/lmerTestR">lmerTest</a></span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Warning: package 'lmerTest' was built under R version 4.2.2</code></pre>
 <pre><code>## 
@@ -713,7 +765,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <pre><code>## The following object is masked from 'package:stats':
 ## 
 ##     step</code></pre>
-<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">Loblolly</span><span class="op">$</span><span class="va">linear</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">Loblolly</span><span class="op">$</span><span class="va">quadratic</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span></span>
@@ -758,14 +810,14 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## linear     0.846              
 ## quadratic -0.621 -0.367       
 ## cubic     -0.011 -0.119 -0.117</code></pre>
-<div class="sourceCode" id="cb107"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'lme4'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq    F value
 ## linear       1 3702.8  3702.8 10559.8798
 ## quadratic    1  195.3   195.3   556.9934
 ## cubic        1    0.0     0.0     0.0084</code></pre>
-<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Satt'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF    F value    Pr(&gt;F)    
@@ -774,7 +826,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## cubic        0.0     0.0     1 26.656     0.0084    0.9276    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Ken'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF    F value    Pr(&gt;F)    
@@ -783,7 +835,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## cubic        0.0     0.0     1    13     0.0084    0.9283    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model3lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lmerTest/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">linear</span><span class="op">+</span><span class="va">quadratic</span> <span class="op">+</span> <span class="op">(</span><span class="va">linear</span><span class="op">+</span><span class="va">quadratic</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model3lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -817,13 +869,13 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ##           (Intr) linear
 ## linear     0.858       
 ## quadratic -0.617 -0.372</code></pre>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'lme4'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq F value
 ## linear       1 3435.0  3435.0 9813.44
 ## quadratic    1  191.1   191.1  546.03</code></pre>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Satt'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF  F value    Pr(&gt;F)    
@@ -831,7 +883,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## quadratic  191.1   191.1     1 14.580   546.03 5.804e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Ken'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF  F value    Pr(&gt;F)    
@@ -839,7 +891,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## quadratic  191.1   191.1     1    13   546.03 5.289e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, <span class="va">model2lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
 <pre><code>## Data: Loblolly
@@ -850,7 +902,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## model3lmer   10 234.49 258.80 -107.24   214.49                     
 ## model2lmer   15 243.71 280.17 -106.86   213.71 0.7787  5     0.9784</code></pre>
 <p>As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest, we provide a bootstrap-based analysis using bootMer. The downside of bootMer is that it is slow due to the need to refit the linear mixed model for each bootstrap simulation. Below we perform 100 such bootstrap simulations of model2—which is not enough for precise answers—but it is enough to get a good idea that the cubic term is ignorable and that the other fixed effects are significant.</p>
-<div class="sourceCode" id="cb124"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">booted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/bootMer.html">bootMer</a></span><span class="op">(</span><span class="va">model2lmer</span>, <span class="va">fun</span>, <span class="fl">100</span>, type <span class="op">=</span> <span class="st">'parametric'</span><span class="op">)</span></span>
 <span></span>
@@ -864,10 +916,10 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (31.65, 32.94 )  
+## 95%   (31.54, 33.07 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable</code></pre>
-<div class="sourceCode" id="cb126"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/boot/man/boot.ci.html">boot.ci</a></span><span class="op">(</span><span class="va">booted</span>, conf <span class="op">=</span> <span class="fl">0.95</span>, type <span class="op">=</span> <span class="st">'basic'</span>, index <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
 ## Based on 100 bootstrap replicates
@@ -877,10 +929,10 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (182.8, 190.2 )  
+## 95%   (183, 190 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable</code></pre>
-<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/boot/man/boot.ci.html">boot.ci</a></span><span class="op">(</span><span class="va">booted</span>, conf <span class="op">=</span> <span class="fl">0.95</span>, type <span class="op">=</span> <span class="st">'basic'</span>, index <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
 ## Based on 100 bootstrap replicates
@@ -890,10 +942,10 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (-23.77, -19.98 )  
+## 95%   (-23.51, -19.69 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable</code></pre>
-<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/pkg/boot/man/boot.ci.html">boot.ci</a></span><span class="op">(</span><span class="va">booted</span>, conf <span class="op">=</span> <span class="fl">0.95</span>, type <span class="op">=</span> <span class="st">'basic'</span>, index <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
 ## Based on 100 bootstrap replicates
@@ -903,7 +955,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (-1.1906,  1.3671 )  
+## 95%   (-1.3154,  1.2621 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable</code></pre>
 
@@ -934,7 +986,10 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <a class="nav-link" href="#example-loblolly-pines-data"><span class="header-section-number">4.3</span> Example: Loblolly pines data</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#model-fitting-for-loblolly-pines-data"><span class="header-section-number">4.3.1</span> Model-fitting for Loblolly pines data</a></li></ul>
 </li>
 <li>
-<a class="nav-link" href="#inference-for-fixed-effects-random-effects-and-model-comparisons"><span class="header-section-number">4.4</span> Inference for fixed effects, random effects, and model comparisons</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#inference-on-fixed-effects-for-loblolly-pines-data"><span class="header-section-number">4.4.1</span> Inference on fixed effects for Loblolly pines data</a></li></ul>
+<a class="nav-link" href="#model-diagnostics"><span class="header-section-number">4.4</span> Model diagnostics</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#model-diagnostics-for-loblolly-pines-data"><span class="header-section-number">4.4.1</span> Model diagnostics for Loblolly pines data</a></li></ul>
+</li>
+<li>
+<a class="nav-link" href="#inference-for-fixed-effects-random-effects-and-model-comparisons"><span class="header-section-number">4.5</span> Inference for fixed effects, random effects, and model comparisons</a><ul class="nav navbar-nav"><li><a class="nav-link" href="#inference-on-fixed-effects-for-loblolly-pines-data"><span class="header-section-number">4.5.1</span> Inference on fixed effects for Loblolly pines data</a></li></ul>
 </li>
 </ul>
 
@@ -952,7 +1007,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-08.</p>
+    <p>"<strong>GLMM</strong>" was written by Nick Syring. It was last built on 2023-02-09.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
