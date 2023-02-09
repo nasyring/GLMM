@@ -919,20 +919,20 @@ where Y is an \(n\times 1\) response, \(X\) is an \(n \times p\) design matrix f
 \label{eq:linmix}
 Y\sim N_n(X\beta, Z \psi_\theta Z^\top + \Lambda_\theta).
 \end{equation}
-
-\hypertarget{parameter-estimation-using-pml}{%
-\subsection{Parameter estimation using PML}\label{parameter-estimation-using-pml}}
+For abbreviation we will denote \(\Sigma = Z \psi_\theta Z^\top + \Lambda_\theta\) and we will often drop \(\theta\) from \(\psi\) and \(\Lambda\) to save pixels.\\
+\#\#\# Parameter estimation using PML
 
 The linear mixed model in \eqref{eq:linmix} may be fit using maximum likelihood estimation (MLE), but the (potentially) complicated covariance structure poses challenges to numerical maximization of the likelihood function. Rather than straightforward MLE, linear mixed models are usually fit using either \emph{restricted maximum likelihood estimation} (REML, also called residual MLE) or \emph{profile maximum likelihood estimation} (PML). Both approaches aim to simplify the computation of the maximum while retaining the good asymptotic properties of maximum likelihood estimators. While MLE is a frequentist concept, it turns out that REML can be derived most intuitively using a Bayesian approach.
 
-If you have previously covered general linear models, i.e., \(Y = X\beta + \epsilon\) where \(Cov(\epsilon) = \Sigma\) for some known \(\Sigma\) or some matrix \(\Sigma = \sigma^2 V\) for an unknown scalar \(\sigma^2\) and a known matrix \(V\), then you are familiar with weighted least squares (WLS) estimation. If the linear mixed model covariance parameter \(\theta\) were known, then the model could be fit using WLS:
-\[\hat\beta(\theta) = (X^\top W^{-1}X)^{-1}X^\top W^{-1}Y, \quad \text{where} \quad W = Z \psi_\theta Z^\top + \Lambda_\theta.\]
+If you have previously covered general linear models, i.e., \(Y = X\beta + \epsilon\) where \(Cov(\epsilon) = W\) for some known \(W\) or equals \(\sigma^2 W\) for an unknown scalar \(\sigma^2\) and a known matrix \(W\), then you are familiar with weighted least squares (WLS) estimation. Often weighted least squares is employed in response to observed heteroskedasticity in residuals related to covariates so that \(W\) depends on covariate values. If the linear mixed model covariance parameter \(\theta\) were known, then the model could be fit using WLS:
+\[\hat\beta(\theta) = (X^\top \Sigma^{-1}X)^{-1}X^\top \Sigma^{-1}Y\]
+just as in other applications of weighted least squares.
 
 The above WLS solution inspires the PML technique: maximize the likelihood with respect to \(\theta\) after plugging in \(\beta = \hat\beta(\theta)\). PML reproduces MLEs exactly; its advantage is its simplified formulation of the likelihood maximization problem.
 
 Nevertheless there are two problems with the PML strategy suggested above: one computational and the other statistical.
 
-The first problem is that PML/WLS requires inverting the \(n\times n\) matrix \(W = Z \psi_\theta Z^\top + \Lambda_\theta\). For even moderate sample sizes this matrix inversion can be both computationally demanding and computationally unstable. Fortunately, some clever linear algebra resolves this problem. Define matrix \(A:=\psi^{-1} + Z^\top \Lambda^{-1}Z\). Observe that the matrix \(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\) equals the inverse of \(Z\psi Z^\top + \Lambda\):
+The first problem is that PML/WLS requires inverting the \(n\times n\) matrix \(\Sigma\). For even moderate sample sizes this matrix inversion can be both computationally demanding and computationally unstable. Fortunately, some clever linear algebra resolves this problem. Define matrix \(A:=\psi^{-1} + Z^\top \Lambda^{-1}Z\). Observe that the matrix \(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\) equals the inverse of \(Z\psi Z^\top + \Lambda\):
 \begin{align*}
 &(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1})(Z\psi Z^\top + \Lambda) \\
 & = \Lambda^{-1}Z\psi Z^\top + I - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}Z\psi Z^\top - \Lambda^{-1}ZA^{-1}Z^\top \\
@@ -940,14 +940,14 @@ The first problem is that PML/WLS requires inverting the \(n\times n\) matrix \(
 & = I+\Lambda^{-1}Z(\psi - \psi(Z^\top \Lambda^{-1}A\psi + I)^{-1}(Z^\top \Lambda^{-1}A\psi + I))Z^\top \\
 & = I
 \end{align*}
-The key property of this inverse is that it only requires computing the inverse of \(p\times p\) and \(a\times a\) matrices, and does not require the computation of any \(n\times n\) matrix inverse. In many practical applications both \(p\) and \(a\) are much smaller than \(n\), and the matrices \(\Lambda\) and \(\psi\) often have simple structures, so that the above matrix inversions may be performed very quickly and reliably.
+The key property of this inverse is that it only requires computing the inverse of \(p\times p\) and \(a\times a\) matrices, and does not require the computation of any \(n\times n\) matrix inverse. In many practical applications both \(p\) and \(a\) are much smaller than \(n\), and the matrices \(\Lambda\) and \(\psi\) often have simple/sparse structures with many exact zeroes, so that the above matrix inversions may be performed very quickly and reliably.
 
-The second issue with PML cannot as easily be overcome. Think back to the Gauss-Markov model \(Y = X\beta+\epsilon\) where \(Cov(\epsilon) = \sigma^2 I_n\). Recall that the MLE \(\hat\sigma^2\) is biased, i.e., \(E(\hat\sigma^2) = \frac{n-p}{n}\sigma^2\). In practice we may have a substantial number of covariates relative to sample size so that this bias can be quite significant; and, importantly, the bias results in an underestimate which causes over-optimism with respect to inferences concerning \(\beta\). The same phenomenon occurs in ML/PML estimation: the PML estimate of \(\theta\) is biased. The desire for an estimation strategy that constructively produces unbiased estimates is the motivation for REML, covered next.
+The second issue with PML cannot as easily be overcome. Think back to the Gauss-Markov model \(Y = X\beta+\epsilon\) where \(Cov(\epsilon) = \sigma^2 I_n\). Recall that the MLE \(\hat\sigma^2\) is biased, i.e., \(E(\hat\sigma^2) = \frac{n-p}{n}\sigma^2\). In practice we may have a substantial number of covariates relative to sample size so that this bias can be quite significant; and, importantly, the bias results in an underestimate which causes over-optimism with respect to inferences concerning \(\beta\). The same phenomenon occurs in ML/PML estimation: the PML estimate of \(\theta\) is biased. The desire for an estimation strategy that constructively produces less-biased estimates of covariance parameters is the motivation for REML, covered next.
 
 \hypertarget{reml---frequentist-approach}{%
 \subsection{REML - frequentist approach}\label{reml---frequentist-approach}}
 
-There are two formulations both leading to the residual (also called restircted/reduced) maximum likelihood approach (REML), one frequentist (non-Bayesian) and the other Bayesian. Let's explore both approaches.
+There are two formulations both leading to the residual (also called restricted/reduced) maximum likelihood approach (REML), one frequentist (non-Bayesian) and the other Bayesian. Let's explore both approaches.
 
 The motivation for REML is to produce unbiased (or at least less biased than MLE) estimates of the covariance parameters. The REML approach to doing this may be interpreted as a likelihood approach based on residuals, or as a marginal likelihood approach to covariance parameter estimation.
 
@@ -955,7 +955,7 @@ Begin with the linear mixed model in \eqref{eq:linmix}. Assume \(X\) has full ra
 \[L_1^\top X = I_p \quad\text{and}\quad L_2^\top X = 0_{n-p},\]
 such that \(L\) has full rank \(n\).
 
-This setup is a bit abstract, so it helps to find at least one concrete example of such an \(L\). Start with the projection matrix \(P_X := X(X^\top X)^{-1}X^\top\). Since \(P_X\) is a symmetric, idempotent matrix of rank \(p\) it has exactly \(p\) eigenvalues of value 1 and \(n-p\) 0 eigenvalues, and its eigenvectors are orthonormal. Hence,
+This setup is a bit abstract, so it helps to find at least one concrete example of such an \(L\). Start with the projection matrix \(P_X := X(X^\top X)^{-1}X^\top\). Since \(P_X\) is a symmetric, idempotent matrix of rank \(p\) its eignevalues can only be zero or one, and, the number of eigenvalues (called multiplicity) of value one is equal to its rank, exactly \(p\). In addition, its eigenvectors are orthonormal. Hence,
 \[P_X = \begin{bmatrix}V_1 & V_2\\
 V_3 &V_4\end{bmatrix}\begin{bmatrix}1_{p\times p} & 0_{p\times n-p}\\
 0_{n-p \times p} & 0_{n-p \times n-p}\end{bmatrix}\begin{bmatrix}V_1 & V_2\\
@@ -986,21 +986,21 @@ where \(y_2^\star = L_1^\top \Sigma L_2(L_2^\top \Sigma L_2)^{-1}y_2\).
 
 Again, some tedious linear algebra computations can be used to show that
 \[L_2(L_2^\top \Sigma L_2)^{-1}L_2^\top = \Sigma^{-1} - \Sigma^{-1}X(X^\top\Sigma^{-1} X)^{-1} X^\top\Sigma^{-1},\]
-which is an improvement computationally because it requires only inversion of a \(p\times p\) matrix and \(\Sigma^{-1}\), which has an efficient formula; see above. Furthermore, the block matrix determinant identity given by
+which may be computed efficiently using the equivalent form of \(\Sigma^{-1}\) given above. Furthermore, the block matrix determinant identity given by
 \[det\begin{bmatrix}A & B\\
 B^\top & C\end{bmatrix} = |C||A - B^\top C^{-1}B|,\]
 applied to \(L^\top\Sigma L\) can be used to show that
 \[\log |L_2^\top \Sigma L_2| = \log|L^\top\Sigma L| + \log |X^\top \Sigma^{-1}X|.\]
-Further, rules for determinants imply
+Standard rules for determinants imply
 \[\log|L^\top\Sigma L| = \log|L^\top L\Sigma| = \log|L^\top L|+\log|\Sigma|.\]
-Using these simplified expressions, and noting that \(\log|L^\top L|\) is constant in parameters, we may write tge marginal (or residual) likelihood as
+Using these simplified expressions, and noting that \(\log|L^\top L|\) is constant in parameters, we may write the marginal (or residual) likelihood as
 \[\ell_r:= \text{const}.-\tfrac12 \log |\Sigma| +\tfrac12 \log|X^\top \Sigma^{-1} X| -\tfrac12 y^\top(\Sigma^{-1} - \Sigma^{-1}X(X^\top\Sigma^{-1} X)^{-1} X^\top\Sigma^{-1})y.\]
 
 What is the reason for referring to \(\ell_r\) as a \emph{residual loglikelihood}? Recall \(\ell_r\) is the marginal loglikelihood of \(L_2^\top Y\) where \(L_2^\top X = 0\). Therefore,
-\[E(L_2^\top Y) = L_2^\top X\beta = (L_2^\top X)\beta = 0\beta = 0.\]
-We say \(L_2^\top Y\) behaves as a residual because \(L_2^\top X = 0\).
+\[E(L_2^\top Y) = L_2^\top X\beta = (L_2^\top X)\beta = 0\beta = 0,\]
+which shows \(L_2^\top Y\) behaves like a residual vector.
 
-The REML estimate of \(\theta\) is given by the maximizer of \(\ell_r\) with respect to \(\theta\). Note also that this is simple the MLE of \(\theta\) with respect to the marginal likelihood of \(L_2^\top Y\), i.e., the likelihood of ``part of the data''.
+The REML estimate of \(\theta\) is given by the maximizer of \(\ell_r\) with respect to \(\theta\). Note also that this is simply the MLE of \(\theta\) with respect to the marginal likelihood of \(L_2^\top Y\), i.e., the likelihood of ``part of the data''.
 
 Next, consider maximizing the conditional likelihood \(\ell_c\) with respect to \(\beta\) and where \(\theta=\hat\theta\) is fixed at its REML estimate, i.e., \(\Sigma = \hat\Sigma\). Take the first derivative with respect to \(\beta\), equate to zero, and observe
 \begin{align*}
@@ -1033,9 +1033,13 @@ Let \(A:=\psi^{-1} + Z^\top \Lambda^{-1}Z\) and complete the square in \(\alpha\
 &+\tfrac12(y-X\beta)^\top\Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1} (y-X\beta). 
 \end{align*}
 Combine the terms quadratic in \(y-X\beta\). The resulting matrix \(\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1}\) is equal to \((Z\psi Z^\top + \Lambda)^{-1}\), which is a fact we used above in the frequentist approach to REML. Therefore, the posterior factorizes into
-\begin{align*}
+\begin{equation}
+\label{eq:preddist}
+\begin{aligned}
 \log\Pi_n(\beta) &= \text{const.} - \tfrac12 \left(y - X\beta\right)^\top (Z\psi Z^\top +\Lambda)^{-1}(y - X\beta) \\
-&- \tfrac12(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta))^\top A(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta)) \end{align*}
+&- \tfrac12(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta))^\top A(\alpha - A^{-1}Z^\top\Lambda^{-1}(y-X\beta)) 
+\end{aligned}
+\end{equation}
 
 Integrate over \(\alpha\) to obtain the posterior for \(\beta\). Marginally, \(\alpha\) is multivariate normal; therefore, we obtain
 \[\Pi_n(\beta) = (2\Pi)^{-n/2}|\Lambda|^{-1/2}|\psi|^{-1/2}|A|^{-1/2}\exp\left\{-\tfrac12 \left(y - X\beta\right)^\top (Z\psi Z^\top +\Lambda)^{-1}(y - X\beta)\right\}.\]
@@ -1044,20 +1048,27 @@ It can be verified that \(|Z\psi Z^\top +\Lambda| = |\Lambda||\psi||A|\) by usin
 \[|D^{-1} - CA^{-1}B| = |D||A^{-1}||A - BD^{-1}C|\]
 where \(Z\psi Z^\top +\Lambda = D^{-1} - CA^{-1}B = (\Lambda^{-1} - \Lambda^{-1}ZA^{-1}Z^\top \Lambda^{-1})^{-1}\); and, see, e.g., Appendix M equation 31 in Searle et al.~(Variance Components). As a result, the posterior for \(\beta\) is multivariate normal with covariance \(Z\psi Z^\top +\Lambda\).
 
-Let \(V := (Z\psi Z^\top +\Lambda)\). In the exponent, add and subtract \(X\hat\beta = X(X^\top V^{-1} X)^{-1}X^\top V^{-1}y\) (which depends on \(\theta\)) in the quadratic to obtain
+In the exponent, add and subtract \(X\hat\beta = X(X^\top \Sigma^{-1} X)^{-1}X^\top \Sigma^{-1}y\) (which depends on \(\theta\)) in the quadratic to obtain
 \begin{align*}
-\left(y - X\beta\right)^\top V^{-1}(y - X\beta) & = \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta)\\
-& -2 \left(y - X\hat\beta\right)^\top V^{-1}(X\hat\beta - X\beta)\\
-& + \left(X\hat\beta - X\beta\right)^\top V^{-1}(X\hat\beta - X\beta).
+\left(y - X\beta\right)^\top \Sigma^{-1}(y - X\beta) & = \left(y - X\hat\beta\right)^\top \Sigma^{-1}(y - X\hat\beta)\\
+& -2 \left(y - X\hat\beta\right)^\top \Sigma^{-1}(X\hat\beta - X\beta)\\
+& + \left(X\hat\beta - X\beta\right)^\top \Sigma^{-1}(X\hat\beta - X\beta).
 \end{align*}
-It is straightforward to show the middle term is zero. Thereforen, the joint posterior for \((\beta, \theta)\) may be written
-\[\log \Pi_n(\beta, \theta) = \text{const}. -\tfrac12\log|V|-\tfrac12(y-X\hat\beta)^\top V^{-1}(y-X\hat\beta) -\tfrac12(X\hat\beta - X\beta)V^{-1}(X\hat\beta - X\beta)\]
+It is straightforward to show the middle term is zero. Therefore, the joint posterior for \((\beta, \theta)\) may be written
+\[\log \Pi_n(\beta, \theta) = \text{const}. -\tfrac12\log|\Sigma|-\tfrac12(y-X\hat\beta)^\top \Sigma^{-1}(y-X\hat\beta) -\tfrac12(X\hat\beta - X\beta)\Sigma^{-1}(X\hat\beta - X\beta)\]
 
 If we integrate out \(\beta\) (w.r.t. a multivariate normal density), then we obtain the following marginal posterior for the variance parameters:
-\[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|V| + \tfrac{1}{2}\log|X^\top V^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top V^{-1}(y - X\hat\beta).\]
+\[\log\Pi_n(\theta) = \text{const.} - \tfrac{1}{2}\log|\Sigma| + \tfrac{1}{2}\log|X^\top \Sigma^{-1}X|-\tfrac12 \left(y - X\hat\beta\right)^\top \Sigma^{-1}(y - X\hat\beta).\]
 
-\hypertarget{example-loblolly-pines-data}{%
-\section{Example: Loblolly pines data}\label{example-loblolly-pines-data}}
+\hypertarget{predicting-random-effects-and-responses}{%
+\subsection{Predicting random effects and responses}\label{predicting-random-effects-and-responses}}
+
+If we set \(\beta = \hat\beta\) in \eqref{eq:preddist} we see that the distribution of \(\alpha|\beta = \hat\beta\) is multivariate normal with mean (and mode) equal to \(A^{-1}Z^\top\Lambda^{-1}(y-X\hat\beta)\). This quantity is the predictor \(\hat\alpha\) of \(\alpha\) when \(\beta\) is set to the REML estimator, and it has a clear Bayesian interpretation as a posterior mean and maximum a posteriori point estimate.
+
+The \emph{best linear unbiased predictors} of \(\alpha\) and \(Y\) are equal to \(\hat\alpha\) and \(X\hat\beta + Z\hat\alpha\).
+
+\hypertarget{example-fitting-a-linear-mixed-model-to-loblolly-pines-data}{%
+\subsection{Example: Fitting a linear mixed model to Loblolly pines data}\label{example-fitting-a-linear-mixed-model-to-loblolly-pines-data}}
 
 The data set ``Loblolly'' included in the nlme package contains longitudinal measurements of tree height for 14 Loblolly pine trees at 6 age points.
 
@@ -1067,6 +1078,15 @@ A plot of age by height for all trees suggests a common concave polynomial behav
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(nlme)}
 \FunctionTok{library}\NormalTok{(ggplot2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \FunctionTok{head}\NormalTok{(Loblolly)}
 \end{Highlighting}
 \end{Shaded}
@@ -1093,18 +1113,17 @@ A plot of age by height for all trees suggests a common concave polynomial behav
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-8-1.pdf}
 
-To model the mean height behavior we might choose a, say, third degree polynomial function of age. There are a few ways of doing this: specify a polynomial in age, a polynomial in \{age - mean(age)\}, or a basis of orthogonal polynomials. Both the second and third strategies are better than the first as coefficients of polynomial elements will be correlated unless those polynomial elements are orthogonal or the variable is centered.
+To model the mean height behavior we might choose a, say, third degree polynomial function of age. There are a few ways of doing this: specify a polynomial in age, a polynomial in \{age - mean(age)\}, or a basis of orthogonal polynomials. Both the second and third strategies are better than the first as coefficients of polynomial elements tend to be highly correlated unless those polynomial elements are orthogonal or the variable is centered.
 
-It would not be appropriate to model the heights as a polynomial function of age with only those fixed effects. Since heights are recorded at the same ages for several trees, those height measurements are correlated within trees. We can capture such correlation within trees by including random, tree-specific polynomial coefficients. This polynomial mixed effects model looks like the following
+We could model height as polynomial in age using only fixed effects. However, if we want to account for variation in those polynomials over trees we can introduce tree-specific effects. Those tree-specific effects could be fixed or random, and the choice depends on the sampling mechanism used to collect the data. If those specific trees are of interest and were sampled intentionally then fixed tree effects are appropriate. On the other hand, if the observed trees represent a random sample from a population of trees, then random tree effects are appropriate. It is also worth pointing out that, in most cases, many more degrees of freedom would be needed to estimate tree-specific fixed effects compared to tree-specific random effects. This polynomial mixed effects model looks like the following
 \begin{align*}
 Y_{ij} &= \beta_0 + \beta_1 X_{ij1}+ \beta_2 X_{ij2}+ \beta_3 X_{ij3}\\
        &+ \beta_{i1} X_{ij1}+ \beta_{i2} X_{ij2}+ \beta_{i3} X_{ij3}\\
        & + \epsilon_{ij}
 \end{align*}
-where \(i=1, \ldots, 14\) indexes trees, \(j = 1, \ldots, 6\) indexes ages, \(\beta_1\) through \(\beta_3\) are common coefficients for fixed polynomial age effects, and \(\beta_{i1}\) through \(\beta_{i3}\) are varying coefficients for age effects for each tree. The covariates \(X_{ij1}\) through \(X_{ij3}\) represent third degree orthogonal polynomials; i.e., they are not simply age, age\(^2\) and age\(^3\), more on those shortly. The random effects are normal with covariance \(\psi\), i.e., \((\beta_{i1},\beta_{i2},\beta_{i3})^\top \stackrel{iid}{\sim}N(0,\psi)\). The random-sampling errors are modeled as zero-mean, time-dependent normal random variables for a lag of 1, so that \((\epsilon_{i1},\ldots, \epsilon_{i6})\stackrel{iid}{\sim} N(0,\Lambda)\) where \(\Lambda\) is positive definite and tri-diagonal.
+where \(i=1, \ldots, 14\) indexes trees, \(j = 1, \ldots, 6\) indexes ages, \(\beta_1\) through \(\beta_3\) are common coefficients for fixed polynomial age effects, and \(\beta_{i1}\) through \(\beta_{i3}\) are varying coefficients for age effects for each tree. The covariates \(X_{ij1}\) through \(X_{ij3}\) represent third degree orthogonal polynomials; i.e., they are not simply age, age\(^2\) and age\(^3\), more on those shortly. The random effects are normal with covariance \(\psi\), i.e., \((\beta_{i1},\beta_{i2},\beta_{i3})^\top \stackrel{iid}{\sim}N(0,\psi)\).
 
-\hypertarget{model-fitting-for-loblolly-pines-data}{%
-\subsection{Model-fitting for Loblolly pines data}\label{model-fitting-for-loblolly-pines-data}}
+Since tree heights are recorded over time/ages it also makes sense to consider auto-correlated errors \(\epsilon_{i,j}\) with non-zero correlation over \(j\) within \(i\). For now, modeling these errors as zero-mean, time-dependent normal random variables with non-zero auto-correlation at lag 1, meaning \((\epsilon_{i,j}, \epsilon_{i,j+1})\) have non-zero correlation, so that \((\epsilon_{i1},\ldots, \epsilon_{i6})\stackrel{iid}{\sim} N(0,\Lambda)\) where \(\Lambda\) is positive definite and tri-diagonal.
 
 Below we specify this model using the lme function from the nlme package. With default optimization specifications lme fails to fit this model, but lme converges if we simply increase the maximum number of iterations and function evaluations via the lmeControl function.
 
@@ -1187,7 +1206,7 @@ The following helper function from the Matrix package can help in constructing t
 \end{Highlighting}
 \end{Shaded}
 
-We can match the standard errors and approximate p-values of the fixed effects using the following calculations (more on p-values later). One thing to mention: the \(Z\) design matrix of random effects seems not present in the lme object, and so we fit the same type of model using lmer from the lme4 package that more easily allows us to obtain this model matrix.
+We can match the standard errors and approximate p-values of the fixed effects using the following calculations (more on p-values later). One thing to mention: the \(Z\) design matrix of random effects seems not present in the lme object, and so we fit the same type of model using lmer from the lme4 package that more easily allows us to obtain this model matrix. We could have constructed this ``by hand'' but it has a large, block structure, and it's just easier to extract from built-in functions.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1196,7 +1215,15 @@ We can match the standard errors and approximate p-values of the fixed effects u
 \end{Shaded}
 
 \begin{verbatim}
+## Warning: package 'lme4' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'Matrix' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1347,7 +1374,7 @@ You may have noticed the estimated auto-regressive covariance term is essentiall
 
 NLME is not the only package for fitting linear mixed models. LME4 is a newer package compared to NLME, and generally fits models much faster thanks to its better use of efficient linear algebra routines. However, LME4 is not as flexible as NLME when it comes to the available residual covariance structures one is able to fit. For example, LME4 does not have the flexibility to fit the AR(1) structure we fit for model1 above using the NLME package.
 
-Below we fit model2 using lme4. The lmer model fitting function fails to fit the model with the default settings, much like the lme function from the nlme package. The main issue causing lack of convergence is a check function that evaluates the gradient of the likelihood at the final parameter estimates and requires it to be near zero. We have to violate this criteria in order to get the model to fit, which we can do by using the \texttt{check.conv.grad} argument of the control argument. Once we coerce lmer to converge using these options we see that it produces essentially the same estimates as lme with respect to model2.
+Below we fit model2 using LME4. The lmer model fitting function fails to fit the model with the default settings, much like the lme function from the NLME package. The main issue causing lack of convergence is a check function that evaluates the gradient of the likelihood at the final parameter estimates and requires it to be near zero. We have to violate this criteria in order to get the model to fit, which we can do by using the \texttt{check.conv.grad} argument of the control argument. Once we coerce lmer to converge using these options we see that it produces essentially the same estimates as lme with respect to model2.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1400,30 +1427,38 @@ Next, we will investigate various residual quantities to determine if our model 
 \section{Model diagnostics}\label{model-diagnostics}}
 
 As in pure fixed effects linear models, residuals are helpful for checking assumptions like linearity and normality. For mixed effects models, there are more ways to define residuals:
-- Marginal residuals are the residuals formed by subtracting the fitted fixed effect from the response, that is, \(\hat e_{ij} := Y_{ij} - x_{ij}^\top \hat\beta\)
-- Standardized marginal residuals remove the effect of correlation within groups. Let \(\hat\Sigma_i\) denote the fitted covariance within group \(i\), and let \(\hat\Sigma_i^{-1/2}\) denote the lower Cholesky factor of \(\hat\Sigma_i^{-1}\). Then, \(\hat \epsilon_{i} = \hat\Sigma_i^{-1/2}\hat e_i\) denotes the vector of standardized marginal residuals for group \(i\).
-- Conditional residuals also subtract the predicted random effect, \(\hat \xi_{ij} = Y_{ij} - x_{ij}^\top \hat\beta - z_{ij}^\top \hat \alpha\)
-- Standardized conditional residuals \(\hat\phi_{ij}\) are formed by standardizing the conditional residuals by \(\hat\sigma\sqrt{v_{kk}}\) where \(\hat\sigma\) is the fitted residual standard error and \(v_{kk}\) is the \(k^{th}\) diagonal entry of the matrix \(I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\).
 
-A scatterplot of marginal residuals versus fixed covariates are useful for checking the assumption of linearity. Trends in this plot indicate an important omitted variable and/or nonlinearity.
+\begin{itemize}
+\item
+  Marginal residuals are the residuals formed by subtracting the fitted fixed effect from the response, that is, \(\hat e_{ij} := Y_{ij} - x_{ij}^\top \hat\beta\)
+\item
+  Standardized marginal residuals remove the effect of correlation. The estimated covariance of \(\hat e\) is \(\hat\Sigma(\hat e) := \hat\Sigma - X(X^\top \hat\Sigma^{-1} X)^{-1}X^\top\). Let \(\hat\Sigma_i(\hat e)\) denote the fitted covariance of marginal residuals within group \(i\), and let \(\hat\Sigma_i(\hat e)^{-1/2}\) denote the lower Cholesky factor of \(\hat\Sigma_i(\hat e)^{-1}\). Then, \(\hat \epsilon_{i} = \hat\Sigma_i(\hat e)^{-1/2}\hat e_i\) denotes the vector of standardized marginal residuals for group \(i\).
+\item
+  Conditional residuals also subtract the predicted random effect, \(\hat \xi_{ij} = Y_{ij} - x_{ij}^\top \hat\beta - z_{ij}^\top \hat \alpha\)
+\item
+  Standardized conditional residuals \(\hat\phi_{ij}\) are formed by standardizing the conditional residuals by their estimated covariance, just as in the case of marginal residuals. The estimated covariance of conditional residuals is given by
+  \[\hat\Sigma(\hat \phi) := (I-Z\hat A^{-1}Z^\top \hat\Lambda^{-1})\hat\Sigma(\hat e)(I-\hat\Lambda^{-1}Z\hat A^{-1}Z^\top).\]
+\end{itemize}
 
-Quantile-quantile plots of standardized marginal residuals should match a standard normal distribution. If not, then the chosen covariance structure is not good model for the given data. comparing quantile-quantile plots for each group can be useful for assessing heteroskedasticity, although these comparisons become rough when groups have few individuals.
+A scatterplot of marginal residuals versus fixed covariates is useful for checking the assumption of linearity. Trends in this plot indicate an important omitted variable and/or nonlinearity.
 
-Large absolute standardized conditional residuals are indicate outliers. Plots of standardized conditional residuals versus the fitted values \(X\hat\beta + Z\hat\alpha\) may also reveal heteroskedasticity at the individual level---which would suggest modifying the structure of \(\Lambda\) if it is assumed to be \(\sigma^2 I_n\) as is common.
+Quantile-quantile plots of standardized marginal residuals within groups should match a standard normal distribution. If not, then the chosen within-group covariance structure is not good model for the given data. Comparing quantile-quantile plots for each group can be useful for assessing heteroskedasticity, although these comparisons become rough when groups have few individuals.
 
-Both conditional and standardized conditional residuals are confounded with the best linear unbiased predictors \(Z\hat\alpha\) in the sense they depend on each other. The degree of this confounding interferes with the standardized conditional residuals ability to indicate normality (or lack of normality) of the conditional errors. A correction, termed the least confounded residuals, aims to construct a residual better able to detect departures from normality. The correction is performed by way of solving a generalized eigenvalue problem. Let matrices \(A\) and \(B\) denote \(A = (I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top)\hat\Sigma^{-1}I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\) and \(B = I_n - X(X^\top \hat \Sigma^{-1} X)^{-1}X^\top\). The least confounded residuals are \(t^\top \hat\phi_{ij}\) where \(t\) maximizes \((t^\top A t) / (t^\top B t)\). The maximum value occurs at the largest eigenvalue of \(B^{-1}A\) and \(t\) is the corresponding eigenvector.
+Large absolute standardized conditional residuals are indicate outliers. Plots of standardized conditional residuals versus the fitted values \(X\hat\beta + Z\hat\alpha\) may also reveal heteroskedasticity over/between groups---which would suggest modifying the structure of \(\Lambda\) if it is assumed to be \(\sigma^2 I_n\) as is common.
 
 \hypertarget{model-diagnostics-for-loblolly-pines-data}{%
 \subsection{Model diagnostics for Loblolly pines data}\label{model-diagnostics-for-loblolly-pines-data}}
 
+We begin by plotting the responses along with the BLUPs based on model2. There is no obvious lack of fit.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted3 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model2lmer)}
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted2 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model2lmer)}
 
 \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
   \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
   \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ fitted3, }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ fitted2, }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
   \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Seed, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -1442,6 +1477,12 @@ Both conditional and standardized conditional residuals are confounded with the 
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{model.matrix}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{))}
+
+\NormalTok{Sigma.e }\OtherTok{\textless{}{-}} 
+
+
+
 \FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, marginal.resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}marginal residual\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -1672,7 +1713,7 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lmerTest' was built under R version 4.2.2
+## Warning: package 'lmerTest' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1899,86 +1940,16 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{fun }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(model) }\FunctionTok{summary}\NormalTok{(model)}\SpecialCharTok{$}\NormalTok{coefficients[,}\DecValTok{1}\NormalTok{]}
-\NormalTok{booted }\OtherTok{\textless{}{-}} \FunctionTok{bootMer}\NormalTok{(model2lmer, fun, }\DecValTok{100}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}parametric\textquotesingle{}}\NormalTok{)}
+\CommentTok{\#booted \textless{}{-} bootMer(model2lmer, fun, 100, type = \textquotesingle{}parametric\textquotesingle{})}
 
 \FunctionTok{library}\NormalTok{(boot)}
-\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{1}\NormalTok{)}
+\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 1)}
+\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 2)}
+\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 3)}
+\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 4)}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
-## Based on 100 bootstrap replicates
-## 
-## CALL : 
-## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 1)
-## 
-## Intervals : 
-## Level      Basic         
-## 95%   (31.63, 33.29 )  
-## Calculations and Intervals on Original Scale
-## Some basic intervals may be unstable
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{2}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
-## Based on 100 bootstrap replicates
-## 
-## CALL : 
-## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 2)
-## 
-## Intervals : 
-## Level      Basic         
-## 95%   (182.6, 190.3 )  
-## Calculations and Intervals on Original Scale
-## Some basic intervals may be unstable
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{3}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
-## Based on 100 bootstrap replicates
-## 
-## CALL : 
-## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 3)
-## 
-## Intervals : 
-## Level      Basic         
-## 95%   (-23.64, -19.55 )  
-## Calculations and Intervals on Original Scale
-## Some basic intervals may be unstable
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{4}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
-## Based on 100 bootstrap replicates
-## 
-## CALL : 
-## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 4)
-## 
-## Intervals : 
-## Level      Basic         
-## 95%   (-0.9225,  1.2013 )  
-## Calculations and Intervals on Original Scale
-## Some basic intervals may be unstable
-\end{verbatim}
 
   \bibliography{book.bib,packages.bib}
 

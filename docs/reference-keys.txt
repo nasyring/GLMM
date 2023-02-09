@@ -3,6 +3,7 @@ eq:aggmodel1
 eq:fullmodel2
 eq:aggmodel
 eq:linmix
+eq:preddist
 introduction
 intro
 poisson-regression
@@ -21,11 +22,10 @@ anova-with-random-factors
 strength-of-metallic-bonds
 machine-productivity
 a-general-linear-mixed-model
-parameter-estimation-using-pml
 reml---frequentist-approach
 reml---bayesian-approach
-example-loblolly-pines-data
-model-fitting-for-loblolly-pines-data
+predicting-random-effects-and-responses
+example-fitting-a-linear-mixed-model-to-loblolly-pines-data
 model-diagnostics
 model-diagnostics-for-loblolly-pines-data
 inference-for-fixed-effects-random-effects-and-model-comparisons
