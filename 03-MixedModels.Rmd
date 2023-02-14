@@ -384,52 +384,87 @@ Large absolute standardized conditional residuals are indicate outliers.  Plots 
 
 ### Model diagnostics for Loblolly pines data
 
-We begin by plotting the responses along with the BLUPs based on model2.  There is no obvious lack of fit.  
+
+We begin by plotting the amrginal residuals from the cubic model fit with LME4 which we called model2.  The marginal residuals exhibit some pattern in age.  This suggests fitting a higher-order polynomial model.
 
 ```{r}
-Loblolly$fitted2 <- fitted(model2lmer)
+marginal.resids <- Loblolly$height - model.matrix(model2lmer, type = 'fixed')%*%fixef(model2lmer)
+plot(Loblolly$age, marginal.resids, xlab = 'age', ylab = 'marginal residual')
+```
+
+A 5th order polynomial appears to fit the data best; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effects structure by investigating standardized residuals. 
+
+```{r}
+library(lme4)
+model3lmer <- lmer(height ~ poly(age,5) + (1 | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+marginal.resids3 <- Loblolly$height - model.matrix(model3lmer, type = 'fixed')%*%fixef(model3lmer)
+plot(Loblolly$age, marginal.resids3, xlab = 'age', ylab = 'marginal residual')
+```
+
+Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree.  This means that each trees age-height is simply a shifted (up or down) version of the same polynomial.  Based on our BLUPs, plotted below, the random effects structure does not seem sufficiently flexible to model trees 329, 327,  and 305, for example.  It certainly looks like we need to add random polynomial effects.    
+
+```{r}
+Loblolly$fitted3 <- fitted(model3lmer)
 
 ggplot(data = Loblolly) + 
   geom_line(mapping = aes(x = age, y = height)) + 
   geom_point(mapping = aes(x = age, y = height)) + 
-  geom_point(mapping = aes(x = age, y = fitted2, color = 'red')) +
+  geom_point(mapping = aes(x = age, y = fitted3, color = 'red')) +
   facet_wrap(~ Seed, nrow = 2)
-
-
 ```
 
-
-
+Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including further random effects.
 
 ```{r}
+model4lmer <- lmer(height ~ poly(age,5) + (poly(age,2) | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+marginal.resids4 <- Loblolly$height - model.matrix(model4lmer, type = 'fixed')%*%fixef(model4lmer)
+Loblolly$fitted4 <- fitted(model4lmer)
+ggplot(data = Loblolly) + 
+  geom_line(mapping = aes(x = age, y = height)) + 
+  geom_point(mapping = aes(x = age, y = height)) + 
+  geom_point(mapping = aes(x = age, y = fitted4, color = 'red')) +
+  facet_wrap(~ Seed, nrow = 2)
+```
 
+The following calculations produce standardized marginal residuals, which we can investigate for normality and the overall appropriateness of the within tree covariance structure.
 
-marginal.resids <- Loblolly$height - model.matrix(model2lmer, type = 'fixed')%*%fixef(model2lmer)
-
-plot(Loblolly$age, marginal.resids, xlab = 'age', ylab = 'marginal residual')
-
-X <- as.matrix(model.matrix(model2lmer, type = 'fixed'))
-
-Sigma.e <- 
-
-
-
-plot(Loblolly$Seed, marginal.resids, xlab = 'Seed', ylab = 'marginal residual')
-
+```{r}
+Z <- model.matrix(model4lmer, type = 'random')
+dim_cov <- dim(attr(VarCorr(model4lmer)[1]$Seed, 'correlation'))[1]
+psi_i <- as.matrix(VarCorr(model4lmer)[1]$Seed[1:dim_cov,1:dim_cov])
+psi <- bdiag_m(list(psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i))
+inv_psi <- solve(psi)
+phi <- coef(model1$modelStruct$corStruct, unconstrained = FALSE)
+L <- (summary(model4lmer)$sigma^2)*diag(nrow(Loblolly))
+invL <- solve(L)
+A <- inv_psi+t(Z)%*%invL%*%Z
+invA <- solve(A)
+P<-invL-invL%*%Z%*%invA%*%t(Z)%*%invL
+X <- as.matrix(model.matrix(model4lmer, type = 'fixed'))
+cov.beta.hat <- solve(t(X)%*%P%*%X)
+Y <- Loblolly$height
+beta.hat <- cov.beta.hat%*%t(X)%*%P%*%Y
 Pi <- as.matrix(P)[1:6,1:6]
-cholPi <- chol(Pi)
+cholPi <- t(solve(chol(solve(Pi))))
 standardized_resids <- rep(NA,84)
 seed=1
+cov.check <- 0
 for(i in 1:14){
-  standardized_resids[(seed-1)*6+(1:6)] <- t(cholPi)%*%marginal.resids[(seed-1)*6+(1:6)]
+  standardized_resids[(seed-1)*6+(1:6)] <- t(cholPi)%*%marginal.resids4[(seed-1)*6+(1:6)]
+  cov.check <- cov.check + sum((diag(6)-standardized_resids[(seed-1)*6+(1:6)]%*%t(standardized_resids[(seed-1)*6+(1:6)]))^2)
   seed <- seed + 1
 }
-qqnorm(standardized_resids)
-qqline(standardized_resids)
-sum((diag(6) - standardized_resids[1:6]%*%t(standardized_resids[1:6]))^2)
 
 
+plot(Loblolly$Seed, standardized_resids, xlab = 'Seed', ylab = 'standardized marginal residual')
 
+B <- (diag(nrow(Loblolly)) - Z%*%invA%*%t(Z)%*%invL)
+P2 <- B%*%solve(P)%*%t(B)
+cholP2 <- t(chol(solve(P2)))
+standardized_conditional_residuals <- cholP2%*%(Y - Loblolly$fitted4)
+qqnorm(standardized_conditional_residuals)
+qqline(standardized_conditional_residuals)
+shapiro.test(as.numeric(standardized_conditional_residuals))
 
 ```
 

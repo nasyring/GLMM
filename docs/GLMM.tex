@@ -124,7 +124,7 @@
 
 \title{GLMM}
 \author{Nick Syring}
-\date{2023-02-10}
+\date{2023-02-14}
 
 \begin{document}
 \maketitle
@@ -1078,15 +1078,6 @@ A plot of age by height for all trees suggests a common concave polynomial behav
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(nlme)}
 \FunctionTok{library}\NormalTok{(ggplot2)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: package 'ggplot2' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \FunctionTok{head}\NormalTok{(Loblolly)}
 \end{Highlighting}
 \end{Shaded}
@@ -1215,15 +1206,7 @@ We can match the standard errors and approximate p-values of the fixed effects u
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lme4' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
 ## Loading required package: Matrix
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'Matrix' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1449,71 +1432,134 @@ Large absolute standardized conditional residuals are indicate outliers. Plots o
 \hypertarget{model-diagnostics-for-loblolly-pines-data}{%
 \subsection{Model diagnostics for Loblolly pines data}\label{model-diagnostics-for-loblolly-pines-data}}
 
-We begin by plotting the responses along with the BLUPs based on model2. There is no obvious lack of fit.
+We begin by plotting the amrginal residuals from the cubic model fit with LME4 which we called model2. The marginal residuals exhibit some pattern in age. This suggests fitting a higher-order polynomial model.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted2 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model2lmer)}
-
-\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ fitted2, }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Seed, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{)}
+\NormalTok{marginal.resids }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{model.matrix}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{)}\SpecialCharTok{\%*\%}\FunctionTok{fixef}\NormalTok{(model2lmer)}
+\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{age, marginal.resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}marginal residual\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-14-1.pdf}
 
+A 5th order polynomial appears to fit the data best; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effects structure by investigating standardized residuals.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{marginal.resids }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{model.matrix}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{)}\SpecialCharTok{\%*\%}\FunctionTok{fixef}\NormalTok{(model2lmer)}
-
-\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{age, marginal.resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}marginal residual\textquotesingle{}}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(lme4)}
+\NormalTok{model3lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\DecValTok{1} \SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly, }\AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer=}\StringTok{"Nelder\_Mead"}\NormalTok{, }\AttributeTok{optCtrl =} \FunctionTok{list}\NormalTok{(}\AttributeTok{maxfun =} \DecValTok{100000}\NormalTok{), }\AttributeTok{check.conv.grad =} \FunctionTok{.makeCC}\NormalTok{(}\StringTok{"warning"}\NormalTok{, }\AttributeTok{tol =} \FloatTok{0.71}\NormalTok{, }\AttributeTok{relTol =} \ConstantTok{NULL}\NormalTok{)))}
+\NormalTok{marginal.resids3 }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{model.matrix}\NormalTok{(model3lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{)}\SpecialCharTok{\%*\%}\FunctionTok{fixef}\NormalTok{(model3lmer)}
+\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{age, marginal.resids3, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}age\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}marginal residual\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-15-1.pdf}
 
+Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree. This means that each trees age-height is simply a shifted (up or down) version of the same polynomial. Based on our BLUPs, plotted below, the random effects structure does not seem sufficiently flexible to model trees 329, 327, and 305, for example. It certainly looks like we need to add random polynomial effects.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{model.matrix}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{))}
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted3 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model3lmer)}
 
-\NormalTok{Sigma.e }\OtherTok{\textless{}{-}} 
-
-
-
-\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, marginal.resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}marginal residual\textquotesingle{}}\NormalTok{)}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ fitted3, }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Seed, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-15-2.pdf}
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including further random effects.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{Pi }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(P)[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{]}
-\NormalTok{cholPi }\OtherTok{\textless{}{-}} \FunctionTok{chol}\NormalTok{(Pi)}
-\NormalTok{standardized\_resids }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{,}\DecValTok{84}\NormalTok{)}
-\NormalTok{seed}\OtherTok{=}\DecValTok{1}
-\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{14}\NormalTok{)\{}
-\NormalTok{  standardized\_resids[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)] }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(cholPi)}\SpecialCharTok{\%*\%}\NormalTok{marginal.resids[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)]}
-\NormalTok{  seed }\OtherTok{\textless{}{-}}\NormalTok{ seed }\SpecialCharTok{+} \DecValTok{1}
-\NormalTok{\}}
-\FunctionTok{qqnorm}\NormalTok{(standardized\_resids)}
-\FunctionTok{qqline}\NormalTok{(standardized\_resids)}
-\end{Highlighting}
-\end{Shaded}
-
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-15-3.pdf}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{sum}\NormalTok{((}\FunctionTok{diag}\NormalTok{(}\DecValTok{6}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ standardized\_resids[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{]}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(standardized\_resids[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{]))}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{model4lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly, }\AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer=}\StringTok{"Nelder\_Mead"}\NormalTok{, }\AttributeTok{optCtrl =} \FunctionTok{list}\NormalTok{(}\AttributeTok{maxfun =} \DecValTok{100000}\NormalTok{), }\AttributeTok{check.conv.grad =} \FunctionTok{.makeCC}\NormalTok{(}\StringTok{"warning"}\NormalTok{, }\AttributeTok{tol =} \FloatTok{0.71}\NormalTok{, }\AttributeTok{relTol =} \ConstantTok{NULL}\NormalTok{)))}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## [1] 39.83443
+## boundary (singular) fit: see help('isSingular')
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{marginal.resids4 }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{model.matrix}\NormalTok{(model4lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{)}\SpecialCharTok{\%*\%}\FunctionTok{fixef}\NormalTok{(model4lmer)}
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted4 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model4lmer)}
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ height)) }\SpecialCharTok{+} 
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{mapping =} \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ age, }\AttributeTok{y =}\NormalTok{ fitted4, }\AttributeTok{color =} \StringTok{\textquotesingle{}red\textquotesingle{}}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{facet\_wrap}\NormalTok{(}\SpecialCharTok{\textasciitilde{}}\NormalTok{ Seed, }\AttributeTok{nrow =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-17-1.pdf}
+
+The following calculations produce standardized marginal residuals, which we can investigate for normality and the overall appropriateness of the within tree covariance structure.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Z }\OtherTok{\textless{}{-}} \FunctionTok{model.matrix}\NormalTok{(model4lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}random\textquotesingle{}}\NormalTok{)}
+\NormalTok{dim\_cov }\OtherTok{\textless{}{-}} \FunctionTok{dim}\NormalTok{(}\FunctionTok{attr}\NormalTok{(}\FunctionTok{VarCorr}\NormalTok{(model4lmer)[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{$}\NormalTok{Seed, }\StringTok{\textquotesingle{}correlation\textquotesingle{}}\NormalTok{))[}\DecValTok{1}\NormalTok{]}
+\NormalTok{psi\_i }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{VarCorr}\NormalTok{(model4lmer)[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{$}\NormalTok{Seed[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{dim\_cov,}\DecValTok{1}\SpecialCharTok{:}\NormalTok{dim\_cov])}
+\NormalTok{psi }\OtherTok{\textless{}{-}} \FunctionTok{bdiag\_m}\NormalTok{(}\FunctionTok{list}\NormalTok{(psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i))}
+\NormalTok{inv\_psi }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(psi)}
+\NormalTok{phi }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(model1}\SpecialCharTok{$}\NormalTok{modelStruct}\SpecialCharTok{$}\NormalTok{corStruct, }\AttributeTok{unconstrained =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{L }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{summary}\NormalTok{(model4lmer)}\SpecialCharTok{$}\NormalTok{sigma}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Loblolly))}
+\NormalTok{invL }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(L)}
+\NormalTok{A }\OtherTok{\textless{}{-}}\NormalTok{ inv\_psi}\SpecialCharTok{+}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL}\SpecialCharTok{\%*\%}\NormalTok{Z}
+\NormalTok{invA }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(A)}
+\NormalTok{P}\OtherTok{\textless{}{-}}\NormalTok{invL}\SpecialCharTok{{-}}\NormalTok{invL}\SpecialCharTok{\%*\%}\NormalTok{Z}\SpecialCharTok{\%*\%}\NormalTok{invA}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL}
+\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{model.matrix}\NormalTok{(model4lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{))}
+\NormalTok{cov.beta.hat }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(}\FunctionTok{t}\NormalTok{(X)}\SpecialCharTok{\%*\%}\NormalTok{P}\SpecialCharTok{\%*\%}\NormalTok{X)}
+\NormalTok{Y }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height}
+\NormalTok{beta.hat }\OtherTok{\textless{}{-}}\NormalTok{ cov.beta.hat}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(X)}\SpecialCharTok{\%*\%}\NormalTok{P}\SpecialCharTok{\%*\%}\NormalTok{Y}
+\NormalTok{Pi }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(P)[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{]}
+\NormalTok{cholPi }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{solve}\NormalTok{(}\FunctionTok{chol}\NormalTok{(}\FunctionTok{solve}\NormalTok{(Pi))))}
+\NormalTok{standardized\_resids }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{,}\DecValTok{84}\NormalTok{)}
+\NormalTok{seed}\OtherTok{=}\DecValTok{1}
+\NormalTok{cov.check }\OtherTok{\textless{}{-}} \DecValTok{0}
+\ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\DecValTok{14}\NormalTok{)\{}
+\NormalTok{  standardized\_resids[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)] }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(cholPi)}\SpecialCharTok{\%*\%}\NormalTok{marginal.resids4[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)]}
+\NormalTok{  cov.check }\OtherTok{\textless{}{-}}\NormalTok{ cov.check }\SpecialCharTok{+} \FunctionTok{sum}\NormalTok{((}\FunctionTok{diag}\NormalTok{(}\DecValTok{6}\NormalTok{)}\SpecialCharTok{{-}}\NormalTok{standardized\_resids[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)]}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(standardized\_resids[(seed}\DecValTok{{-}1}\NormalTok{)}\SpecialCharTok{*}\DecValTok{6}\SpecialCharTok{+}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{)]))}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{  seed }\OtherTok{\textless{}{-}}\NormalTok{ seed }\SpecialCharTok{+} \DecValTok{1}
+\NormalTok{\}}
+
+
+\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, standardized\_resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}standardized marginal residual\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{B }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Loblolly)) }\SpecialCharTok{{-}}\NormalTok{ Z}\SpecialCharTok{\%*\%}\NormalTok{invA}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL)}
+\NormalTok{P2 }\OtherTok{\textless{}{-}}\NormalTok{ B}\SpecialCharTok{\%*\%}\FunctionTok{solve}\NormalTok{(P)}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(B)}
+\NormalTok{cholP2 }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{chol}\NormalTok{(}\FunctionTok{solve}\NormalTok{(P2)))}
+\NormalTok{standardized\_conditional\_residuals }\OtherTok{\textless{}{-}}\NormalTok{ cholP2}\SpecialCharTok{\%*\%}\NormalTok{(Y }\SpecialCharTok{{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{fitted4)}
+\FunctionTok{qqnorm}\NormalTok{(standardized\_conditional\_residuals)}
+\FunctionTok{qqline}\NormalTok{(standardized\_conditional\_residuals)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{shapiro.test}\NormalTok{(}\FunctionTok{as.numeric}\NormalTok{(standardized\_conditional\_residuals))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  as.numeric(standardized_conditional_residuals)
+## W = 0.95891, p-value = 0.008984
 \end{verbatim}
 
 Next, we will discuss inference for fixed effects and model comparisons.
@@ -1713,7 +1759,7 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lmerTest' was built under R version 4.1.3
+## Warning: package 'lmerTest' was built under R version 4.2.2
 \end{verbatim}
 
 \begin{verbatim}
