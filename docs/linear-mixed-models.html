@@ -7,20 +7,17 @@
 <title>Chapter 4 Linear Mixed Models | GLMM</title>
 <meta name="author" content="Nick Syring">
 <meta name="description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
-<meta name="generator" content="bookdown 0.29 with bs4_book()">
+<meta name="generator" content="bookdown 0.24 with bs4_book()">
 <meta property="og:title" content="Chapter 4 Linear Mixed Models | GLMM">
 <meta property="og:type" content="book">
 <meta property="og:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chapter 4 Linear Mixed Models | GLMM">
 <meta name="twitter:description" content="4.1 ANOVA with random factors The simplest linear mixed models are used to analyze linear models for one-way ANOVA, randomized complete block designs, and two-way ANOVA. Mixed models as opposed to...">
-<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/header-attrs-2.11/header-attrs.js"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
-<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.4.0/transition.js"></script><script src="libs/bs3compat-0.4.0/tabs.js"></script><script src="libs/bs3compat-0.4.0/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
-<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
-    
-    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-  </style>
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS -->
 </head>
 <body data-spy="scroll" data-target="#toc">
 
@@ -323,8 +320,10 @@ It is straightforward to show the middle term is zero. Therefore, the joint post
 <p>A plot of age by height for all trees suggests a common concave polynomial behavior—not quite linear.</p>
 <div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://svn.r-project.org/R-packages/trunk/nlme/">nlme</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Warning: package 'ggplot2' was built under R version 4.1.3</code></pre>
+<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html">head</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Grouped Data: height ~ age | Seed
 ##    height age Seed
 ## 1    4.51   3  301
@@ -333,7 +332,7 @@ It is straightforward to show the middle term is zero. Therefore, the joint post
 ## 43  41.74  15  301
 ## 57  52.70  20  301
 ## 71  60.92  25  301</code></pre>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">height</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">height</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -349,7 +348,7 @@ Y_{ij} &amp;= \beta_0 + \beta_1 X_{ij1}+ \beta_2 X_{ij2}+ \beta_3 X_{ij3}\\
 where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span class="math inline">\(j = 1, \ldots, 6\)</span> indexes ages, <span class="math inline">\(\beta_1\)</span> through <span class="math inline">\(\beta_3\)</span> are common coefficients for fixed polynomial age effects, and <span class="math inline">\(\beta_{i1}\)</span> through <span class="math inline">\(\beta_{i3}\)</span> are varying coefficients for age effects for each tree. The covariates <span class="math inline">\(X_{ij1}\)</span> through <span class="math inline">\(X_{ij3}\)</span> represent third degree orthogonal polynomials; i.e., they are not simply age, age<span class="math inline">\(^2\)</span> and age<span class="math inline">\(^3\)</span>, more on those shortly. The random effects are normal with covariance <span class="math inline">\(\psi\)</span>, i.e., <span class="math inline">\((\beta_{i1},\beta_{i2},\beta_{i3})^\top \stackrel{iid}{\sim}N(0,\psi)\)</span>.</p>
 <p>Since tree heights are recorded over time/ages it also makes sense to consider auto-correlated errors <span class="math inline">\(\epsilon_{i,j}\)</span> with non-zero correlation over <span class="math inline">\(j\)</span> within <span class="math inline">\(i\)</span>. For now, modeling these errors as zero-mean, time-dependent normal random variables with non-zero auto-correlation at lag 1, meaning <span class="math inline">\((\epsilon_{i,j}, \epsilon_{i,j+1})\)</span> have non-zero correlation, so that <span class="math inline">\((\epsilon_{i1},\ldots, \epsilon_{i6})\stackrel{iid}{\sim} N(0,\Lambda)\)</span> where <span class="math inline">\(\Lambda\)</span> is positive definite and tri-diagonal.</p>
 <p>Below we specify this model using the lme function from the nlme package. With default optimization specifications lme fails to fit this model, but lme converges if we simply increase the maximum number of iterations and function evaluations via the lmeControl function.</p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lmc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lmeControl.html">lmeControl</a></span><span class="op">(</span>niterEM<span class="op">=</span><span class="fl">1000</span>,msMaxIter<span class="op">=</span><span class="fl">1000</span>,msMaxEval<span class="op">=</span><span class="fl">1000</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">model1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
@@ -397,7 +396,7 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## Number of Groups: 14</code></pre>
 <p>While the summary function contains everything needed to determine if fixed effects are significant, it does not provide a straightforward explanation of all parameter estimates. With a little work, we can reproduce the estimated covariance parameters, and the estimated covariance of fixed effects. The getVarCov function provides the estimated covariance of the random effects nested within Seed; we could call these <span class="math inline">\(\hat\psi_i\)</span> for seeds <span class="math inline">\(i=1, \ldots, 14\)</span>. The matrix <span class="math inline">\(\psi\)</span> is block-diagonal, with identical blocks <span class="math inline">\(\psi_i\)</span>. The estimated residual variance is tri-diagonal with constant main diagonal elements <span class="math inline">\(\hat\sigma^2\)</span> given by <code>summary(model1)$sigma^2</code> and constant off-diagonal elements given by <code>coef(model1$modelStruct$corStruct, unconstrained = FALSE)</code>.</p>
 <p>The following helper function from the Matrix package can help in constructing the <span class="math inline">\(\Psi\)</span> matrix:</p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bdiag_m</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">lmat</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="co">## Copyright (C) 2016 Martin Maechler, ETH Zurich</span></span>
 <span>    <span class="kw">if</span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">lmat</span><span class="op">)</span><span class="op">)</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu">new</span><span class="op">(</span><span class="st">"dgCMatrix"</span><span class="op">)</span><span class="op">)</span></span>
@@ -416,15 +415,17 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 <span>        x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/double.html">as.double</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">lmat</span>, recursive<span class="op">=</span><span class="cn">FALSE</span>, use.names<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>We can match the standard errors and approximate p-values of the fixed effects using the following calculations (more on p-values later). One thing to mention: the <span class="math inline">\(Z\)</span> design matrix of random effects seems not present in the lme object, and so we fit the same type of model using lmer from the lme4 package that more easily allows us to obtain this model matrix. We could have constructed this “by hand” but it has a large, block structure, and it’s just easier to extract from built-in functions.</p>
-<div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/">lme4</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code>## Warning: package 'lme4' was built under R version 4.1.3</code></pre>
 <pre><code>## Loading required package: Matrix</code></pre>
+<pre><code>## Warning: package 'Matrix' was built under R version 4.1.3</code></pre>
 <pre><code>## 
 ## Attaching package: 'lme4'</code></pre>
 <pre><code>## The following object is masked from 'package:nlme':
 ## 
 ##     lmList</code></pre>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model2lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">lmerControl</a></span><span class="op">(</span>optimizer<span class="op">=</span><span class="st">"Nelder_Mead"</span>, optCtrl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>maxfun <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span>, check.conv.grad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">.makeCC</a></span><span class="op">(</span><span class="st">"warning"</span>, tol <span class="op">=</span> <span class="fl">0.71</span>, relTol <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'random'</span><span class="op">)</span></span>
 <span><span class="va">psi_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/getVarCov.html">getVarCov</a></span><span class="op">(</span><span class="va">model1</span><span class="op">)</span></span>
@@ -454,7 +455,7 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## [2,] 186.44569514
 ## [3,] -21.84656380
 ## [4,]   0.05781863</code></pre>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cov.beta.hat</span></span></code></pre></div>
 <pre><code>## 4 x 4 Matrix of class "dgeMatrix"
 ##              [,1]       [,2]        [,3]         [,4]
@@ -462,7 +463,7 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## [2,]  0.615495986  3.4424706 -0.64470993 -0.143514475
 ## [3,] -0.223677034 -0.6447099  0.86807296 -0.054643528
 ## [4,] -0.007593673 -0.1435145 -0.05464352  0.374060450</code></pre>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">beta.hat</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">cov.beta.hat</span><span class="op">)</span><span class="op">)</span> <span class="co"># t-values</span></span></code></pre></div>
 <pre><code>## 4 x 1 Matrix of class "dgeMatrix"
 ##              [,1]
@@ -470,14 +471,14 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## [2,] 100.48870309
 ## [3,] -23.44795779
 ## [4,]   0.09453594</code></pre>
-<div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fl">1</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/stats/Chisquare.html">pchisq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">(</span><span class="va">beta.hat</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">cov.beta.hat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span> <span class="co"># rough p-values</span></span></code></pre></div>
 <pre><code>## [1] 0.0000000 0.0000000 0.0000000 0.9246834</code></pre>
-<div class="sourceCode" id="cb84"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fl">1</span><span class="op">-</span><span class="fu"><a href="https://rdrr.io/r/stats/Fdist.html">pf</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="op">(</span><span class="va">beta.hat</span> <span class="op">/</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="va">cov.beta.hat</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">)</span><span class="op">-</span><span class="fl">4</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## [1] 0.0000000 0.0000000 0.0000000 0.9249198</code></pre>
 <p>You may have noticed the estimated auto-regressive covariance term is essentially zero. This motivates us to fit a nested model in which this covariance term is zero, i.e., the residual covariance structure of <span class="math inline">\(\epsilon_i\)</span>, <span class="math inline">\(i=1, \ldots, n\)</span> is simply iid with variance <span class="math inline">\(\sigma^2\)</span>.</p>
-<div class="sourceCode" id="cb86"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
 <span>random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Seed <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>correlation <span class="op">=</span> <span class="cn">NULL</span>, control <span class="op">=</span> <span class="va">lmc</span><span class="op">)</span></span>
@@ -518,7 +519,7 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 ## Number of Groups: 14</code></pre>
 <p>NLME is not the only package for fitting linear mixed models. LME4 is a newer package compared to NLME, and generally fits models much faster thanks to its better use of efficient linear algebra routines. However, LME4 is not as flexible as NLME when it comes to the available residual covariance structures one is able to fit. For example, LME4 does not have the flexibility to fit the AR(1) structure we fit for model1 above using the NLME package.</p>
 <p>Below we fit model2 using LME4. The lmer model fitting function fails to fit the model with the default settings, much like the lme function from the NLME package. The main issue causing lack of convergence is a check function that evaluates the gradient of the likelihood at the final parameter estimates and requires it to be near zero. We have to violate this criteria in order to get the model to fit, which we can do by using the <code>check.conv.grad</code> argument of the control argument. Once we coerce lmer to converge using these options we see that it produces essentially the same estimates as lme with respect to model2.</p>
-<div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/">lme4</a></span><span class="op">)</span></span>
 <span><span class="va">model2lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">lmerControl</a></span><span class="op">(</span>optimizer<span class="op">=</span><span class="st">"Nelder_Mead"</span>, optCtrl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>maxfun <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span>, check.conv.grad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">.makeCC</a></span><span class="op">(</span><span class="st">"warning"</span>, tol <span class="op">=</span> <span class="fl">0.71</span>, relTol <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span></code></pre></div>
@@ -579,19 +580,19 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 <span class="header-section-number">4.3.1</span> Model diagnostics for Loblolly pines data<a class="anchor" aria-label="anchor" href="#model-diagnostics-for-loblolly-pines-data"><i class="fas fa-link"></i></a>
 </h3>
 <p>We begin by plotting the amrginal residuals from the cubic model fit with LME4 which we called model2. The marginal residuals exhibit some pattern in age. This suggests fitting a higher-order polynomial model.</p>
-<div class="sourceCode" id="cb90"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb94"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">marginal.resids</span> <span class="op">&lt;-</span> <span class="va">Loblolly</span><span class="op">$</span><span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'fixed'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">age</span>, <span class="va">marginal.resids</span>, xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'marginal residual'</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-14-1.png" width="672"></div>
-<p>A 5th order polynomial appears to fit the data best; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effects structure by investigating standardized residuals.</p>
-<div class="sourceCode" id="cb91"><pre class="downlit sourceCode r">
+<p>A 5th order polynomial appears to fit the data; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effect structure by investigating standardized residuals.</p>
+<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/lme4/lme4/">lme4</a></span><span class="op">)</span></span>
 <span><span class="va">model3lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">5</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fl">1</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">lmerControl</a></span><span class="op">(</span>optimizer<span class="op">=</span><span class="st">"Nelder_Mead"</span>, optCtrl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>maxfun <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span>, check.conv.grad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">.makeCC</a></span><span class="op">(</span><span class="st">"warning"</span>, tol <span class="op">=</span> <span class="fl">0.71</span>, relTol <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">marginal.resids3</span> <span class="op">&lt;-</span> <span class="va">Loblolly</span><span class="op">$</span><span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'fixed'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">model3lmer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">age</span>, <span class="va">marginal.resids3</span>, xlab <span class="op">=</span> <span class="st">'age'</span>, ylab <span class="op">=</span> <span class="st">'marginal residual'</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-15-1.png" width="672"></div>
-<p>Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree. This means that each trees age-height is simply a shifted (up or down) version of the same polynomial. Based on our BLUPs, plotted below, the random effects structure does not seem sufficiently flexible to model trees 329, 327, and 305, for example. It certainly looks like we need to add random polynomial effects.</p>
-<div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
+<p>Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree. This means that each tree’s age-height relationship is simply a shifted (up or down) version of the same polynomial. Based on our BLUPs, plotted below, the random effects do not seem sufficiently flexible to model trees 329, 327, and 305, for example. It certainly looks like we need to add random polynomial effects.</p>
+<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Loblolly</span><span class="op">$</span><span class="va">fitted3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span><span class="op">(</span><span class="va">model3lmer</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -600,11 +601,11 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">age</span>, y <span class="op">=</span> <span class="va">fitted3</span>, color <span class="op">=</span> <span class="st">'red'</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Seed</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-16-1.png" width="672"></div>
-<p>Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including further random effects.</p>
-<div class="sourceCode" id="cb93"><pre class="downlit sourceCode r">
+<p>Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including these additional random effects.</p>
+<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model4lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">5</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">2</span><span class="op">)</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">lmerControl</a></span><span class="op">(</span>optimizer<span class="op">=</span><span class="st">"Nelder_Mead"</span>, optCtrl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>maxfun <span class="op">=</span> <span class="fl">100000</span><span class="op">)</span>, check.conv.grad <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/lme4/man/lmerControl.html">.makeCC</a></span><span class="op">(</span><span class="st">"warning"</span>, tol <span class="op">=</span> <span class="fl">0.71</span>, relTol <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## boundary (singular) fit: see help('isSingular')</code></pre>
-<div class="sourceCode" id="cb95"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb99"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">marginal.resids4</span> <span class="op">&lt;-</span> <span class="va">Loblolly</span><span class="op">$</span><span class="va">height</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model4lmer</span>, type <span class="op">=</span> <span class="st">'fixed'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/fixed.effects.html">fixef</a></span><span class="op">(</span><span class="va">model4lmer</span><span class="op">)</span></span>
 <span><span class="va">Loblolly</span><span class="op">$</span><span class="va">fitted4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html">fitted</a></span><span class="op">(</span><span class="va">model4lmer</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span> <span class="op">+</span> </span>
@@ -614,7 +615,7 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">Seed</span>, nrow <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-17-1.png" width="672"></div>
 <p>The following calculations produce standardized marginal residuals, which we can investigate for normality and the overall appropriateness of the within tree covariance structure.</p>
-<div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Z</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/model.matrix.html">model.matrix</a></span><span class="op">(</span><span class="va">model4lmer</span>, type <span class="op">=</span> <span class="st">'random'</span><span class="op">)</span></span>
 <span><span class="va">dim_cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/dim.html">dim</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html">attr</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/VarCorr.html">VarCorr</a></span><span class="op">(</span><span class="va">model4lmer</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">$</span><span class="va">Seed</span>, <span class="st">'correlation'</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">psi_i</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/nlme/man/VarCorr.html">VarCorr</a></span><span class="op">(</span><span class="va">model4lmer</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">$</span><span class="va">Seed</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="va">dim_cov</span>,<span class="fl">1</span><span class="op">:</span><span class="va">dim_cov</span><span class="op">]</span><span class="op">)</span></span>
@@ -641,24 +642,69 @@ where <span class="math inline">\(i=1, \ldots, 14\)</span> indexes trees, <span 
 <span>  <span class="va">seed</span> <span class="op">&lt;-</span> <span class="va">seed</span> <span class="op">+</span> <span class="fl">1</span></span>
 <span><span class="op">}</span></span>
 <span></span>
+<span><span class="va">Loblolly</span><span class="op">$</span><span class="va">standardized_resids</span> <span class="op">&lt;-</span> <span class="va">standardized_resids</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span>, <span class="va">standardized_resids</span>, xlab <span class="op">=</span> <span class="st">'Seed'</span>, ylab <span class="op">=</span> <span class="st">'standardized marginal residual'</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org">tidyverse</a></span><span class="op">)</span></span></code></pre></div>
+<pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
+<pre><code>## v tibble  3.1.8      v dplyr   1.0.10
+## v tidyr   1.2.1      v stringr 1.4.1 
+## v readr   2.1.1      v forcats 0.5.1 
+## v purrr   0.3.4</code></pre>
+<pre><code>## Warning: package 'tibble' was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package 'tidyr' was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package 'dplyr' was built under R version 4.1.3</code></pre>
+<pre><code>## Warning: package 'stringr' was built under R version 4.1.3</code></pre>
+<pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::collapse() masks nlme::collapse()
+## x tidyr::expand()   masks Matrix::expand()
+## x dplyr::filter()   masks stats::filter()
+## x dplyr::lag()      masks stats::lag()
+## x tidyr::pack()     masks Matrix::pack()
+## x tidyr::unpack()   masks Matrix::unpack()</code></pre>
+<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">Loblolly</span><span class="op">&lt;-</span><span class="va">Loblolly</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">Seed</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>sd_stan_resids <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">standardized_resids</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">sd_stan_resids</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span>, ordered <span class="op">=</span> <span class="cn">FALSE</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">Seed</span>, <span class="va">Loblolly</span><span class="op">$</span><span class="va">standardized_resids</span>, xlab <span class="op">=</span> <span class="st">'Seed'</span>, ylab <span class="op">=</span> <span class="st">'standardized marginal residual'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">6</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-18-1.png" width="672"></div>
-<div class="sourceCode" id="cb97"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb109"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">fakedata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html">rnorm</a></span><span class="op">(</span><span class="fl">84</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">6</span><span class="op">)</span>,</span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">5</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">6</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">7</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">8</span>,<span class="fl">6</span><span class="op">)</span>,</span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">9</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">10</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">11</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">12</span>,<span class="fl">6</span><span class="op">)</span>,</span>
+<span>                                <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">13</span>,<span class="fl">6</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">14</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fakedata</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">fakedata</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fakedata</span><span class="op">&lt;-</span><span class="va">fakedata</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">X2</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span>sd_X1 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/sd.html">sd</a></span><span class="op">(</span><span class="va">X1</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html">arrange</a></span><span class="op">(</span><span class="va">sd_X1</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">ungroup</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fakedata</span><span class="op">$</span><span class="va">X2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">fakedata</span><span class="op">$</span><span class="va">X2</span>, ordered <span class="op">=</span> <span class="cn">FALSE</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fakedata</span><span class="op">$</span><span class="va">X2</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html">plot</a></span><span class="op">(</span><span class="va">fakedata</span><span class="op">$</span><span class="va">X2</span>, <span class="va">fakedata</span><span class="op">$</span><span class="va">X1</span>, xlab <span class="op">=</span> <span class="st">'random normals'</span>, ylab <span class="op">=</span> <span class="st">'sample standard deviation'</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">6</span>,<span class="fl">6</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-18-2.png" width="672"></div>
+<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">B</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/diag.html">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">)</span><span class="op">)</span> <span class="op">-</span> <span class="va">Z</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">invA</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">Z</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="va">invL</span><span class="op">)</span></span>
 <span><span class="va">P2</span> <span class="op">&lt;-</span> <span class="va">B</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/solve-methods.html">solve</a></span><span class="op">(</span><span class="va">P</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">B</span><span class="op">)</span></span>
-<span><span class="va">cholP2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/chol.html">chol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/solve-methods.html">solve</a></span><span class="op">(</span><span class="va">P2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">cholP2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/solve-methods.html">solve</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/chol.html">chol</a></span><span class="op">(</span><span class="va">P2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">standardized_conditional_residuals</span> <span class="op">&lt;-</span> <span class="va">cholP2</span><span class="op"><a href="https://rdrr.io/r/base/matmult.html">%*%</a></span><span class="op">(</span><span class="va">Y</span> <span class="op">-</span> <span class="va">Loblolly</span><span class="op">$</span><span class="va">fitted4</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html">qqnorm</a></span><span class="op">(</span><span class="va">standardized_conditional_residuals</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/qqnorm.html">qqline</a></span><span class="op">(</span><span class="va">standardized_conditional_residuals</span><span class="op">)</span></span></code></pre></div>
-<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-18-2.png" width="672"></div>
-<div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
+<div class="inline-figure"><img src="GLMM_files/figure-html/unnamed-chunk-18-3.png" width="672"></div>
+<div class="sourceCode" id="cb111"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/shapiro.test.html">shapiro.test</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span><span class="op">(</span><span class="va">standardized_conditional_residuals</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## 
 ##  Shapiro-Wilk normality test
 ## 
 ## data:  as.numeric(standardized_conditional_residuals)
-## W = 0.95891, p-value = 0.008984</code></pre>
+## W = 0.68254, p-value = 3.481e-12</code></pre>
 <p>Next, we will discuss inference for fixed effects and model comparisons.</p>
 </div>
 </div>
@@ -681,12 +727,12 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <span class="header-section-number">4.4.1</span> Inference on fixed effects for Loblolly pines data<a class="anchor" aria-label="anchor" href="#inference-on-fixed-effects-for-loblolly-pines-data"><i class="fas fa-link"></i></a>
 </h3>
 <p>The first question of interest, which we hinted at before, is whether or not we need to model the residual error as having a time-dependent, e.g., AR(1), structure. Recall our point estimate for the auto-regressive correlation was essentially zero, suggesting it played no role in the model fit. The NLME package contains an anova method for comparing models. While we should get into the habit of comparing models fit by maximum likelihood, it makes little difference if we use REML for this comparison because the models only differ in covariance structure, not fixed-effects structure. Whether we compare models fit by REML or ML, we see overwhelming evidence that the simpler model, the one without an auto-regressive error structure, is just as good as the more complicated model.</p>
-<div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb113"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model1</span>, <span class="va">model2</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##        Model df      AIC      BIC    logLik   Test      L.Ratio p-value
 ## model1     1 16 242.2632 280.3756 -105.1316                            
 ## model2     2 15 240.2632 275.9936 -105.1316 1 vs 2 7.727313e-06  0.9978</code></pre>
-<div class="sourceCode" id="cb102"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model2ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
 <span>random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Seed <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>correlation <span class="op">=</span> <span class="cn">NULL</span>, control <span class="op">=</span> <span class="va">lmc</span>, method <span class="op">=</span> <span class="st">'ML'</span><span class="op">)</span></span>
@@ -700,17 +746,17 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ##  Formula: ~poly(age, 3) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##               StdDev    Corr                
-## (Intercept)   1.3775085 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3313490  0.917              
-## poly(age, 3)2 2.5866452 -0.815 -0.516       
-## poly(age, 3)3 0.5669663 -0.127 -0.512 -0.471
-## Residual      0.5799758                     
+## (Intercept)   1.3775131 (Intr) p(,3)1 p(,3)2
+## poly(age, 3)1 6.3314123  0.917              
+## poly(age, 3)2 2.5866151 -0.815 -0.516       
+## poly(age, 3)3 0.5669801 -0.127 -0.512 -0.471
+## Residual      0.5799748                     
 ## 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827785 67  84.55126  0.0000
-## poly(age, 3)1 186.44570 1.8329318 67 101.71993  0.0000
-## poly(age, 3)2 -21.84656 0.9246597 67 -23.62660  0.0000
+## (Intercept)    32.36440 0.3827797 67  84.55099  0.0000
+## poly(age, 3)1 186.44570 1.8329479 67 101.71904  0.0000
+## poly(age, 3)2 -21.84656 0.9246527 67 -23.62678  0.0000
 ## poly(age, 3)3   0.05782 0.6142470 67   0.09413  0.9253
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
@@ -720,11 +766,11 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88464862 -0.45304446 -0.03409533  0.70340275  1.60926654 
+## -1.88464265 -0.45304355 -0.03408912  0.70340863  1.60926117 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14</code></pre>
-<div class="sourceCode" id="cb104"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model1ml</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/lme.html">lme</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span>,</span>
 <span>random <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>Seed <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>correlation <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/nlme/man/corAR1.html">corAR1</a></span><span class="op">(</span>form <span class="op">=</span> <span class="op">~</span> <span class="va">age</span><span class="op">|</span><span class="va">Seed</span><span class="op">)</span>, control <span class="op">=</span> <span class="va">lmc</span>, method <span class="op">=</span> <span class="st">'ML'</span><span class="op">)</span></span>
@@ -739,23 +785,23 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ##  Formula: ~poly(age, 3) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##               StdDev    Corr                
-## (Intercept)   1.3775459 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3314438  0.917              
-## poly(age, 3)2 2.5866196 -0.815 -0.516       
-## poly(age, 3)3 0.5669811 -0.127 -0.512 -0.471
-## Residual      0.5799722                     
+## (Intercept)   1.3775271 (Intr) p(,3)1 p(,3)2
+## poly(age, 3)1 6.3314017  0.917              
+## poly(age, 3)2 2.5866169 -0.815 -0.516       
+## poly(age, 3)3 0.5669567 -0.128 -0.512 -0.471
+## Residual      0.5799733                     
 ## 
 ## Correlation Structure: ARMA(1,0)
 ##  Formula: ~age | Seed 
 ##  Parameter estimate(s):
 ##         Phi1 
-## 1.981777e-07 
+## -3.18889e-08 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827885 67  84.54905  0.0000
-## poly(age, 3)1 186.44570 1.8329552 67 101.71863  0.0000
-## poly(age, 3)2 -21.84656 0.9246520 67 -23.62680  0.0000
-## poly(age, 3)3   0.05782 0.6142445 67   0.09413  0.9253
+## (Intercept)    32.36440 0.3827835 67  84.55016  0.0000
+## poly(age, 3)1 186.44570 1.8329446 67 101.71922  0.0000
+## poly(age, 3)2 -21.84656 0.9246521 67 -23.62679  0.0000
+## poly(age, 3)3   0.05782 0.6142439 67   0.09413  0.9253
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
 ## poly(age, 3)1  0.855              
@@ -764,17 +810,17 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88463442 -0.45305701 -0.03408891  0.70342611  1.60926441 
+## -1.88462925 -0.45305131 -0.03409201  0.70342933  1.60926556 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14</code></pre>
-<div class="sourceCode" id="cb106"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model1ml</span>, <span class="va">model2ml</span><span class="op">)</span></span></code></pre></div>
 <pre><code>##          Model df    AIC      BIC   logLik   Test      L.Ratio p-value
 ## model1ml     1 16 245.71 284.6031 -106.855                            
-## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 2.924349e-07  0.9996</code></pre>
+## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 1.314233e-06  0.9991</code></pre>
 <p>Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship. Using lmerTest we can produce corrected p-values for each fixed effect within model2—the model with an iid residual error structure. It’s clear that the cubic term provides no benefit, so we omit it and fit model3. An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML—how delightful. Again, the simpler, quadratic model is clearly preferred.</p>
-<div class="sourceCode" id="cb108"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model2lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML ['lmerMod']
 ## Formula: height ~ poly(age, 3) + (poly(age, 3) | Seed)
@@ -810,9 +856,9 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## poly(ag,3)1  0.846              
 ## poly(ag,3)2 -0.621 -0.367       
 ## poly(ag,3)3 -0.011 -0.119 -0.117</code></pre>
-<div class="sourceCode" id="cb110"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/runehaubo/lmerTestR">lmerTest</a></span><span class="op">)</span></span></code></pre></div>
-<pre><code>## Warning: package 'lmerTest' was built under R version 4.2.2</code></pre>
+<pre><code>## Warning: package 'lmerTest' was built under R version 4.1.3</code></pre>
 <pre><code>## 
 ## Attaching package: 'lmerTest'</code></pre>
 <pre><code>## The following object is masked from 'package:lme4':
@@ -821,7 +867,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 <pre><code>## The following object is masked from 'package:stats':
 ## 
 ##     step</code></pre>
-<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb128"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/poly.html">poly</a></span><span class="op">(</span><span class="va">Loblolly</span><span class="op">$</span><span class="va">age</span>,<span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">Loblolly</span><span class="op">$</span><span class="va">linear</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">Loblolly</span><span class="op">$</span><span class="va">quadratic</span> <span class="op">&lt;-</span> <span class="va">X</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span></span>
@@ -841,12 +887,12 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -1.83857 -0.45408 -0.02587  0.65608  1.54812 
+## -1.83857 -0.45408 -0.02587  0.65608  1.54811 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev. Corr             
 ##  Seed     (Intercept)  1.9497  1.3963                    
-##           linear      40.8246  6.3894    0.91            
+##           linear      40.8247  6.3894    0.91            
 ##           quadratic    7.2430  2.6913   -0.82 -0.50      
 ##           cubic        0.6555  0.8096   -0.03 -0.37 -0.44
 ##  Residual              0.3506  0.5922                    
@@ -854,10 +900,10 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Fixed effects:
 ##              Estimate Std. Error        df t value Pr(&gt;|t|)    
-## (Intercept)  32.36440    0.37873  13.91879  85.455  &lt; 2e-16 ***
-## linear      186.44570    1.80740  14.11660 103.157  &lt; 2e-16 ***
-## quadratic   -21.84656    0.93167  14.62281 -23.449 5.21e-13 ***
-## cubic         0.05782    0.63045  26.65583   0.092    0.928    
+## (Intercept)  32.36440    0.37873  13.91872  85.455  &lt; 2e-16 ***
+## linear      186.44570    1.80740  14.11654 103.157  &lt; 2e-16 ***
+## quadratic   -21.84656    0.93167  14.62277 -23.449 5.21e-13 ***
+## cubic         0.05782    0.63045  26.65569   0.092    0.928    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -866,32 +912,32 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## linear     0.846              
 ## quadratic -0.621 -0.367       
 ## cubic     -0.011 -0.119 -0.117</code></pre>
-<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb130"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'lme4'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq    F value
-## linear       1 3702.8  3702.8 10559.8798
-## quadratic    1  195.3   195.3   556.9934
+## linear       1 3702.8  3702.8 10559.8644
+## quadratic    1  195.3   195.3   556.9927
 ## cubic        1    0.0     0.0     0.0084</code></pre>
-<div class="sourceCode" id="cb119"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb132"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Satt'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF    F value    Pr(&gt;F)    
-## linear    3731.4  3731.4     1 14.117 10641.3510 &lt; 2.2e-16 ***
-## quadratic  192.8   192.8     1 14.623   549.8503 5.208e-13 ***
+## linear    3731.4  3731.4     1 14.117 10641.3242 &lt; 2.2e-16 ***
+## quadratic  192.8   192.8     1 14.623   549.8497 5.208e-13 ***
 ## cubic        0.0     0.0     1 26.656     0.0084    0.9276    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb121"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model2lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Ken'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF    F value    Pr(&gt;F)    
-## linear    3731.4  3731.4     1    13 10641.3510 &lt; 2.2e-16 ***
-## quadratic  192.8   192.8     1    13   549.8503 5.059e-12 ***
+## linear    3731.4  3731.4     1    13 10641.3242 &lt; 2.2e-16 ***
+## quadratic  192.8   192.8     1    13   549.8497 5.059e-12 ***
 ## cubic        0.0     0.0     1    13     0.0084    0.9283    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb123"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb136"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model3lmer</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/lmerTest/man/lmer.html">lmer</a></span><span class="op">(</span><span class="va">height</span> <span class="op">~</span> <span class="va">linear</span><span class="op">+</span><span class="va">quadratic</span> <span class="op">+</span> <span class="op">(</span><span class="va">linear</span><span class="op">+</span><span class="va">quadratic</span> <span class="op">|</span> <span class="va">Seed</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">Loblolly</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model3lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
@@ -903,21 +949,21 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -1.84241 -0.45922 -0.07456  0.69007  1.78254 
+## -1.84245 -0.45925 -0.07456  0.69006  1.78263 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev. Corr       
-##  Seed     (Intercept)  2.045   1.4299              
-##           linear      43.148   6.5687    0.92      
-##           quadratic    7.337   2.7086   -0.81 -0.51
+##  Seed     (Intercept)  2.045   1.4301              
+##           linear      43.154   6.5692    0.92      
+##           quadratic    7.338   2.7089   -0.81 -0.51
 ##  Residual              0.350   0.5916              
 ## Number of obs: 84, groups:  Seed, 14
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error       df t value Pr(&gt;|t|)    
-## (Intercept)  32.3644     0.3876  13.0062   83.51  &lt; 2e-16 ***
-## linear      186.4457     1.8526  13.0479  100.64  &lt; 2e-16 ***
-## quadratic   -21.8466     0.9349  14.5800  -23.37  5.8e-13 ***
+## (Intercept)  32.3644     0.3876  13.0017   83.50  &lt; 2e-16 ***
+## linear      186.4457     1.8527  13.0449  100.64  &lt; 2e-16 ***
+## quadratic   -21.8466     0.9350  14.5761  -23.37 5.84e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -925,29 +971,29 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ##           (Intr) linear
 ## linear     0.858       
 ## quadratic -0.617 -0.372</code></pre>
-<div class="sourceCode" id="cb125"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb138"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'lme4'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq F value
-## linear       1 3435.0  3435.0 9813.44
-## quadratic    1  191.1   191.1  546.03</code></pre>
-<div class="sourceCode" id="cb127"><pre class="downlit sourceCode r">
+## linear       1 3434.6  3434.6 9812.68
+## quadratic    1  191.1   191.1  545.96</code></pre>
+<div class="sourceCode" id="cb140"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Satt'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF  F value    Pr(&gt;F)    
-## linear    3545.3  3545.3     1 13.048 10128.62 &lt; 2.2e-16 ***
-## quadratic  191.1   191.1     1 14.580   546.03 5.804e-13 ***
+## linear    3544.8  3544.8     1 13.045 10127.45 &lt; 2.2e-16 ***
+## quadratic  191.1   191.1     1 14.576   545.96  5.84e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb129"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb142"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, type <span class="op">=</span> <span class="st">'III'</span>, ddf <span class="op">=</span> <span class="st">'Ken'</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF  F value    Pr(&gt;F)    
-## linear    3545.3  3545.3     1    13 10128.62 &lt; 2.2e-16 ***
-## quadratic  191.1   191.1     1    13   546.03 5.289e-12 ***
+## linear    3544.8  3544.8     1    13 10127.45 &lt; 2.2e-16 ***
+## quadratic  191.1   191.1     1    13   545.96 5.293e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
-<div class="sourceCode" id="cb131"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb144"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/anova.html">anova</a></span><span class="op">(</span><span class="va">model3lmer</span>, <span class="va">model2lmer</span><span class="op">)</span></span></code></pre></div>
 <pre><code>## refitting model(s) with ML (instead of REML)</code></pre>
 <pre><code>## Data: Loblolly
@@ -958,7 +1004,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
 ## model3lmer   10 234.49 258.80 -107.24   214.49                     
 ## model2lmer   15 243.71 280.17 -106.86   213.71 0.7787  5     0.9784</code></pre>
 <p>As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest, we provide a bootstrap-based analysis using bootMer. The downside of bootMer is that it is slow due to the need to refit the linear mixed model for each bootstrap simulation. Below we perform 100 such bootstrap simulations of model2—which is not enough for precise answers—but it is enough to get a good idea that the cubic term is ignorable and that the other fixed effects are significant.</p>
-<div class="sourceCode" id="cb134"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb147"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fun</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">model</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span><span class="op">(</span><span class="va">model</span><span class="op">)</span><span class="op">$</span><span class="va">coefficients</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span></span>
 <span><span class="co">#booted &lt;- bootMer(model2lmer, fun, 100, type = 'parametric')</span></span>
 <span></span>
@@ -1027,7 +1073,7 @@ and <span class="math inline">\(H_0\)</span> is rejected if <span class="math in
     var script = document.createElement("script");
     script.type = "text/javascript";
     var src = "true";
-    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
     if (location.protocol !== "file:")
       if (/^https?:/.test(src))
         src = src.replace(/^https?:/, '');

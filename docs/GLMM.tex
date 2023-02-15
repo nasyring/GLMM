@@ -1078,6 +1078,15 @@ A plot of age by height for all trees suggests a common concave polynomial behav
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(nlme)}
 \FunctionTok{library}\NormalTok{(ggplot2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'ggplot2' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \FunctionTok{head}\NormalTok{(Loblolly)}
 \end{Highlighting}
 \end{Shaded}
@@ -1206,7 +1215,15 @@ We can match the standard errors and approximate p-values of the fixed effects u
 \end{Shaded}
 
 \begin{verbatim}
+## Warning: package 'lme4' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
 ## Loading required package: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'Matrix' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1443,7 +1460,7 @@ We begin by plotting the amrginal residuals from the cubic model fit with LME4 w
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-14-1.pdf}
 
-A 5th order polynomial appears to fit the data best; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effects structure by investigating standardized residuals.
+A 5th order polynomial appears to fit the data; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effect structure by investigating standardized residuals.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1456,7 +1473,7 @@ A 5th order polynomial appears to fit the data best; however, we cannot include 
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-15-1.pdf}
 
-Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree. This means that each trees age-height is simply a shifted (up or down) version of the same polynomial. Based on our BLUPs, plotted below, the random effects structure does not seem sufficiently flexible to model trees 329, 327, and 305, for example. It certainly looks like we need to add random polynomial effects.
+Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree. This means that each tree's age-height relationship is simply a shifted (up or down) version of the same polynomial. Based on our BLUPs, plotted below, the random effects do not seem sufficiently flexible to model trees 329, 327, and 305, for example. It certainly looks like we need to add random polynomial effects.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1472,7 +1489,7 @@ Above we fit a 5th-order polynomial model with only random intercepts by Seed/tr
 
 \includegraphics{GLMM_files/figure-latex/unnamed-chunk-16-1.pdf}
 
-Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including further random effects.
+Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including these additional random effects.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1528,8 +1545,60 @@ The following calculations produce standardized marginal residuals, which we can
 \NormalTok{  seed }\OtherTok{\textless{}{-}}\NormalTok{ seed }\SpecialCharTok{+} \DecValTok{1}
 \NormalTok{\}}
 
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{standardized\_resids }\OtherTok{\textless{}{-}}\NormalTok{ standardized\_resids}
 
-\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, standardized\_resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}standardized marginal residual\textquotesingle{}}\NormalTok{)}
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
+\end{verbatim}
+
+\begin{verbatim}
+## v tibble  3.1.8      v dplyr   1.0.10
+## v tidyr   1.2.1      v stringr 1.4.1 
+## v readr   2.1.1      v forcats 0.5.1 
+## v purrr   0.3.4
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'tibble' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'tidyr' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'dplyr' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: package 'stringr' was built under R version 4.1.3
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::collapse() masks nlme::collapse()
+## x tidyr::expand()   masks Matrix::expand()
+## x dplyr::filter()   masks stats::filter()
+## x dplyr::lag()      masks stats::lag()
+## x tidyr::pack()     masks Matrix::pack()
+## x tidyr::unpack()   masks Matrix::unpack()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Loblolly}\OtherTok{\textless{}{-}}\NormalTok{Loblolly }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(Seed) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sd\_stan\_resids =} \FunctionTok{sd}\NormalTok{(standardized\_resids)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(sd\_stan\_resids) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ungroup}\NormalTok{()}
+
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{Seed }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, }\AttributeTok{ordered =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{levels =} \FunctionTok{unique}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed))}
+
+\FunctionTok{plot}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{Seed, Loblolly}\SpecialCharTok{$}\NormalTok{standardized\_resids, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}standardized marginal residual\textquotesingle{}}\NormalTok{, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{6}\NormalTok{,}\DecValTok{6}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1537,16 +1606,39 @@ The following calculations produce standardized marginal residuals, which we can
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\NormalTok{fakedata }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(}\DecValTok{84}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{3}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{4}\NormalTok{,}\DecValTok{6}\NormalTok{),}
+                                \FunctionTok{rep}\NormalTok{(}\DecValTok{5}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{6}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{7}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{8}\NormalTok{,}\DecValTok{6}\NormalTok{),}
+                                \FunctionTok{rep}\NormalTok{(}\DecValTok{9}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{10}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{11}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{12}\NormalTok{,}\DecValTok{6}\NormalTok{),}
+                                \FunctionTok{rep}\NormalTok{(}\DecValTok{13}\NormalTok{,}\DecValTok{6}\NormalTok{),}\FunctionTok{rep}\NormalTok{(}\DecValTok{14}\NormalTok{,}\DecValTok{6}\NormalTok{)))}
+
+\NormalTok{fakedata }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(fakedata)}
+
+\NormalTok{fakedata}\OtherTok{\textless{}{-}}\NormalTok{fakedata }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{group\_by}\NormalTok{(X2) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{sd\_X1 =} \FunctionTok{sd}\NormalTok{(X1)) }\SpecialCharTok{\%\textgreater{}\%} 
+  \FunctionTok{arrange}\NormalTok{(sd\_X1) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{ungroup}\NormalTok{()}
+
+\NormalTok{fakedata}\SpecialCharTok{$}\NormalTok{X2 }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(fakedata}\SpecialCharTok{$}\NormalTok{X2, }\AttributeTok{ordered =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{levels =} \FunctionTok{unique}\NormalTok{(fakedata}\SpecialCharTok{$}\NormalTok{X2))}
+
+\FunctionTok{plot}\NormalTok{(fakedata}\SpecialCharTok{$}\NormalTok{X2, fakedata}\SpecialCharTok{$}\NormalTok{X1, }\AttributeTok{xlab =} \StringTok{\textquotesingle{}random normals\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}sample standard deviation\textquotesingle{}}\NormalTok{, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{6}\NormalTok{,}\DecValTok{6}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{B }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Loblolly)) }\SpecialCharTok{{-}}\NormalTok{ Z}\SpecialCharTok{\%*\%}\NormalTok{invA}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL)}
 \NormalTok{P2 }\OtherTok{\textless{}{-}}\NormalTok{ B}\SpecialCharTok{\%*\%}\FunctionTok{solve}\NormalTok{(P)}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(B)}
-\NormalTok{cholP2 }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{chol}\NormalTok{(}\FunctionTok{solve}\NormalTok{(P2)))}
+\NormalTok{cholP2 }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{solve}\NormalTok{(}\FunctionTok{chol}\NormalTok{(P2)))}
 \NormalTok{standardized\_conditional\_residuals }\OtherTok{\textless{}{-}}\NormalTok{ cholP2}\SpecialCharTok{\%*\%}\NormalTok{(Y }\SpecialCharTok{{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{fitted4)}
 \FunctionTok{qqnorm}\NormalTok{(standardized\_conditional\_residuals)}
 \FunctionTok{qqline}\NormalTok{(standardized\_conditional\_residuals)}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-2.pdf}
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-3.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1559,7 +1651,7 @@ The following calculations produce standardized marginal residuals, which we can
 ##  Shapiro-Wilk normality test
 ## 
 ## data:  as.numeric(standardized_conditional_residuals)
-## W = 0.95891, p-value = 0.008984
+## W = 0.68254, p-value = 3.481e-12
 \end{verbatim}
 
 Next, we will discuss inference for fixed effects and model comparisons.
@@ -1618,17 +1710,17 @@ The first question of interest, which we hinted at before, is whether or not we 
 ##  Formula: ~poly(age, 3) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##               StdDev    Corr                
-## (Intercept)   1.3775085 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3313490  0.917              
-## poly(age, 3)2 2.5866452 -0.815 -0.516       
-## poly(age, 3)3 0.5669663 -0.127 -0.512 -0.471
-## Residual      0.5799758                     
+## (Intercept)   1.3775131 (Intr) p(,3)1 p(,3)2
+## poly(age, 3)1 6.3314123  0.917              
+## poly(age, 3)2 2.5866151 -0.815 -0.516       
+## poly(age, 3)3 0.5669801 -0.127 -0.512 -0.471
+## Residual      0.5799748                     
 ## 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827785 67  84.55126  0.0000
-## poly(age, 3)1 186.44570 1.8329318 67 101.71993  0.0000
-## poly(age, 3)2 -21.84656 0.9246597 67 -23.62660  0.0000
+## (Intercept)    32.36440 0.3827797 67  84.55099  0.0000
+## poly(age, 3)1 186.44570 1.8329479 67 101.71904  0.0000
+## poly(age, 3)2 -21.84656 0.9246527 67 -23.62678  0.0000
 ## poly(age, 3)3   0.05782 0.6142470 67   0.09413  0.9253
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
@@ -1638,7 +1730,7 @@ The first question of interest, which we hinted at before, is whether or not we 
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88464862 -0.45304446 -0.03409533  0.70340275  1.60926654 
+## -1.88464265 -0.45304355 -0.03408912  0.70340863  1.60926117 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14
@@ -1664,23 +1756,23 @@ The first question of interest, which we hinted at before, is whether or not we 
 ##  Formula: ~poly(age, 3) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
 ##               StdDev    Corr                
-## (Intercept)   1.3775459 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3314438  0.917              
-## poly(age, 3)2 2.5866196 -0.815 -0.516       
-## poly(age, 3)3 0.5669811 -0.127 -0.512 -0.471
-## Residual      0.5799722                     
+## (Intercept)   1.3775271 (Intr) p(,3)1 p(,3)2
+## poly(age, 3)1 6.3314017  0.917              
+## poly(age, 3)2 2.5866169 -0.815 -0.516       
+## poly(age, 3)3 0.5669567 -0.128 -0.512 -0.471
+## Residual      0.5799733                     
 ## 
 ## Correlation Structure: ARMA(1,0)
 ##  Formula: ~age | Seed 
 ##  Parameter estimate(s):
 ##         Phi1 
-## 1.981777e-07 
+## -3.18889e-08 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827885 67  84.54905  0.0000
-## poly(age, 3)1 186.44570 1.8329552 67 101.71863  0.0000
-## poly(age, 3)2 -21.84656 0.9246520 67 -23.62680  0.0000
-## poly(age, 3)3   0.05782 0.6142445 67   0.09413  0.9253
+## (Intercept)    32.36440 0.3827835 67  84.55016  0.0000
+## poly(age, 3)1 186.44570 1.8329446 67 101.71922  0.0000
+## poly(age, 3)2 -21.84656 0.9246521 67 -23.62679  0.0000
+## poly(age, 3)3   0.05782 0.6142439 67   0.09413  0.9253
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
 ## poly(age, 3)1  0.855              
@@ -1689,7 +1781,7 @@ The first question of interest, which we hinted at before, is whether or not we 
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88463442 -0.45305701 -0.03408891  0.70342611  1.60926441 
+## -1.88462925 -0.45305131 -0.03409201  0.70342933  1.60926556 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14
@@ -1704,7 +1796,7 @@ The first question of interest, which we hinted at before, is whether or not we 
 \begin{verbatim}
 ##          Model df    AIC      BIC   logLik   Test      L.Ratio p-value
 ## model1ml     1 16 245.71 284.6031 -106.855                            
-## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 2.924349e-07  0.9996
+## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 1.314233e-06  0.9991
 \end{verbatim}
 
 Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship. Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure. It's clear that the cubic term provides no benefit, so we omit it and fit model3. An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML---how delightful. Again, the simpler, quadratic model is clearly preferred.
@@ -1759,7 +1851,7 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lmerTest' was built under R version 4.2.2
+## Warning: package 'lmerTest' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1804,12 +1896,12 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -1.83857 -0.45408 -0.02587  0.65608  1.54812 
+## -1.83857 -0.45408 -0.02587  0.65608  1.54811 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev. Corr             
 ##  Seed     (Intercept)  1.9497  1.3963                    
-##           linear      40.8246  6.3894    0.91            
+##           linear      40.8247  6.3894    0.91            
 ##           quadratic    7.2430  2.6913   -0.82 -0.50      
 ##           cubic        0.6555  0.8096   -0.03 -0.37 -0.44
 ##  Residual              0.3506  0.5922                    
@@ -1817,10 +1909,10 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 ## 
 ## Fixed effects:
 ##              Estimate Std. Error        df t value Pr(>|t|)    
-## (Intercept)  32.36440    0.37873  13.91879  85.455  < 2e-16 ***
-## linear      186.44570    1.80740  14.11660 103.157  < 2e-16 ***
-## quadratic   -21.84656    0.93167  14.62281 -23.449 5.21e-13 ***
-## cubic         0.05782    0.63045  26.65583   0.092    0.928    
+## (Intercept)  32.36440    0.37873  13.91872  85.455  < 2e-16 ***
+## linear      186.44570    1.80740  14.11654 103.157  < 2e-16 ***
+## quadratic   -21.84656    0.93167  14.62277 -23.449 5.21e-13 ***
+## cubic         0.05782    0.63045  26.65569   0.092    0.928    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1840,8 +1932,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq    F value
-## linear       1 3702.8  3702.8 10559.8798
-## quadratic    1  195.3   195.3   556.9934
+## linear       1 3702.8  3702.8 10559.8644
+## quadratic    1  195.3   195.3   556.9927
 ## cubic        1    0.0     0.0     0.0084
 \end{verbatim}
 
@@ -1854,8 +1946,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF    F value    Pr(>F)    
-## linear    3731.4  3731.4     1 14.117 10641.3510 < 2.2e-16 ***
-## quadratic  192.8   192.8     1 14.623   549.8503 5.208e-13 ***
+## linear    3731.4  3731.4     1 14.117 10641.3242 < 2.2e-16 ***
+## quadratic  192.8   192.8     1 14.623   549.8497 5.208e-13 ***
 ## cubic        0.0     0.0     1 26.656     0.0084    0.9276    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1870,8 +1962,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF    F value    Pr(>F)    
-## linear    3731.4  3731.4     1    13 10641.3510 < 2.2e-16 ***
-## quadratic  192.8   192.8     1    13   549.8503 5.059e-12 ***
+## linear    3731.4  3731.4     1    13 10641.3242 < 2.2e-16 ***
+## quadratic  192.8   192.8     1    13   549.8497 5.059e-12 ***
 ## cubic        0.0     0.0     1    13     0.0084    0.9283    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -1894,21 +1986,21 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 ## 
 ## Scaled residuals: 
 ##      Min       1Q   Median       3Q      Max 
-## -1.84241 -0.45922 -0.07456  0.69007  1.78254 
+## -1.84245 -0.45925 -0.07456  0.69006  1.78263 
 ## 
 ## Random effects:
 ##  Groups   Name        Variance Std.Dev. Corr       
-##  Seed     (Intercept)  2.045   1.4299              
-##           linear      43.148   6.5687    0.92      
-##           quadratic    7.337   2.7086   -0.81 -0.51
+##  Seed     (Intercept)  2.045   1.4301              
+##           linear      43.154   6.5692    0.92      
+##           quadratic    7.338   2.7089   -0.81 -0.51
 ##  Residual              0.350   0.5916              
 ## Number of obs: 84, groups:  Seed, 14
 ## 
 ## Fixed effects:
 ##             Estimate Std. Error       df t value Pr(>|t|)    
-## (Intercept)  32.3644     0.3876  13.0062   83.51  < 2e-16 ***
-## linear      186.4457     1.8526  13.0479  100.64  < 2e-16 ***
-## quadratic   -21.8466     0.9349  14.5800  -23.37  5.8e-13 ***
+## (Intercept)  32.3644     0.3876  13.0017   83.50  < 2e-16 ***
+## linear      186.4457     1.8527  13.0449  100.64  < 2e-16 ***
+## quadratic   -21.8466     0.9350  14.5761  -23.37 5.84e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
@@ -1927,8 +2019,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Analysis of Variance Table
 ##           npar Sum Sq Mean Sq F value
-## linear       1 3435.0  3435.0 9813.44
-## quadratic    1  191.1   191.1  546.03
+## linear       1 3434.6  3434.6 9812.68
+## quadratic    1  191.1   191.1  545.96
 \end{verbatim}
 
 \begin{Shaded}
@@ -1940,8 +2032,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Satterthwaite's method
 ##           Sum Sq Mean Sq NumDF  DenDF  F value    Pr(>F)    
-## linear    3545.3  3545.3     1 13.048 10128.62 < 2.2e-16 ***
-## quadratic  191.1   191.1     1 14.580   546.03 5.804e-13 ***
+## linear    3544.8  3544.8     1 13.045 10127.45 < 2.2e-16 ***
+## quadratic  191.1   191.1     1 14.576   545.96  5.84e-13 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
@@ -1955,8 +2047,8 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF  F value    Pr(>F)    
-## linear    3545.3  3545.3     1    13 10128.62 < 2.2e-16 ***
-## quadratic  191.1   191.1     1    13   546.03 5.289e-12 ***
+## linear    3544.8  3544.8     1    13 10127.45 < 2.2e-16 ***
+## quadratic  191.1   191.1     1    13   545.96 5.293e-12 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}

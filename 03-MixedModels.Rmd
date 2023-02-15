@@ -392,7 +392,7 @@ marginal.resids <- Loblolly$height - model.matrix(model2lmer, type = 'fixed')%*%
 plot(Loblolly$age, marginal.resids, xlab = 'age', ylab = 'marginal residual')
 ```
 
-A 5th order polynomial appears to fit the data best; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effects structure by investigating standardized residuals. 
+A 5th order polynomial appears to fit the data; however, we cannot include 5th order polynomial random effects, so we will need to make some choice on random effect structure by investigating standardized residuals. 
 
 ```{r}
 library(lme4)
@@ -401,7 +401,7 @@ marginal.resids3 <- Loblolly$height - model.matrix(model3lmer, type = 'fixed')%*
 plot(Loblolly$age, marginal.resids3, xlab = 'age', ylab = 'marginal residual')
 ```
 
-Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree.  This means that each trees age-height is simply a shifted (up or down) version of the same polynomial.  Based on our BLUPs, plotted below, the random effects structure does not seem sufficiently flexible to model trees 329, 327,  and 305, for example.  It certainly looks like we need to add random polynomial effects.    
+Above we fit a 5th-order polynomial model with only random intercepts by Seed/tree.  This means that each tree's age-height relationship is simply a shifted (up or down) version of the same polynomial.  Based on our BLUPs, plotted below, the random effects do not seem sufficiently flexible to model trees 329, 327,  and 305, for example.  It certainly looks like we need to add random polynomial effects.    
 
 ```{r}
 Loblolly$fitted3 <- fitted(model3lmer)
@@ -413,7 +413,7 @@ ggplot(data = Loblolly) +
   facet_wrap(~ Seed, nrow = 2)
 ```
 
-Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including further random effects.
+Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including these additional random effects.
 
 ```{r}
 model4lmer <- lmer(height ~ poly(age,5) + (poly(age,2) | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
@@ -455,12 +455,39 @@ for(i in 1:14){
   seed <- seed + 1
 }
 
+Loblolly$standardized_resids <- standardized_resids
 
-plot(Loblolly$Seed, standardized_resids, xlab = 'Seed', ylab = 'standardized marginal residual')
+library(tidyverse)
+Loblolly<-Loblolly %>% 
+  group_by(Seed) %>% 
+  mutate(sd_stan_resids = sd(standardized_resids)) %>% 
+  arrange(sd_stan_resids) %>%
+  ungroup()
+
+Loblolly$Seed <- factor(Loblolly$Seed, ordered = FALSE, levels = unique(Loblolly$Seed))
+
+plot(Loblolly$Seed, Loblolly$standardized_resids, xlab = 'Seed', ylab = 'standardized marginal residual', ylim = c(-6,6))
+
+fakedata <- cbind(rnorm(84), c(rep(1,6),rep(2,6),rep(3,6),rep(4,6),
+                                rep(5,6),rep(6,6),rep(7,6),rep(8,6),
+                                rep(9,6),rep(10,6),rep(11,6),rep(12,6),
+                                rep(13,6),rep(14,6)))
+
+fakedata <- data.frame(fakedata)
+
+fakedata<-fakedata %>% 
+  group_by(X2) %>% 
+  mutate(sd_X1 = sd(X1)) %>% 
+  arrange(sd_X1) %>%
+  ungroup()
+
+fakedata$X2 <- factor(fakedata$X2, ordered = FALSE, levels = unique(fakedata$X2))
+
+plot(fakedata$X2, fakedata$X1, xlab = 'random normals', ylab = 'sample standard deviation', ylim = c(-6,6))
 
 B <- (diag(nrow(Loblolly)) - Z%*%invA%*%t(Z)%*%invL)
 P2 <- B%*%solve(P)%*%t(B)
-cholP2 <- t(chol(solve(P2)))
+cholP2 <- t(solve(chol(P2)))
 standardized_conditional_residuals <- cholP2%*%(Y - Loblolly$fitted4)
 qqnorm(standardized_conditional_residuals)
 qqline(standardized_conditional_residuals)
