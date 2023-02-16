@@ -124,7 +124,7 @@
 
 \title{GLMM}
 \author{Nick Syring}
-\date{2023-02-14}
+\date{2023-02-16}
 
 \begin{document}
 \maketitle
@@ -1078,15 +1078,6 @@ A plot of age by height for all trees suggests a common concave polynomial behav
 \begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(nlme)}
 \FunctionTok{library}\NormalTok{(ggplot2)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Warning: package 'ggplot2' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \FunctionTok{head}\NormalTok{(Loblolly)}
 \end{Highlighting}
 \end{Shaded}
@@ -1215,15 +1206,7 @@ We can match the standard errors and approximate p-values of the fixed effects u
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lme4' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
 ## Loading required package: Matrix
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'Matrix' was built under R version 4.1.3
 \end{verbatim}
 
 \begin{verbatim}
@@ -1493,16 +1476,7 @@ Taking those poorly-fitting BLUPs into account, we fit a model with quadratic ra
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model4lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly, }\AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer=}\StringTok{"Nelder\_Mead"}\NormalTok{, }\AttributeTok{optCtrl =} \FunctionTok{list}\NormalTok{(}\AttributeTok{maxfun =} \DecValTok{100000}\NormalTok{), }\AttributeTok{check.conv.grad =} \FunctionTok{.makeCC}\NormalTok{(}\StringTok{"warning"}\NormalTok{, }\AttributeTok{tol =} \FloatTok{0.71}\NormalTok{, }\AttributeTok{relTol =} \ConstantTok{NULL}\NormalTok{)))}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## boundary (singular) fit: see help('isSingular')
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
+\NormalTok{model4lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly)}
 \NormalTok{marginal.resids4 }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{model.matrix}\NormalTok{(model4lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{)}\SpecialCharTok{\%*\%}\FunctionTok{fixef}\NormalTok{(model4lmer)}
 \NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{fitted4 }\OtherTok{\textless{}{-}} \FunctionTok{fitted}\NormalTok{(model4lmer)}
 \FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data =}\NormalTok{ Loblolly) }\SpecialCharTok{+} 
@@ -1524,7 +1498,6 @@ The following calculations produce standardized marginal residuals, which we can
 \NormalTok{psi\_i }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{VarCorr}\NormalTok{(model4lmer)[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{$}\NormalTok{Seed[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{dim\_cov,}\DecValTok{1}\SpecialCharTok{:}\NormalTok{dim\_cov])}
 \NormalTok{psi }\OtherTok{\textless{}{-}} \FunctionTok{bdiag\_m}\NormalTok{(}\FunctionTok{list}\NormalTok{(psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i,psi\_i))}
 \NormalTok{inv\_psi }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(psi)}
-\NormalTok{phi }\OtherTok{\textless{}{-}} \FunctionTok{coef}\NormalTok{(model1}\SpecialCharTok{$}\NormalTok{modelStruct}\SpecialCharTok{$}\NormalTok{corStruct, }\AttributeTok{unconstrained =} \ConstantTok{FALSE}\NormalTok{)}
 \NormalTok{L }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{summary}\NormalTok{(model4lmer)}\SpecialCharTok{$}\NormalTok{sigma}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}\SpecialCharTok{*}\FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Loblolly))}
 \NormalTok{invL }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(L)}
 \NormalTok{A }\OtherTok{\textless{}{-}}\NormalTok{ inv\_psi}\SpecialCharTok{+}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL}\SpecialCharTok{\%*\%}\NormalTok{Z}
@@ -1532,6 +1505,7 @@ The following calculations produce standardized marginal residuals, which we can
 \NormalTok{P}\OtherTok{\textless{}{-}}\NormalTok{invL}\SpecialCharTok{{-}}\NormalTok{invL}\SpecialCharTok{\%*\%}\NormalTok{Z}\SpecialCharTok{\%*\%}\NormalTok{invA}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL}
 \NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(}\FunctionTok{model.matrix}\NormalTok{(model4lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}fixed\textquotesingle{}}\NormalTok{))}
 \NormalTok{cov.beta.hat }\OtherTok{\textless{}{-}} \FunctionTok{solve}\NormalTok{(}\FunctionTok{t}\NormalTok{(X)}\SpecialCharTok{\%*\%}\NormalTok{P}\SpecialCharTok{\%*\%}\NormalTok{X)}
+\NormalTok{Sigma\_e }\OtherTok{\textless{}{-}}\NormalTok{ P}\SpecialCharTok{{-}}\NormalTok{X}\SpecialCharTok{\%*\%}\NormalTok{cov.beta.hat}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(X)}
 \NormalTok{Y }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{height}
 \NormalTok{beta.hat }\OtherTok{\textless{}{-}}\NormalTok{ cov.beta.hat}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(X)}\SpecialCharTok{\%*\%}\NormalTok{P}\SpecialCharTok{\%*\%}\NormalTok{Y}
 \NormalTok{Pi }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(P)[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{,}\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{]}
@@ -1546,39 +1520,23 @@ The following calculations produce standardized marginal residuals, which we can
 \NormalTok{\}}
 
 \NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{standardized\_resids }\OtherTok{\textless{}{-}}\NormalTok{ standardized\_resids}
+\end{Highlighting}
+\end{Shaded}
 
+Below we view boxplots of standardized marginal residuals by tree, sorting by least to greatest variability. As a sanity check we also produce a reference plot of 14 boxplots of 6 standard normal random variates each. This plot serves as a visual inspection to check whether or not the standardized marginal residuals appear to behave as realizations of standard normal random variables. There is slightly more variability in our standardized marginal residuals than in the exact standard normal samples, probably due mostly to a few poorly fitting observations, but nothing that causes us concern.
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \FunctionTok{library}\NormalTok{(tidyverse)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
-\end{verbatim}
-
-\begin{verbatim}
+## -- Attaching packages --------------------------------------- tidyverse 1.3.2 --
 ## v tibble  3.1.8      v dplyr   1.0.10
 ## v tidyr   1.2.1      v stringr 1.4.1 
-## v readr   2.1.1      v forcats 0.5.1 
-## v purrr   0.3.4
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'tibble' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'tidyr' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'dplyr' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
-## Warning: package 'stringr' was built under R version 4.1.3
-\end{verbatim}
-
-\begin{verbatim}
+## v readr   2.1.2      v forcats 0.5.2 
+## v purrr   0.3.4      
 ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::collapse() masks nlme::collapse()
 ## x tidyr::expand()   masks Matrix::expand()
@@ -1602,7 +1560,7 @@ The following calculations produce standardized marginal residuals, which we can
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-1.pdf}
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-19-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1625,7 +1583,9 @@ The following calculations produce standardized marginal residuals, which we can
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-2.pdf}
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-19-2.pdf}
+
+We also compute standardized conditional residuals and compare them to a standard normal distribution. A qq-plot suggests a reasonable match and the Shapiro-Wilk test for normality does not reject the supposition these residuals are standard normal. There does not seem to be substantial heteroskedasticity by age or tree that would suggest we modify our model for the covariance structure.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1638,7 +1598,7 @@ The following calculations produce standardized marginal residuals, which we can
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{GLMM_files/figure-latex/unnamed-chunk-18-3.pdf}
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-20-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1651,10 +1611,27 @@ The following calculations produce standardized marginal residuals, which we can
 ##  Shapiro-Wilk normality test
 ## 
 ## data:  as.numeric(standardized_conditional_residuals)
-## W = 0.68254, p-value = 3.481e-12
+## W = 0.6446, p-value = 5.953e-13
 \end{verbatim}
 
-Next, we will discuss inference for fixed effects and model comparisons.
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{standardized\_conditional\_residuals }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(standardized\_conditional\_residuals)}
+\FunctionTok{boxplot}\NormalTok{(standardized\_conditional\_residuals}\SpecialCharTok{\textasciitilde{}}\NormalTok{Seed, }\AttributeTok{data =}\NormalTok{ Loblolly,}\AttributeTok{xlab =} \StringTok{\textquotesingle{}Seed\textquotesingle{}}\NormalTok{, }\AttributeTok{ylab =} \StringTok{\textquotesingle{}standardized conditional residual\textquotesingle{}}\NormalTok{, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-20-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boxplot}\NormalTok{(standardized\_conditional\_residuals}\SpecialCharTok{\textasciitilde{}}\NormalTok{age, }\AttributeTok{data =}\NormalTok{ Loblolly)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{GLMM_files/figure-latex/unnamed-chunk-20-3.pdf}
+
+Content with the fit of our model, we will next discuss inference for fixed effects and model comparisons.
 
 \hypertarget{inference-for-fixed-effects-random-effects-and-model-comparisons}{%
 \section{Inference for fixed effects, random effects, and model comparisons}\label{inference-for-fixed-effects-random-effects-and-model-comparisons}}
@@ -1694,7 +1671,7 @@ The first question of interest, which we hinted at before, is whether or not we 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{model2ml }\OtherTok{\textless{}{-}} \FunctionTok{lme}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{3}\NormalTok{), }\AttributeTok{data =}\NormalTok{ Loblolly,}
-\AttributeTok{random =} \FunctionTok{list}\NormalTok{(}\AttributeTok{Seed =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{3}\NormalTok{)),}
+\AttributeTok{random =} \FunctionTok{list}\NormalTok{(}\AttributeTok{Seed =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{)),}
 \AttributeTok{correlation =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{control =}\NormalTok{ lmc, }\AttributeTok{method =} \StringTok{\textquotesingle{}ML\textquotesingle{}}\NormalTok{)}
 \FunctionTok{summary}\NormalTok{(model2ml)}
 \end{Highlighting}
@@ -1703,34 +1680,33 @@ The first question of interest, which we hinted at before, is whether or not we 
 \begin{verbatim}
 ## Linear mixed-effects model fit by maximum likelihood
 ##   Data: Loblolly 
-##      AIC      BIC   logLik
-##   243.71 280.1723 -106.855
+##       AIC     BIC    logLik
+##   236.479 263.218 -107.2395
 ## 
 ## Random effects:
-##  Formula: ~poly(age, 3) | Seed
+##  Formula: ~poly(age, 2) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
-##               StdDev    Corr                
-## (Intercept)   1.3775131 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3314123  0.917              
-## poly(age, 3)2 2.5866151 -0.815 -0.516       
-## poly(age, 3)3 0.5669801 -0.127 -0.512 -0.471
-## Residual      0.5799748                     
+##               StdDev    Corr         
+## (Intercept)   1.3770489 (Intr) p(,2)1
+## poly(age, 2)1 6.3146599  0.920       
+## poly(age, 2)2 2.5921354 -0.812 -0.519
+## Residual      0.5862648              
 ## 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827797 67  84.55099  0.0000
-## poly(age, 3)1 186.44570 1.8329479 67 101.71904  0.0000
-## poly(age, 3)2 -21.84656 0.9246527 67 -23.62678  0.0000
-## poly(age, 3)3   0.05782 0.6142470 67   0.09413  0.9253
+## (Intercept)    32.36440 0.3827742 67  84.55220  0.0000
+## poly(age, 3)1 186.44570 1.8307134 67 101.84319  0.0000
+## poly(age, 3)2 -21.84656 0.9299619 67 -23.49189  0.0000
+## poly(age, 3)3   0.05782 0.6007426 67   0.09625  0.9236
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1  0.855              
-## poly(age, 3)2 -0.615 -0.374       
-## poly(age, 3)3 -0.032 -0.123 -0.091
+## poly(age, 3)1  0.856              
+## poly(age, 3)2 -0.611 -0.374       
+## poly(age, 3)3  0.000  0.000  0.000
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88464265 -0.45304355 -0.03408912  0.70340863  1.60926117 
+## -1.88150210 -0.48683940 -0.08576157  0.70311783  1.80653065 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14
@@ -1739,7 +1715,7 @@ The first question of interest, which we hinted at before, is whether or not we 
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{model1ml }\OtherTok{\textless{}{-}} \FunctionTok{lme}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{3}\NormalTok{), }\AttributeTok{data =}\NormalTok{ Loblolly,}
-\AttributeTok{random =} \FunctionTok{list}\NormalTok{(}\AttributeTok{Seed =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{3}\NormalTok{)),}
+\AttributeTok{random =} \FunctionTok{list}\NormalTok{(}\AttributeTok{Seed =} \SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{)),}
 \AttributeTok{correlation =} \FunctionTok{corAR1}\NormalTok{(}\AttributeTok{form =} \SpecialCharTok{\textasciitilde{}}\NormalTok{ age}\SpecialCharTok{|}\NormalTok{Seed), }\AttributeTok{control =}\NormalTok{ lmc, }\AttributeTok{method =} \StringTok{\textquotesingle{}ML\textquotesingle{}}\NormalTok{)}
 
 \FunctionTok{summary}\NormalTok{(model1ml)}
@@ -1749,39 +1725,38 @@ The first question of interest, which we hinted at before, is whether or not we 
 \begin{verbatim}
 ## Linear mixed-effects model fit by maximum likelihood
 ##   Data: Loblolly 
-##      AIC      BIC   logLik
-##   245.71 284.6031 -106.855
+##       AIC      BIC    logLik
+##   238.479 267.6488 -107.2395
 ## 
 ## Random effects:
-##  Formula: ~poly(age, 3) | Seed
+##  Formula: ~poly(age, 2) | Seed
 ##  Structure: General positive-definite, Log-Cholesky parametrization
-##               StdDev    Corr                
-## (Intercept)   1.3775271 (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1 6.3314017  0.917              
-## poly(age, 3)2 2.5866169 -0.815 -0.516       
-## poly(age, 3)3 0.5669567 -0.128 -0.512 -0.471
-## Residual      0.5799733                     
+##               StdDev    Corr         
+## (Intercept)   1.3770407 (Intr) p(,2)1
+## poly(age, 2)1 6.3146152  0.920       
+## poly(age, 2)2 2.5921670 -0.812 -0.519
+## Residual      0.5862659              
 ## 
 ## Correlation Structure: ARMA(1,0)
 ##  Formula: ~age | Seed 
 ##  Parameter estimate(s):
-##         Phi1 
-## -3.18889e-08 
+##          Phi1 
+## -7.729034e-07 
 ## Fixed effects:  height ~ poly(age, 3) 
 ##                   Value Std.Error DF   t-value p-value
-## (Intercept)    32.36440 0.3827835 67  84.55016  0.0000
-## poly(age, 3)1 186.44570 1.8329446 67 101.71922  0.0000
-## poly(age, 3)2 -21.84656 0.9246521 67 -23.62679  0.0000
-## poly(age, 3)3   0.05782 0.6142439 67   0.09413  0.9253
+## (Intercept)    32.36440 0.3827720 67  84.55269  0.0000
+## poly(age, 3)1 186.44570 1.8307022 67 101.84382  0.0000
+## poly(age, 3)2 -21.84656 0.9299693 67 -23.49171  0.0000
+## poly(age, 3)3   0.05782 0.6007438 67   0.09625  0.9236
 ##  Correlation: 
 ##               (Intr) p(,3)1 p(,3)2
-## poly(age, 3)1  0.855              
-## poly(age, 3)2 -0.615 -0.374       
-## poly(age, 3)3 -0.032 -0.123 -0.091
+## poly(age, 3)1  0.856              
+## poly(age, 3)2 -0.611 -0.374       
+## poly(age, 3)3  0.000  0.000  0.000
 ## 
 ## Standardized Within-Group Residuals:
 ##         Min          Q1         Med          Q3         Max 
-## -1.88462925 -0.45305131 -0.03409201  0.70342933  1.60926556 
+## -1.88152563 -0.48682881 -0.08576799  0.70309957  1.80652460 
 ## 
 ## Number of Observations: 84
 ## Number of Groups: 14
@@ -1794,12 +1769,12 @@ The first question of interest, which we hinted at before, is whether or not we 
 \end{Shaded}
 
 \begin{verbatim}
-##          Model df    AIC      BIC   logLik   Test      L.Ratio p-value
-## model1ml     1 16 245.71 284.6031 -106.855                            
-## model2ml     2 15 243.71 280.1723 -106.855 1 vs 2 1.314233e-06  0.9991
+##          Model df     AIC      BIC    logLik   Test      L.Ratio p-value
+## model1ml     1 12 238.479 267.6488 -107.2395                            
+## model2ml     2 11 236.479 263.2180 -107.2395 1 vs 2 4.513881e-07  0.9995
 \end{verbatim}
 
-Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship. Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure. It's clear that the cubic term provides no benefit, so we omit it and fit model3. An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML---how delightful. Again, the simpler, quadratic model is clearly preferred.
+Next we investigate whether a degree 5 or 4 polynomial is enough to model the age-height relationship. Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure. It's clear that the cubic term provides no benefit, so we omit it and fit model3. An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differing fixed effects and refits those models by ML---how delightful. this time, the more complex 5th degree polynomial model is clearly preferred.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -1851,7 +1826,7 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \end{Shaded}
 
 \begin{verbatim}
-## Warning: package 'lmerTest' was built under R version 4.1.3
+## Warning: package 'lmerTest' was built under R version 4.2.2
 \end{verbatim}
 
 \begin{verbatim}
@@ -1873,189 +1848,143 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{X }\OtherTok{\textless{}{-}} \FunctionTok{poly}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{age,}\DecValTok{3}\NormalTok{)}
-\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{linear }\OtherTok{\textless{}{-}}\NormalTok{ X[,}\DecValTok{1}\NormalTok{]}
-\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{quadratic }\OtherTok{\textless{}{-}}\NormalTok{ X[,}\DecValTok{2}\NormalTok{]}
-\NormalTok{Loblolly}\SpecialCharTok{$}\NormalTok{cubic }\OtherTok{\textless{}{-}}\NormalTok{ X[,}\DecValTok{3}\NormalTok{]}
-\NormalTok{model2lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}}\NormalTok{ linear}\SpecialCharTok{+}\NormalTok{quadratic}\SpecialCharTok{+}\NormalTok{cubic }\SpecialCharTok{+}\NormalTok{ (linear}\SpecialCharTok{+}\NormalTok{quadratic}\SpecialCharTok{+}\NormalTok{cubic }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly, }\AttributeTok{control =} \FunctionTok{lmerControl}\NormalTok{(}\AttributeTok{optimizer=}\StringTok{"Nelder\_Mead"}\NormalTok{, }\AttributeTok{optCtrl =} \FunctionTok{list}\NormalTok{(}\AttributeTok{maxfun =} \DecValTok{100000}\NormalTok{), }\AttributeTok{check.conv.grad =} \FunctionTok{.makeCC}\NormalTok{(}\StringTok{"warning"}\NormalTok{, }\AttributeTok{tol =} \FloatTok{0.71}\NormalTok{, }\AttributeTok{relTol =} \ConstantTok{NULL}\NormalTok{)))}
-\FunctionTok{summary}\NormalTok{(model2lmer)}
+\NormalTok{X5 }\OtherTok{\textless{}{-}} \FunctionTok{poly}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{age,}\DecValTok{5}\NormalTok{)}
+\NormalTok{Loblolly\_poly }\OtherTok{\textless{}{-}}\NormalTok{ Loblolly}
+\NormalTok{Loblolly\_poly}\SpecialCharTok{$}\NormalTok{linear }\OtherTok{\textless{}{-}}\NormalTok{ X5[,}\DecValTok{1}\NormalTok{]}
+\NormalTok{Loblolly\_poly}\SpecialCharTok{$}\NormalTok{quadratic }\OtherTok{\textless{}{-}}\NormalTok{ X5[,}\DecValTok{2}\NormalTok{]}
+\NormalTok{Loblolly\_poly}\SpecialCharTok{$}\NormalTok{cubic }\OtherTok{\textless{}{-}}\NormalTok{ X5[,}\DecValTok{3}\NormalTok{]}
+\NormalTok{Loblolly\_poly}\SpecialCharTok{$}\NormalTok{quartic }\OtherTok{\textless{}{-}}\NormalTok{ X5[,}\DecValTok{4}\NormalTok{]}
+\NormalTok{Loblolly\_poly}\SpecialCharTok{$}\NormalTok{quintic }\OtherTok{\textless{}{-}}\NormalTok{ X5[,}\DecValTok{5}\NormalTok{]}
+\NormalTok{model2lmer\_quartic }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}}\NormalTok{ linear}\SpecialCharTok{+}\NormalTok{quadratic}\SpecialCharTok{+}\NormalTok{cubic}\SpecialCharTok{+}\NormalTok{quartic }\SpecialCharTok{+}\NormalTok{ (linear}\SpecialCharTok{+}\NormalTok{quadratic }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly\_poly)}
+\FunctionTok{summary}\NormalTok{(model2lmer\_quartic)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
 ## lmerModLmerTest]
-## Formula: height ~ linear + quadratic + cubic + (linear + quadratic + cubic |  
+## Formula: height ~ linear + quadratic + cubic + quartic + (linear + quadratic |  
 ##     Seed)
-##    Data: Loblolly
-## Control: 
-## lmerControl(optimizer = "Nelder_Mead", optCtrl = list(maxfun = 1e+05),  
-##     check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL))
+##    Data: Loblolly_poly
 ## 
-## REML criterion at convergence: 210.6
+## REML criterion at convergence: 189.6
 ## 
 ## Scaled residuals: 
-##      Min       1Q   Median       3Q      Max 
-## -1.83857 -0.45408 -0.02587  0.65608  1.54811 
+##     Min      1Q  Median      3Q     Max 
+## -1.7644 -0.5447 -0.1186  0.5125  1.9876 
 ## 
 ## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr             
-##  Seed     (Intercept)  1.9497  1.3963                    
-##           linear      40.8247  6.3894    0.91            
-##           quadratic    7.2430  2.6913   -0.82 -0.50      
-##           cubic        0.6555  0.8096   -0.03 -0.37 -0.44
-##  Residual              0.3506  0.5922                    
+##  Groups   Name        Variance Std.Dev. Corr       
+##  Seed     (Intercept)  2.0589  1.4349              
+##           linear      44.2363  6.6510    0.91      
+##           quadratic    7.8677  2.8050   -0.79 -0.45
+##  Residual              0.2462  0.4962              
 ## Number of obs: 84, groups:  Seed, 14
 ## 
 ## Fixed effects:
 ##              Estimate Std. Error        df t value Pr(>|t|)    
-## (Intercept)  32.36440    0.37873  13.91872  85.455  < 2e-16 ***
-## linear      186.44570    1.80740  14.11654 103.157  < 2e-16 ***
-## quadratic   -21.84656    0.93167  14.62277 -23.449 5.21e-13 ***
-## cubic         0.05782    0.63045  26.65569   0.092    0.928    
+## (Intercept)  32.36440    0.38729  13.01326  83.567  < 2e-16 ***
+## linear      186.44570    1.84552  13.03103 101.026  < 2e-16 ***
+## quadratic   -21.84656    0.89900  13.78421 -24.301 1.03e-12 ***
+## cubic         0.05782    0.49620  52.99715   0.117    0.908    
+## quartic       2.48987    0.49620  52.99715   5.018 6.24e-06 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Correlation of Fixed Effects:
-##           (Intr) linear qudrtc
-## linear     0.846              
-## quadratic -0.621 -0.367       
-## cubic     -0.011 -0.119 -0.117
+##           (Intr) linear qudrtc cubic 
+## linear     0.864                     
+## quadratic -0.651 -0.364              
+## cubic      0.000  0.000  0.000       
+## quartic    0.000  0.000  0.000  0.000
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}lme4\textquotesingle{}}\NormalTok{)}
+\NormalTok{model2lmer\_quintic }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}}\NormalTok{ linear}\SpecialCharTok{+}\NormalTok{quadratic}\SpecialCharTok{+}\NormalTok{cubic}\SpecialCharTok{+}\NormalTok{quartic}\SpecialCharTok{+}\NormalTok{quintic }\SpecialCharTok{+}\NormalTok{ (linear}\SpecialCharTok{+}\NormalTok{quadratic }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly\_poly)}
+\FunctionTok{summary}\NormalTok{(model2lmer\_quintic)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-## Analysis of Variance Table
-##           npar Sum Sq Mean Sq    F value
-## linear       1 3702.8  3702.8 10559.8644
-## quadratic    1  195.3   195.3   556.9927
-## cubic        1    0.0     0.0     0.0084
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Satt\textquotesingle{}}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Type III Analysis of Variance Table with Satterthwaite's method
-##           Sum Sq Mean Sq NumDF  DenDF    F value    Pr(>F)    
-## linear    3731.4  3731.4     1 14.117 10641.3242 < 2.2e-16 ***
-## quadratic  192.8   192.8     1 14.623   549.8497 5.208e-13 ***
-## cubic        0.0     0.0     1 26.656     0.0084    0.9276    
+## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
+## lmerModLmerTest]
+## Formula: height ~ linear + quadratic + cubic + quartic + quintic + (linear +  
+##     quadratic | Seed)
+##    Data: Loblolly_poly
+## 
+## REML criterion at convergence: 148.7
+## 
+## Scaled residuals: 
+##      Min       1Q   Median       3Q      Max 
+## -1.90907 -0.43377 -0.01942  0.44241  2.29016 
+## 
+## Random effects:
+##  Groups   Name        Variance Std.Dev. Corr       
+##  Seed     (Intercept)  2.0794  1.4420              
+##           linear      45.6633  6.7575    0.89      
+##           quadratic    8.5419  2.9227   -0.77 -0.39
+##  Residual              0.1153  0.3395              
+## Number of obs: 84, groups:  Seed, 14
+## 
+## Fixed effects:
+##              Estimate Std. Error        df t value Pr(>|t|)    
+## (Intercept)  32.36440    0.38717  12.99880  83.593  < 2e-16 ***
+## linear      186.44570    1.83765  13.00055 101.459  < 2e-16 ***
+## quadratic   -21.84656    0.85172  13.12063 -25.650 1.34e-12 ***
+## cubic         0.05782    0.33955  52.00132   0.170    0.865    
+## quartic       2.48987    0.33955  52.00132   7.333 1.46e-09 ***
+## quintic      -2.65565    0.33955  52.00132  -7.821 2.44e-10 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##           (Intr) linear qudrtc cubic  quartc
+## linear     0.872                            
+## quadratic -0.700 -0.354                     
+## cubic      0.000  0.000  0.000              
+## quartic    0.000  0.000  0.000  0.000       
+## quintic    0.000  0.000  0.000  0.000  0.000
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model2lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Ken\textquotesingle{}}\NormalTok{)}
+\FunctionTok{anova}\NormalTok{(model2lmer\_quartic, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Ken\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Kenward-Roger's method
 ##           Sum Sq Mean Sq NumDF DenDF    F value    Pr(>F)    
-## linear    3731.4  3731.4     1    13 10641.3242 < 2.2e-16 ***
-## quadratic  192.8   192.8     1    13   549.8497 5.059e-12 ***
-## cubic        0.0     0.0     1    13     0.0084    0.9283    
+## linear    2513.0  2513.0     1    13 10206.2419 < 2.2e-16 ***
+## quadratic  145.4   145.4     1    13   590.5368 3.212e-12 ***
+## cubic        0.0     0.0     1    40     0.0136    0.9078    
+## quartic      6.2     6.2     1    40    25.1786 1.119e-05 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{model3lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}}\NormalTok{ linear}\SpecialCharTok{+}\NormalTok{quadratic }\SpecialCharTok{+}\NormalTok{ (linear}\SpecialCharTok{+}\NormalTok{quadratic }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly)}
-\FunctionTok{summary}\NormalTok{(model3lmer)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Linear mixed model fit by REML. t-tests use Satterthwaite's method [
-## lmerModLmerTest]
-## Formula: height ~ linear + quadratic + (linear + quadratic | Seed)
-##    Data: Loblolly
-## 
-## REML criterion at convergence: 211.8
-## 
-## Scaled residuals: 
-##      Min       1Q   Median       3Q      Max 
-## -1.84245 -0.45925 -0.07456  0.69006  1.78263 
-## 
-## Random effects:
-##  Groups   Name        Variance Std.Dev. Corr       
-##  Seed     (Intercept)  2.045   1.4301              
-##           linear      43.154   6.5692    0.92      
-##           quadratic    7.338   2.7089   -0.81 -0.51
-##  Residual              0.350   0.5916              
-## Number of obs: 84, groups:  Seed, 14
-## 
-## Fixed effects:
-##             Estimate Std. Error       df t value Pr(>|t|)    
-## (Intercept)  32.3644     0.3876  13.0017   83.50  < 2e-16 ***
-## linear      186.4457     1.8527  13.0449  100.64  < 2e-16 ***
-## quadratic   -21.8466     0.9350  14.5761  -23.37 5.84e-13 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Correlation of Fixed Effects:
-##           (Intr) linear
-## linear     0.858       
-## quadratic -0.617 -0.372
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model3lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}lme4\textquotesingle{}}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Analysis of Variance Table
-##           npar Sum Sq Mean Sq F value
-## linear       1 3434.6  3434.6 9812.68
-## quadratic    1  191.1   191.1  545.96
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model3lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Satt\textquotesingle{}}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## Type III Analysis of Variance Table with Satterthwaite's method
-##           Sum Sq Mean Sq NumDF  DenDF  F value    Pr(>F)    
-## linear    3544.8  3544.8     1 13.045 10127.45 < 2.2e-16 ***
-## quadratic  191.1   191.1     1 14.576   545.96  5.84e-13 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model3lmer, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Ken\textquotesingle{}}\NormalTok{)}
+\FunctionTok{anova}\NormalTok{(model2lmer\_quintic, }\AttributeTok{type =} \StringTok{\textquotesingle{}III\textquotesingle{}}\NormalTok{, }\AttributeTok{ddf =} \StringTok{\textquotesingle{}Ken\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
 ## Type III Analysis of Variance Table with Kenward-Roger's method
-##           Sum Sq Mean Sq NumDF DenDF  F value    Pr(>F)    
-## linear    3544.8  3544.8     1    13 10127.45 < 2.2e-16 ***
-## quadratic  191.1   191.1     1    13   545.96 5.293e-12 ***
+##            Sum Sq Mean Sq NumDF DenDF   F value    Pr(>F)    
+## linear    1186.82 1186.82     1    13 10293.880 < 2.2e-16 ***
+## quadratic   75.85   75.85     1    13   657.916 1.613e-12 ***
+## cubic        0.00    0.00     1    39     0.029    0.8657    
+## quartic      6.20    6.20     1    39    53.771 7.514e-09 ***
+## quintic      7.05    7.05     1    39    61.170 1.643e-09 ***
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{anova}\NormalTok{(model3lmer, model2lmer)}
+\FunctionTok{anova}\NormalTok{(model2lmer\_quartic, model2lmer\_quintic)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -2064,13 +1993,15 @@ Next we investigate whether we a cubic function or a simpler quadratic is enough
 \end{verbatim}
 
 \begin{verbatim}
-## Data: Loblolly
+## Data: Loblolly_poly
 ## Models:
-## model3lmer: height ~ linear + quadratic + (linear + quadratic | Seed)
-## model2lmer: height ~ linear + quadratic + cubic + (linear + quadratic + cubic | Seed)
-##            npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)
-## model3lmer   10 234.49 258.80 -107.24   214.49                     
-## model2lmer   15 243.71 280.17 -106.86   213.71 0.7787  5     0.9784
+## model2lmer_quartic: height ~ linear + quadratic + cubic + quartic + (linear + quadratic | Seed)
+## model2lmer_quintic: height ~ linear + quadratic + cubic + quartic + quintic + (linear + quadratic | Seed)
+##                    npar    AIC    BIC  logLik deviance  Chisq Df Pr(>Chisq)    
+## model2lmer_quartic   12 216.71 245.88 -96.355   192.71                         
+## model2lmer_quintic   13 175.16 206.76 -74.581   149.16 43.547  1  4.139e-11 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 \end{verbatim}
 
 As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest, we provide a bootstrap-based analysis using bootMer. The downside of bootMer is that it is slow due to the need to refit the linear mixed model for each bootstrap simulation. Below we perform 100 such bootstrap simulations of model2---which is not enough for precise answers---but it is enough to get a good idea that the cubic term is ignorable and that the other fixed effects are significant.
@@ -2078,16 +2009,106 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 \begin{Shaded}
 \begin{Highlighting}[]
 \NormalTok{fun }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(model) }\FunctionTok{summary}\NormalTok{(model)}\SpecialCharTok{$}\NormalTok{coefficients[,}\DecValTok{1}\NormalTok{]}
-\CommentTok{\#booted \textless{}{-} bootMer(model2lmer, fun, 100, type = \textquotesingle{}parametric\textquotesingle{})}
+\NormalTok{booted }\OtherTok{\textless{}{-}} \FunctionTok{bootMer}\NormalTok{(model2lmer\_quintic, fun, }\DecValTok{100}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}parametric\textquotesingle{}}\NormalTok{)}
 
 \FunctionTok{library}\NormalTok{(boot)}
-\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 1)}
-\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 2)}
-\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 3)}
-\CommentTok{\#boot.ci(booted, conf = 0.95, type = \textquotesingle{}basic\textquotesingle{}, index = 4)}
+\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{1}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 100 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 1)
+## 
+## Intervals : 
+## Level      Basic         
+## 95%   (31.69, 33.08 )  
+## Calculations and Intervals on Original Scale
+## Some basic intervals may be unstable
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 100 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 2)
+## 
+## Intervals : 
+## Level      Basic         
+## 95%   (182.8, 190.4 )  
+## Calculations and Intervals on Original Scale
+## Some basic intervals may be unstable
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 100 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 3)
+## 
+## Intervals : 
+## Level      Basic         
+## 95%   (-23.56, -20.45 )  
+## Calculations and Intervals on Original Scale
+## Some basic intervals may be unstable
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 100 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 4)
+## 
+## Intervals : 
+## Level      Basic         
+## 95%   (-0.7482,  0.8245 )  
+## Calculations and Intervals on Original Scale
+## Some basic intervals may be unstable
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{boot.ci}\NormalTok{(booted, }\AttributeTok{conf =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{type =} \StringTok{\textquotesingle{}basic\textquotesingle{}}\NormalTok{, }\AttributeTok{index =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## BOOTSTRAP CONFIDENCE INTERVAL CALCULATIONS
+## Based on 100 bootstrap replicates
+## 
+## CALL : 
+## boot.ci(boot.out = booted, conf = 0.95, type = "basic", index = 5)
+## 
+## Intervals : 
+## Level      Basic         
+## 95%   ( 1.855,  3.139 )  
+## Calculations and Intervals on Original Scale
+## Some basic intervals may be unstable
+\end{verbatim}
 
   \bibliography{book.bib,packages.bib}
 

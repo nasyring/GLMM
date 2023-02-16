@@ -416,7 +416,7 @@ ggplot(data = Loblolly) +
 Taking those poorly-fitting BLUPs into account, we fit a model with quadratic random effects. Our predictions look much more accurate after including these additional random effects.
 
 ```{r}
-model4lmer <- lmer(height ~ poly(age,5) + (poly(age,2) | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
+model4lmer <- lmer(height ~ poly(age,5) + (poly(age,2) | Seed), data = Loblolly)
 marginal.resids4 <- Loblolly$height - model.matrix(model4lmer, type = 'fixed')%*%fixef(model4lmer)
 Loblolly$fitted4 <- fitted(model4lmer)
 ggplot(data = Loblolly) + 
@@ -434,7 +434,6 @@ dim_cov <- dim(attr(VarCorr(model4lmer)[1]$Seed, 'correlation'))[1]
 psi_i <- as.matrix(VarCorr(model4lmer)[1]$Seed[1:dim_cov,1:dim_cov])
 psi <- bdiag_m(list(psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i,psi_i))
 inv_psi <- solve(psi)
-phi <- coef(model1$modelStruct$corStruct, unconstrained = FALSE)
 L <- (summary(model4lmer)$sigma^2)*diag(nrow(Loblolly))
 invL <- solve(L)
 A <- inv_psi+t(Z)%*%invL%*%Z
@@ -442,6 +441,7 @@ invA <- solve(A)
 P<-invL-invL%*%Z%*%invA%*%t(Z)%*%invL
 X <- as.matrix(model.matrix(model4lmer, type = 'fixed'))
 cov.beta.hat <- solve(t(X)%*%P%*%X)
+Sigma_e <- P-X%*%cov.beta.hat%*%t(X)
 Y <- Loblolly$height
 beta.hat <- cov.beta.hat%*%t(X)%*%P%*%Y
 Pi <- as.matrix(P)[1:6,1:6]
@@ -456,7 +456,11 @@ for(i in 1:14){
 }
 
 Loblolly$standardized_resids <- standardized_resids
+```
 
+Below we view boxplots of standardized marginal residuals by tree, sorting by least to greatest variability.  As a sanity check we also produce a reference plot of 14 boxplots of 6 standard normal random variates each.  This plot serves as a visual inspection to check whether or not the standardized marginal residuals appear to behave as realizations of standard normal random variables. There is slightly more variability in our standardized marginal residuals than in the exact standard normal samples, probably due mostly to a few poorly fitting observations, but nothing that causes us concern.  
+
+```{r}
 library(tidyverse)
 Loblolly<-Loblolly %>% 
   group_by(Seed) %>% 
@@ -484,7 +488,11 @@ fakedata<-fakedata %>%
 fakedata$X2 <- factor(fakedata$X2, ordered = FALSE, levels = unique(fakedata$X2))
 
 plot(fakedata$X2, fakedata$X1, xlab = 'random normals', ylab = 'sample standard deviation', ylim = c(-6,6))
+```
 
+We also compute standardized conditional residuals and compare them to a standard normal distribution.  A qq-plot suggests a reasonable match and the Shapiro-Wilk test for normality does not reject the supposition these residuals are standard normal. There does not seem to be substantial heteroskedasticity by age or tree that would suggest we modify our model for the covariance structure.
+
+```{r}
 B <- (diag(nrow(Loblolly)) - Z%*%invA%*%t(Z)%*%invL)
 P2 <- B%*%solve(P)%*%t(B)
 cholP2 <- t(solve(chol(P2)))
@@ -493,15 +501,13 @@ qqnorm(standardized_conditional_residuals)
 qqline(standardized_conditional_residuals)
 shapiro.test(as.numeric(standardized_conditional_residuals))
 
+Loblolly$standardized_conditional_residuals <- as.numeric(standardized_conditional_residuals)
+boxplot(standardized_conditional_residuals~Seed, data = Loblolly,xlab = 'Seed', ylab = 'standardized conditional residual', ylim = c(-3,3))
+
+boxplot(standardized_conditional_residuals~age, data = Loblolly)
 ```
 
-
-
-
-
-
-
-Next, we will discuss inference for fixed effects and model comparisons.
+Content with the fit of our model, we will next discuss inference for fixed effects and model comparisons.
 
 ## Inference for fixed effects, random effects, and model comparisons
 
@@ -529,56 +535,55 @@ The first question of interest, which we hinted at before, is whether or not we 
 anova(model1, model2)
 
 model2ml <- lme(height ~ poly(age,3), data = Loblolly,
-random = list(Seed = ~ poly(age,3)),
+random = list(Seed = ~ poly(age,2)),
 correlation = NULL, control = lmc, method = 'ML')
 summary(model2ml)
 
 model1ml <- lme(height ~ poly(age,3), data = Loblolly,
-random = list(Seed = ~ poly(age,3)),
+random = list(Seed = ~ poly(age,2)),
 correlation = corAR1(form = ~ age|Seed), control = lmc, method = 'ML')
 
 summary(model1ml)
 anova(model1ml, model2ml)
 ```
 
-Next we investigate whether we a cubic function or a simpler quadratic is enough to model the age-height relationship.  Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure.  It's clear that the cubic term provides no benefit, so we omit it and fit model3.  An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differeing fixed effects and refits those models by ML---how delightful.  Again, the simpler, quadratic model is clearly preferred. 
+Next we investigate whether a degree 5 or 4 polynomial is enough to model the age-height relationship.  Using lmerTest we can produce corrected p-values for each fixed effect within model2---the model with an iid residual error structure.  It's clear that the cubic term provides no benefit, so we omit it and fit model3.  An anova method is also included with lmer, and notice that lmer automatically recognizes we want to compare nested models with differing fixed effects and refits those models by ML---how delightful.  this time, the more complex 5th degree polynomial model is clearly preferred. 
 
 ```{r}
 summary(model2lmer)
 
 library(lmerTest)
-X <- poly(Loblolly$age,3)
-Loblolly$linear <- X[,1]
-Loblolly$quadratic <- X[,2]
-Loblolly$cubic <- X[,3]
-model2lmer <- lmer(height ~ linear+quadratic+cubic + (linear+quadratic+cubic | Seed), data = Loblolly, control = lmerControl(optimizer="Nelder_Mead", optCtrl = list(maxfun = 100000), check.conv.grad = .makeCC("warning", tol = 0.71, relTol = NULL)))
-summary(model2lmer)
+X5 <- poly(Loblolly$age,5)
+Loblolly_poly <- Loblolly
+Loblolly_poly$linear <- X5[,1]
+Loblolly_poly$quadratic <- X5[,2]
+Loblolly_poly$cubic <- X5[,3]
+Loblolly_poly$quartic <- X5[,4]
+Loblolly_poly$quintic <- X5[,5]
+model2lmer_quartic <- lmer(height ~ linear+quadratic+cubic+quartic + (linear+quadratic | Seed), data = Loblolly_poly)
+summary(model2lmer_quartic)
+model2lmer_quintic <- lmer(height ~ linear+quadratic+cubic+quartic+quintic + (linear+quadratic | Seed), data = Loblolly_poly)
+summary(model2lmer_quintic)
 
-anova(model2lmer, type = 'III', ddf = 'lme4')
-anova(model2lmer, type = 'III', ddf = 'Satt')
-anova(model2lmer, type = 'III', ddf = 'Ken')
+anova(model2lmer_quartic, type = 'III', ddf = 'Ken')
 
-model3lmer <- lmer(height ~ linear+quadratic + (linear+quadratic | Seed), data = Loblolly)
-summary(model3lmer)
+anova(model2lmer_quintic, type = 'III', ddf = 'Ken')
 
-anova(model3lmer, type = 'III', ddf = 'lme4')
-anova(model3lmer, type = 'III', ddf = 'Satt')
-anova(model3lmer, type = 'III', ddf = 'Ken')
-
-anova(model3lmer, model2lmer)
+anova(model2lmer_quartic, model2lmer_quintic)
 ```
 
 As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest, we provide a bootstrap-based analysis using bootMer.  The downside of bootMer is that it is slow due to the need to refit the linear mixed model for each bootstrap simulation.  Below we perform 100 such bootstrap simulations of model2---which is not enough for precise answers---but it is enough to get a good idea that the cubic term is ignorable and that the other fixed effects are significant.
 
 ```{r}
 fun <- function(model) summary(model)$coefficients[,1]
-#booted <- bootMer(model2lmer, fun, 100, type = 'parametric')
+booted <- bootMer(model2lmer_quintic, fun, 100, type = 'parametric')
 
 library(boot)
-#boot.ci(booted, conf = 0.95, type = 'basic', index = 1)
-#boot.ci(booted, conf = 0.95, type = 'basic', index = 2)
-#boot.ci(booted, conf = 0.95, type = 'basic', index = 3)
-#boot.ci(booted, conf = 0.95, type = 'basic', index = 4)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 1)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 2)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 3)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 4)
+boot.ci(booted, conf = 0.95, type = 'basic', index = 5)
 ```
 
 
