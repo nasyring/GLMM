@@ -255,7 +255,6 @@ ggplot(data = Loblolly) +
   geom_line(mapping = aes(x = age, y = height)) + 
   geom_point(mapping = aes(x = age, y = height)) + 
   facet_wrap(~ Seed, nrow = 2)
-
 ```
 
 To model the mean height behavior we might choose a, say, third degree polynomial function of age.  There are a few ways of doing this: specify a polynomial in age, a polynomial in {age  - mean(age)}, or a basis of orthogonal polynomials.  Both the second and third strategies are better than the first as coefficients of polynomial elements tend to be highly correlated unless those polynomial elements are orthogonal or the variable is centered.   
@@ -493,10 +492,11 @@ plot(fakedata$X2, fakedata$X1, xlab = 'random normals', ylab = 'sample standard 
 We also compute standardized conditional residuals and compare them to a standard normal distribution.  A qq-plot suggests a reasonable match and the Shapiro-Wilk test for normality does not reject the supposition these residuals are standard normal. There does not seem to be substantial heteroskedasticity by age or tree that would suggest we modify our model for the covariance structure.
 
 ```{r}
+model4lmer <- lmer(height ~ poly(age,5) + (poly(age,2) | Seed), data = Loblolly)
 B <- (diag(nrow(Loblolly)) - Z%*%invA%*%t(Z)%*%invL)
 P2 <- B%*%solve(P)%*%t(B)
 cholP2 <- t(solve(chol(P2)))
-standardized_conditional_residuals <- cholP2%*%(Y - Loblolly$fitted4)
+standardized_conditional_residuals <- cholP2%*%(Loblolly$height - fitted(model4lmer))
 qqnorm(standardized_conditional_residuals)
 qqline(standardized_conditional_residuals)
 shapiro.test(as.numeric(standardized_conditional_residuals))

@@ -1589,10 +1589,11 @@ We also compute standardized conditional residuals and compare them to a standar
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\NormalTok{model4lmer }\OtherTok{\textless{}{-}} \FunctionTok{lmer}\NormalTok{(height }\SpecialCharTok{\textasciitilde{}} \FunctionTok{poly}\NormalTok{(age,}\DecValTok{5}\NormalTok{) }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{poly}\NormalTok{(age,}\DecValTok{2}\NormalTok{) }\SpecialCharTok{|}\NormalTok{ Seed), }\AttributeTok{data =}\NormalTok{ Loblolly)}
 \NormalTok{B }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{diag}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Loblolly)) }\SpecialCharTok{{-}}\NormalTok{ Z}\SpecialCharTok{\%*\%}\NormalTok{invA}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(Z)}\SpecialCharTok{\%*\%}\NormalTok{invL)}
 \NormalTok{P2 }\OtherTok{\textless{}{-}}\NormalTok{ B}\SpecialCharTok{\%*\%}\FunctionTok{solve}\NormalTok{(P)}\SpecialCharTok{\%*\%}\FunctionTok{t}\NormalTok{(B)}
 \NormalTok{cholP2 }\OtherTok{\textless{}{-}} \FunctionTok{t}\NormalTok{(}\FunctionTok{solve}\NormalTok{(}\FunctionTok{chol}\NormalTok{(P2)))}
-\NormalTok{standardized\_conditional\_residuals }\OtherTok{\textless{}{-}}\NormalTok{ cholP2}\SpecialCharTok{\%*\%}\NormalTok{(Y }\SpecialCharTok{{-}}\NormalTok{ Loblolly}\SpecialCharTok{$}\NormalTok{fitted4)}
+\NormalTok{standardized\_conditional\_residuals }\OtherTok{\textless{}{-}}\NormalTok{ cholP2}\SpecialCharTok{\%*\%}\NormalTok{(Loblolly}\SpecialCharTok{$}\NormalTok{height }\SpecialCharTok{{-}} \FunctionTok{fitted}\NormalTok{(model4lmer))}
 \FunctionTok{qqnorm}\NormalTok{(standardized\_conditional\_residuals)}
 \FunctionTok{qqline}\NormalTok{(standardized\_conditional\_residuals)}
 \end{Highlighting}
@@ -1611,7 +1612,7 @@ We also compute standardized conditional residuals and compare them to a standar
 ##  Shapiro-Wilk normality test
 ## 
 ## data:  as.numeric(standardized_conditional_residuals)
-## W = 0.6446, p-value = 5.953e-13
+## W = 0.97853, p-value = 0.1735
 \end{verbatim}
 
 \begin{Shaded}
@@ -2025,7 +2026,7 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (31.69, 33.08 )  
+## 95%   (31.53, 33.22 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable
 \end{verbatim}
@@ -2045,7 +2046,7 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (182.8, 190.4 )  
+## 95%   (182.4, 190.4 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable
 \end{verbatim}
@@ -2065,7 +2066,7 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (-23.56, -20.45 )  
+## 95%   (-23.66, -20.11 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable
 \end{verbatim}
@@ -2085,7 +2086,7 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   (-0.7482,  0.8245 )  
+## 95%   (-0.8000,  0.7285 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable
 \end{verbatim}
@@ -2105,7 +2106,7 @@ As an alternative to Chi-squared/F-based tests performed using NLME or lmerTest,
 ## 
 ## Intervals : 
 ## Level      Basic         
-## 95%   ( 1.855,  3.139 )  
+## 95%   ( 1.916,  3.145 )  
 ## Calculations and Intervals on Original Scale
 ## Some basic intervals may be unstable
 \end{verbatim}
